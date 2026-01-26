@@ -1,11 +1,16 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { User } from "@/lib/User";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import { createUserWithEmailAndPassword } from "firebase/auth";
+import { auth, db } from "@/lib/firebase";
+import { doc, setDoc, serverTimestamp } from "firebase/firestore";
 
 export default function RegisterPage() {
+  const router = useRouter();
   const [formData, setFormData] = useState({
     firstName: "",
     middleName: "",
@@ -25,6 +30,7 @@ export default function RegisterPage() {
     confirmPassword: "",
     passport: null as File | null,
   });
+  const [loading, setLoading] = useState(false);
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
@@ -39,11 +45,20 @@ export default function RegisterPage() {
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setLoading(true);
 
     try {
-      // Create user using the Builder pattern
+      if (formData.password !== formData.confirmPassword) {
+          throw new Error("Passwords do not match");
+      }
+
+      // 1. Create User in Firebase Auth
+      const userCredential = await createUserWithEmailAndPassword(auth, formData.email, formData.password);
+      const uid = userCredential.user.uid;
+
+      // 2. Create user object using the Builder pattern
       const newUser = User.builder()
         .setFirstName(formData.firstName)
         .setMiddleName(formData.middleName)
@@ -59,16 +74,31 @@ export default function RegisterPage() {
         .setAccountType(formData.accountType)
         .setCurrency(formData.currency)
         .setSsnPin(formData.ssnPin)
-        .setPassword(formData.password)
-        // Note: In a real app, you would upload the file first and get a URL
-        .setPassportUrl(formData.passport ? formData.passport.name : "")
+        .setRole("user") // Default role
+        // Note: In a real app, upload file to storage and get URL
+        .setPassportUrl(formData.passport ? formData.passport.name : "") 
         .build();
 
-      console.log("User created successfully with Builder:", newUser);
-      alert("User created successfully! Check console for details.");
+      // 3. Save extra details to Firestore
+      // We don't save password in Firestore
+      const { password, ...userData } = newUser;
+      
+      await setDoc(doc(db, "users", uid), {
+          ...userData,
+          createdAt: serverTimestamp(),
+          balance: 0, // Initialize balance
+          blocked: false
+      });
+
+      console.log("User created successfully:", newUser);
+      alert("Account created successfully!");
+      router.push("/dashboard");
+
     } catch (error) {
       console.error("Error creating user:", error);
       alert(error instanceof Error ? error.message : "An error occurred");
+    } finally {
+      setLoading(false);
     }
   };
 

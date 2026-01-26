@@ -2,23 +2,39 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { signInWithEmailAndPassword } from "firebase/auth";
+import { auth } from "@/lib/firebase";
 import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
 
 export default function LoginPage() {
+  const router = useRouter();
   const [formData, setFormData] = useState({
-    accountNumber: "",
+    email: "",
     password: "",
   });
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log(formData);
+    setError("");
+    setLoading(true);
+
+    try {
+      await signInWithEmailAndPassword(auth, formData.email, formData.password);
+      router.push("/dashboard");
+    } catch (err: any) {
+      console.error(err);
+      setError("Invalid credentials. Please try again.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -26,7 +42,7 @@ export default function LoginPage() {
       <Navbar />
       <div className="min-h-screen grid grid-cols-1 md:grid-cols-2 bg-gray-50">
         {/* LEFT SECTION */}
-        <div className="flex flex-col justify-center px-6 md:px-12">
+        <div className="flex flex-col justify-center px-6 md:px-12 py-12">
           {/* Logo */}
           <div className="mb-6">
             <img src="/logo.png" alt="Spring Bank Logo" className="h-12" />
@@ -36,19 +52,26 @@ export default function LoginPage() {
 
           <p className="text-sm text-gray-600 mb-6 border-l-4 border-blue-600 pl-3">
             Access the Spring Credit Union online banking panel using your
-            Account Number and password.
+            Email Address and password.
           </p>
 
+          {error && (
+            <div className="bg-red-50 text-red-600 p-3 rounded mb-4 text-sm border border-red-200">
+              {error}
+            </div>
+          )}
+
           <form onSubmit={handleSubmit} className="space-y-4 max-w-sm">
-            {/* Account Number */}
+            {/* Email */}
             <div>
-              <label className="text-sm font-medium">Account Number</label>
+              <label className="text-sm font-medium">Email Address</label>
               <input
-                type="text"
-                name="accountNumber"
-                placeholder="Enter your Account Number"
-                className="input mt-1"
+                type="email"
+                name="email"
+                placeholder="Enter your Email Address"
+                className="input mt-1 w-full px-4 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:outline-none"
                 onChange={handleChange}
+                required
               />
             </div>
 
@@ -67,17 +90,19 @@ export default function LoginPage() {
                 type="password"
                 name="password"
                 placeholder="Enter your password"
-                className="input mt-1"
+                className="input mt-1 w-full px-4 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:outline-none"
                 onChange={handleChange}
+                required
               />
             </div>
 
             {/* Continue Button */}
             <button
               type="submit"
-              className="w-full bg-blue-700 text-white py-2 rounded font-medium"
+              disabled={loading}
+              className="w-full bg-blue-700 text-white py-2 rounded font-medium hover:bg-blue-800 transition-colors disabled:opacity-70"
             >
-              Continue
+              {loading ? "Signing in..." : "Continue"}
             </button>
 
             {/* Open Account */}
