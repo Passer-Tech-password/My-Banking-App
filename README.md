@@ -1,36 +1,136 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Banking System Web App 🏦
 
-## Getting Started
+A modern banking system simulation built with **Next.js**, **TypeScript**, **Tailwind CSS**, and **Firebase**.
 
-First, run the development server:
+This project demonstrates real-world fintech concepts such as authentication, protected routes, per-user data storage, transaction handling, and responsive UI design.
 
+---
+
+## 🚀 Features
+
+- User registration & login (Firebase Authentication)
+- Protected dashboard routes
+- Account balance management
+- Deposit & withdrawal functionality
+- Transaction history (mini statement)
+- Per-user data persistence with Firestore
+- Mobile-first responsive design
+- Clean and scalable project structure
+
+---
+
+## 🛠️ Tech Stack
+
+- **Frontend:** Next.js (App Router), TypeScript
+- **Styling:** Tailwind CSS
+- **Backend / BaaS:** Firebase
+- **Authentication:** Firebase Auth
+- **Database:** Firebase Firestore
+- **Deployment:** Vercel (ready)
+
+---
+
+## 📂 Project Structure
+
+src/
+├── app/
+│ ├── login/
+│ ├── register/
+│ ├── dashboard/
+│ └── layout.tsx
+├── components/
+│ └── Navbar.tsx
+├── lib/
+│ └── firebase.ts
+└── styles/
+
+yaml
+Copy code
+
+---
+
+## 🔐 Authentication Flow
+
+- Users register or login using email & password
+- Firebase Authentication manages sessions
+- Unauthenticated users are redirected to login
+- Each user has isolated banking data
+
+---
+
+## 📊 Firestore Data Model
+
+users
+└── userId
+├── balance
+├── createdAt
+
+transactions
+└── transactionId
+├── userId
+├── type
+├── amount
+├── date
+
+yaml
+Copy code
+
+---
+
+## ▶️ Getting Started
+
+### 1. Clone the repo
 ```bash
+git clone https://github.com/your-username/your-repo-name.git
+2. Install dependencies
+bash
+Copy code
+npm install
+3. Add Firebase config
+Create .env.local and add your Firebase keys.
+
+4. Run locally
+bash
+Copy code
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+⚠️ Disclaimer
+This is a banking system simulation built for learning and portfolio purposes.
+No real financial transactions are processed.
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+📌 Future Improvements
+Money transfer between users
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Admin dashboard
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Charts & analytics
 
-## Learn More
+Firestore security rules hardening
 
-To learn more about Next.js, take a look at the following resources:
+Dark mode
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+👨‍💻 Author
+Clement Simeon
+Built as a real-world fintech portfolio project.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+yaml
+Copy code
 
-## Deploy on Vercel
+---
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## ✅ Other VERY IMPORTANT Things to Add to Your Repo
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+### 1️⃣ `.gitignore`
+Make sure it includes:
+.env.local
+node_modules
+.next
+
+yaml
+Copy code
+
+⚠️ **Never push Firebase keys to GitHub**
+
+---
+
+### 2️⃣ Environment Variables Example
+Create:
