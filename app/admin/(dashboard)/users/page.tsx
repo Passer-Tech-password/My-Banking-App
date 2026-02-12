@@ -3,11 +3,11 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { onAuthStateChanged } from "firebase/auth";
-import { collection, getDocs, query, doc, updateDoc, deleteDoc, runTransaction } from "firebase/firestore";
+import { collection, getDocs, query, doc, updateDoc, deleteDoc } from "firebase/firestore";
 import { auth, db } from "@/lib/firebase";
 import UserTable, { UserData } from "@/components/UserTable";
-import { MagnifyingGlassIcon, XMarkIcon } from "@heroicons/react/24/outline";
-import { Transaction } from "@/lib/Transaction";
+import FundUserModal from "@/components/FundUserModal";
+import { MagnifyingGlassIcon } from "@heroicons/react/24/outline";
 
 export default function UsersPage() {
   const router = useRouter();
@@ -18,9 +18,6 @@ export default function UsersPage() {
   // Fund Modal State
   const [fundModalOpen, setFundModalOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState<UserData | null>(null);
-  const [fundAmount, setFundAmount] = useState("");
-  const [fundType, setFundType] = useState<"credit" | "debit">("credit");
-  const [fundLoading, setFundLoading] = useState(false);
 
   useEffect(() => {
     const unsub = onAuthStateChanged(auth, async (user) => {
@@ -77,76 +74,11 @@ export default function UsersPage() {
 
   const openFundModal = (user: UserData) => {
     setSelectedUser(user);
-    setFundAmount("");
-    setFundType("credit");
     setFundModalOpen(true);
   };
 
-  const handleFundUser = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!selectedUser || !fundAmount) return;
-
-    const amount = parseFloat(fundAmount);
-    if (isNaN(amount) || amount <= 0) {
-      alert("Please enter a valid amount");
-      return;
-    }
-
-    setFundLoading(true);
-    try {
-      await runTransaction(db, async (transaction) => {
-        const userRef = doc(db, "users", selectedUser.id);
-        const userDoc = await transaction.get(userRef);
-        
-        if (!userDoc.exists()) {
-          throw new Error("User does not exist!");
-        }
-
-        const currentBalance = userDoc.data().balance || 0;
-        const newBalance = fundType === "credit" 
-          ? currentBalance + amount 
-          : currentBalance - amount;
-
-        // Create transaction record
-        const newTxRef = doc(collection(db, "transactions"));
-        
-        // Save transaction
-        transaction.set(newTxRef, {
-            type: fundType,
-            amount: amount,
-            userId: selectedUser.id,
-            status: "completed",
-            direction: fundType === "credit" ? "incoming" : "outgoing",
-            description: `Admin ${fundType === "credit" ? "Deposit" : "Withdrawal"}`,
-            senderName: fundType === "credit" ? "Spring Admin" : selectedUser.firstName,
-            receiverName: fundType === "credit" ? selectedUser.firstName : "Spring Admin",
-            date: new Date().toISOString()
-        });
-
-        // Update user balance
-        transaction.update(userRef, { balance: newBalance });
-      });
-
-      // Update local state
-      setUsers(users.map(u => {
-        if (u.id === selectedUser.id) {
-            const currentBalance = u.balance || 0;
-            return {
-                ...u,
-                balance: fundType === "credit" ? currentBalance + amount : currentBalance - amount
-            };
-        }
-        return u;
-      }));
-
-      setFundModalOpen(false);
-      alert(`Successfully ${fundType === "credit" ? "credited" : "debited"} $${amount}`);
-    } catch (error) {
-      console.error("Transaction failed:", error);
-      alert("Transaction failed. Check console for details.");
-    } finally {
-      setFundLoading(false);
-    }
+  const handleFundSuccess = (updatedUser: UserData) => {
+    setUsers(users.map(u => u.id === updatedUser.id ? updatedUser : u));
   };
 
   const filteredUsers = users.filter(user => 
@@ -190,84 +122,12 @@ export default function UsersPage() {
       </div>
 
       {/* Fund Modal */}
-      {fundModalOpen && selectedUser && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50">
-          <div className="bg-white rounded-xl shadow-xl w-full max-w-md overflow-hidden">
-            <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between bg-gray-50">
-              <h3 className="text-lg font-semibold text-gray-900">Manage Balance</h3>
-              <button onClick={() => setFundModalOpen(false)} className="text-gray-400 hover:text-gray-500">
-                <XMarkIcon className="w-5 h-5" />
-              </button>
-            </div>
-            
-            <form onSubmit={handleFundUser} className="p-6 space-y-4">
-              <div className="bg-blue-50 p-4 rounded-lg">
-                <p className="text-sm text-blue-600 mb-1">Current Balance</p>
-                <p className="text-2xl font-bold text-blue-900">
-                  ${selectedUser.balance?.toLocaleString() || "0.00"}
-                </p>
-                <p className="text-xs text-blue-400 mt-1">User: {selectedUser.firstName} {selectedUser.lastName}</p>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Action Type</label>
-                <div className="grid grid-cols-2 gap-3">
-                  <button
-                    type="button"
-                    onClick={() => setFundType("credit")}
-                    className={`py-2 px-4 rounded-lg border font-medium transition-colors ${
-                      fundType === "credit"
-                        ? "bg-green-600 border-green-600 text-white"
-                        : "bg-white border-gray-200 text-gray-600 hover:bg-gray-50"
-                    }`}
-                  >
-                    Credit (Deposit)
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setFundType("debit")}
-                    className={`py-2 px-4 rounded-lg border font-medium transition-colors ${
-                      fundType === "debit"
-                        ? "bg-red-600 border-red-600 text-white"
-                        : "bg-white border-gray-200 text-gray-600 hover:bg-gray-50"
-                    }`}
-                  >
-                    Debit (Withdraw)
-                  </button>
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Amount ($)</label>
-                <input
-                  type="number"
-                  step="0.01"
-                  min="0"
-                  required
-                  value={fundAmount}
-                  onChange={(e) => setFundAmount(e.target.value)}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
-                  placeholder="0.00"
-                />
-              </div>
-
-              <div className="pt-2">
-                <button
-                  type="submit"
-                  disabled={fundLoading}
-                  className={`w-full py-3 rounded-lg text-white font-medium shadow-sm transition-all ${
-                    fundType === "credit" 
-                      ? "bg-green-600 hover:bg-green-700" 
-                      : "bg-red-600 hover:bg-red-700"
-                  } disabled:opacity-50 disabled:cursor-not-allowed`}
-                >
-                  {fundLoading ? "Processing..." : `Confirm ${fundType === "credit" ? "Deposit" : "Withdrawal"}`}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
+      <FundUserModal
+        user={selectedUser}
+        isOpen={fundModalOpen}
+        onClose={() => setFundModalOpen(false)}
+        onSuccess={handleFundSuccess}
+      />
     </div>
   );
 }

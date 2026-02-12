@@ -44,60 +44,22 @@ export default function AdminLoginPage() {
       
       if (userDoc.exists()) {
         const userData = userDoc.data();
-        if (userData.role === "admin" || email === "passertech@gmail.com") {
+        if (userData.role === "admin") {
            router.push("/admin/dashboard");
         } else {
-           // Fallback for demo: if email contains 'admin', let them in
-           if (email.includes("admin")) {
-              router.push("/admin/dashboard");
-           } else {
-              setError("Access denied. Not an admin account.");
-              await auth.signOut();
-           }
+           setError("Access denied. Not an admin account.");
+           await auth.signOut();
         }
       } else {
-         // If no user doc, but authenticated, check email pattern
-         if (email.includes("admin") || email === "passertech@gmail.com") {
-             router.push("/admin/dashboard");
-         } else {
-             setError("Access denied. No user profile found.");
-             await auth.signOut();
-         }
+         setError("Access denied. No user profile found.");
+         await auth.signOut();
       }
 
     } catch (err: any) {
       console.error("Login error:", err);
       
-      const email = formData.email.trim();
-      
-      // Auto-create admin user if it doesn't exist and matches the specific email
-      if (email === "passertech@gmail.com") {
-        try {
-          const userCredential = await createUserWithEmailAndPassword(auth, email, formData.password);
-          // Create admin profile
-          await setDoc(doc(db, "users", userCredential.user.uid), {
-            email: email,
-            role: "admin",
-            firstName: "Passer",
-            lastName: "Tech",
-            createdAt: serverTimestamp(),
-            balance: 0,
-            blocked: false
-          });
-          router.push("/admin/dashboard");
-          return;
-        } catch (createErr: any) {
-          // If create fails (e.g. wrong password for existing user), show original error
-          console.error("Auto-creation failed:", createErr);
-          if (createErr.code === 'auth/email-already-in-use') {
-            setError("Account exists with a different password. Please try a different email (e.g. admin2@gmail.com).");
-            return;
-          }
-        }
-      }
-
       if (err.code === 'auth/invalid-credential') {
-         setError("Invalid email or password. If you haven't created an account, try a different email.");
+         setError("Invalid email or password.");
       } else {
          setError("Login failed. Please try again.");
       }
