@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { XMarkIcon } from "@heroicons/react/24/outline";
+import { useState, FormEvent, useEffect, useRef } from "react";
+import { XMarkIcon, CheckCircleIcon, ExclamationCircleIcon } from "@heroicons/react/24/outline";
 import { doc, collection, runTransaction } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { UserData } from "@/components/UserTable";
@@ -18,15 +18,26 @@ export default function FundUserModal({ user, isOpen, onClose, onSuccess }: Fund
   const [amount, setAmount] = useState("");
   const [type, setType] = useState<"credit" | "debit">("credit");
   const [loading, setLoading] = useState(false);
+  const [feedback, setFeedback] = useState<{ type: "success" | "error"; message: string } | null>(null);
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+    };
+  }, []);
 
   if (!isOpen || !user) return null;
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
+    setFeedback(null);
     const fundAmount = parseFloat(amount);
     
     if (isNaN(fundAmount) || fundAmount <= 0) {
-      alert("Please enter a valid amount");
+      setFeedback({ type: "error", message: "Please enter a valid amount" });
       return;
     }
 
@@ -72,13 +83,15 @@ export default function FundUserModal({ user, isOpen, onClose, onSuccess }: Fund
       };
 
       onSuccess(updatedUser);
-      onClose();
       setAmount("");
-      alert(`Successfully ${type === "credit" ? "credited" : "debited"} $${fundAmount}`);
+      setFeedback({ type: "success", message: `Successfully ${type === "credit" ? "credited" : "debited"} $${fundAmount}` });
+      
+      timeoutRef.current = setTimeout(() => {
+        onClose();
+      }, 1500);
     } catch (error) {
       console.error("Transaction failed:", error);
-      alert("Transaction failed. Check console for details.");
-    } finally {
+      setFeedback({ type: "error", message: "Transaction failed. Check console for details." });
       setLoading(false);
     }
   };
@@ -94,6 +107,21 @@ export default function FundUserModal({ user, isOpen, onClose, onSuccess }: Fund
         </div>
         
         <form onSubmit={handleSubmit} className="p-6 space-y-4">
+          {feedback && (
+            <div 
+              role="alert" 
+              aria-live="polite"
+              className={`p-3 rounded-lg flex items-center gap-2 text-sm ${
+              feedback.type === "success" ? "bg-green-50 text-green-700" : "bg-red-50 text-red-700"
+            }`}>
+              {feedback.type === "success" ? (
+                <CheckCircleIcon className="w-5 h-5 flex-shrink-0" />
+              ) : (
+                <ExclamationCircleIcon className="w-5 h-5 flex-shrink-0" />
+              )}
+              {feedback.message}
+            </div>
+          )}
           <div className="bg-blue-50 p-4 rounded-lg">
             <p className="text-sm text-blue-600 mb-1">Current Balance</p>
             <p className="text-2xl font-bold text-blue-900">
