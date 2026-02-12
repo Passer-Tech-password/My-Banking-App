@@ -41,7 +41,7 @@ export class TransactionBuilder {
   userId: string = "";
   type: TransactionType = "Deposit";
   amount: number = 0;
-  date: string = new Date().toLocaleString();
+  date: string = new Date().toISOString();
   description?: string;
   status: "pending" | "completed" | "failed" = "completed";
 

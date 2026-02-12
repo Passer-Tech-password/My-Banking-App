@@ -4,35 +4,24 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
   collection,
-  addDoc,
   doc,
   getDoc,
   setDoc,
   query,
   where,
   getDocs,
+  runTransaction,
   serverTimestamp,
 } from "firebase/firestore";
 import { auth, db } from "@/lib/firebase";
 import { onAuthStateChanged } from "firebase/auth";
 import { Transaction } from "@/lib/Transaction";
-
-// Icons
-const PlusIcon = ({ className }: { className?: string }) => (
-  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className={className}>
-    <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
-  </svg>
-);
-const MinusIcon = ({ className }: { className?: string }) => (
-  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className={className}>
-    <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 12h-15" />
-  </svg>
-);
-const ArrowUpRightIcon = ({ className }: { className?: string }) => (
-  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className={className}>
-    <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 19.5l15-15m0 0H8.25m11.25 0v11.25" />
-  </svg>
-);
+import { 
+  PlusIcon, 
+  MinusIcon, 
+  ArrowUpRightIcon, 
+  UserCircleIcon 
+} from "@heroicons/react/24/outline";
 
 export default function DashboardPage() {
   const router = useRouter();
@@ -94,20 +83,45 @@ export default function DashboardPage() {
         .setUserId(userId)
         .setType(type)
         .setAmount(amount)
-        .setDate(new Date().toLocaleString())
+        .setDate(new Date().toISOString())
         .setStatus("completed")
         .setDescription(`${type} via Dashboard`)
         .build();
 
-      await addDoc(collection(db, "transactions"), newTx.toFirestore());
+      await runTransaction(db, async (transaction) => {
+        const userRef = doc(db, "users", userId);
+        const userDoc = await transaction.get(userRef);
 
-      const userRef = doc(db, "users", userId);
-      let newBalance = balance;
-      if (type === "Deposit") newBalance += amount;
-      else newBalance -= amount;
-      
-      await setDoc(userRef, { balance: newBalance }, { merge: true });
-      setTransactions([newTx, ...transactions]);
+        if (!userDoc.exists()) {
+          throw new Error("User does not exist!");
+        }
+
+        const currentBalance = userDoc.data().balance || 0;
+        let newBalance = currentBalance;
+        
+        if (type === "Deposit") {
+          newBalance += amount;
+        } else {
+          if (currentBalance < amount) {
+             throw new Error("Insufficient funds for atomic transaction");
+          }
+          newBalance -= amount;
+        }
+
+        // Add transaction
+        const newTxRef = doc(collection(db, "transactions"));
+        transaction.set(newTxRef, newTx.toFirestore());
+
+        // Update user balance
+        transaction.update(userRef, { balance: newBalance });
+      });
+
+      // Update local state
+      setBalance(prev => {
+        if (type === "Deposit") return prev + amount;
+        return prev - amount;
+      });
+      setTransactions(prev => [newTx, ...prev]);
 
     } catch (e) {
       console.error("Transaction failed:", e);
@@ -117,8 +131,6 @@ export default function DashboardPage() {
 
   const deposit = async () => {
     const amount = 1000;
-    const newBalance = balance + amount;
-    setBalance(newBalance);
     await saveTransaction("Deposit", amount);
   };
 
@@ -128,8 +140,6 @@ export default function DashboardPage() {
       alert("Insufficient funds");
       return;
     }
-    const newBalance = balance - amount;
-    setBalance(newBalance);
     await saveTransaction("Withdrawal", amount);
   };
 
@@ -376,9 +386,4 @@ export default function DashboardPage() {
   );
 }
 
-// Helper for icon (since I can't import the same one twice in different scopes easily without refactoring imports)
-const UserCircleIcon = ({ className }: { className?: string }) => (
-  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className={className}>
-    <path strokeLinecap="round" strokeLinejoin="round" d="M17.982 18.725A7.488 7.488 0 0012 15.75a7.488 7.488 0 00-5.982 2.975m11.963 0a9 9 0 10-11.963 0m11.963 0A8.966 8.966 0 0112 21a8.966 8.966 0 01-5.982-2.275M15 9.75a3 3 0 11-6 0 3 3 0 016 0z" />
-  </svg>
-);
+
