@@ -73,7 +73,7 @@ export default function DashboardPage() {
   }, [router]);
 
   const saveTransaction = async (
-    type: "Deposit" | "Withdrawal",
+    type: "deposit" | "withdrawal",
     amount: number
   ) => {
     if (!userId) return;
@@ -85,7 +85,7 @@ export default function DashboardPage() {
         .setAmount(amount)
         .setDate(new Date().toISOString())
         .setStatus("completed")
-        .setDescription(`${type} via Dashboard`)
+        .setDescription(`${type.charAt(0).toUpperCase() + type.slice(1)} via Dashboard`)
         .build();
 
       await runTransaction(db, async (transaction) => {
@@ -99,7 +99,7 @@ export default function DashboardPage() {
         const currentBalance = userDoc.data().balance || 0;
         let newBalance = currentBalance;
         
-        if (type === "Deposit") {
+        if (type === "deposit") {
           newBalance += amount;
         } else {
           if (currentBalance < amount) {
@@ -118,7 +118,7 @@ export default function DashboardPage() {
 
       // Update local state
       setBalance(prev => {
-        if (type === "Deposit") return prev + amount;
+        if (type === "deposit") return prev + amount;
         return prev - amount;
       });
       setTransactions(prev => [newTx, ...prev]);
@@ -131,7 +131,7 @@ export default function DashboardPage() {
 
   const deposit = async () => {
     const amount = 1000;
-    await saveTransaction("Deposit", amount);
+    await saveTransaction("deposit", amount);
   };
 
   const withdraw = async () => {
@@ -140,7 +140,7 @@ export default function DashboardPage() {
       alert("Insufficient funds");
       return;
     }
-    await saveTransaction("Withdrawal", amount);
+    await saveTransaction("withdrawal", amount);
   };
 
   if (loading) {
@@ -269,9 +269,9 @@ export default function DashboardPage() {
                       <tr key={tx.id || idx} className="hover:bg-gray-50 transition-colors">
                         <td className="px-6 py-4 font-medium text-gray-900 flex items-center gap-3">
                           <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
-                            tx.type === "Deposit" ? "bg-green-100 text-green-600" : "bg-red-100 text-red-600"
+                            ["deposit", "credit"].includes(tx.type) ? "bg-green-100 text-green-600" : "bg-red-100 text-red-600"
                           }`}>
-                            {tx.type === "Deposit" ? <PlusIcon className="w-4 h-4" /> : <MinusIcon className="w-4 h-4" />}
+                            {["deposit", "credit"].includes(tx.type) ? <PlusIcon className="w-4 h-4" /> : <MinusIcon className="w-4 h-4" />}
                           </div>
                           {tx.description || tx.type}
                         </td>
@@ -285,9 +285,9 @@ export default function DashboardPage() {
                           </span>
                         </td>
                         <td className={`px-6 py-4 text-right font-semibold ${
-                          tx.type === "Deposit" ? "text-green-600" : "text-gray-900"
+                          ["deposit", "credit"].includes(tx.type) ? "text-green-600" : "text-gray-900"
                         }`}>
-                          {tx.type === "Deposit" ? "+" : "-"}${tx.amount.toLocaleString()}
+                          {["deposit", "credit"].includes(tx.type) ? "+" : "-"}${tx.amount.toLocaleString()}
                         </td>
                       </tr>
                     ))

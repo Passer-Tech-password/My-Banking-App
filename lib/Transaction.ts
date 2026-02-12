@@ -1,4 +1,6 @@
-export type TransactionType = "Deposit" | "Withdrawal";
+export type TransactionType = "deposit" | "withdrawal" | "transfer" | "credit" | "debit";
+export type TransactionDirection = "incoming" | "outgoing";
+export type TransactionStatus = "pending" | "completed" | "failed" | "success";
 
 export class Transaction {
   id?: string;
@@ -7,7 +9,10 @@ export class Transaction {
   amount: number;
   date: string;
   description?: string;
-  status: "pending" | "completed" | "failed";
+  status: TransactionStatus;
+  direction?: TransactionDirection;
+  senderName?: string;
+  receiverName?: string;
 
   constructor(builder: TransactionBuilder) {
     this.id = builder.id;
@@ -17,6 +22,13 @@ export class Transaction {
     this.date = builder.date;
     this.description = builder.description;
     this.status = builder.status;
+    this.direction = builder.direction;
+    this.senderName = builder.senderName;
+    this.receiverName = builder.receiverName;
+  }
+
+  static get Builder() {
+    return TransactionBuilder;
   }
 
   static builder(): TransactionBuilder {
@@ -25,7 +37,7 @@ export class Transaction {
 
   // Convert to plain object for Firestore
   toFirestore() {
-    return {
+    const data: any = {
       userId: this.userId,
       type: this.type,
       amount: this.amount,
@@ -33,17 +45,24 @@ export class Transaction {
       description: this.description || "",
       status: this.status,
     };
+    if (this.direction) data.direction = this.direction;
+    if (this.senderName) data.senderName = this.senderName;
+    if (this.receiverName) data.receiverName = this.receiverName;
+    return data;
   }
 }
 
 export class TransactionBuilder {
   id?: string;
   userId: string = "";
-  type: TransactionType = "Deposit";
+  type: TransactionType = "deposit";
   amount: number = 0;
   date: string = new Date().toISOString();
   description?: string;
-  status: "pending" | "completed" | "failed" = "completed";
+  status: TransactionStatus = "completed";
+  direction?: TransactionDirection;
+  senderName?: string;
+  receiverName?: string;
 
   setId(id: string): TransactionBuilder {
     this.id = id;
@@ -76,8 +95,23 @@ export class TransactionBuilder {
     return this;
   }
 
-  setStatus(status: "pending" | "completed" | "failed"): TransactionBuilder {
+  setStatus(status: TransactionStatus): TransactionBuilder {
     this.status = status;
+    return this;
+  }
+
+  setDirection(direction: TransactionDirection): TransactionBuilder {
+    this.direction = direction;
+    return this;
+  }
+
+  setSenderName(name: string): TransactionBuilder {
+    this.senderName = name;
+    return this;
+  }
+
+  setReceiverName(name: string): TransactionBuilder {
+    this.receiverName = name;
     return this;
   }
 

@@ -18,7 +18,6 @@ export default function Navbar() {
   const navLinks = [
     { name: "Home", href: "/" },
     { name: "About Us", href: "/about" },
-    { name: "Personal Banking", href: "/personal" },
     { name: "Contact Us", href: "/contact-us" },
   ];
 

@@ -14,7 +14,9 @@ export default function AdminLayout({
   return (
     <div className="flex h-screen bg-gray-50 overflow-hidden">
       {/* Sidebar - Desktop */}
-      <AdminSidebar />
+      <div className="hidden lg:block">
+        <AdminSidebar />
+      </div>
 
       {/* Main Content Area */}
       <div className="flex-1 flex flex-col min-w-0 overflow-hidden lg:pl-64 transition-all duration-300">
@@ -29,19 +31,15 @@ export default function AdminLayout({
         </main>
       </div>
 
-      {/* Mobile Sidebar Overlay (Simple implementation for now) */}
+      {/* Mobile Sidebar Overlay */}
       {mobileMenuOpen && (
         <div className="fixed inset-0 z-40 lg:hidden" role="dialog" aria-modal="true">
           <div 
             className="fixed inset-0 bg-gray-600 bg-opacity-75 transition-opacity" 
             onClick={() => setMobileMenuOpen(false)}
           ></div>
-          <div className="fixed inset-y-0 left-0 z-40 w-64 bg-slate-900 shadow-xl transition transform duration-300 ease-in-out">
-             {/* Re-use Sidebar content or just import it if it accepts props to handle close */}
-             <div className="h-full flex flex-col text-white p-4">
-                <span className="font-bold text-xl mb-4">Admin Menu</span>
-                <p>Use Desktop for full experience</p>
-             </div>
+          <div className="fixed inset-y-0 left-0 z-40 w-64 bg-blue-900 shadow-xl transition transform duration-300 ease-in-out">
+             <AdminSidebar mobile onClose={() => setMobileMenuOpen(false)} />
           </div>
         </div>
       )}

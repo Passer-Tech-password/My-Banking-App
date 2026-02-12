@@ -1,64 +1,93 @@
+"use client";
+
 import React from "react";
+import Link from "next/link";
 
 export default function Footer() {
   return (
     <>
       {/* FOOTER */}
-      <footer className="bg-gray-900 text-gray-300 py-16 px-6">
-        <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-8">
+      <footer className="bg-gray-900 text-gray-300 py-16 px-6 border-t border-gray-800">
+        <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-12">
           {/* Logo */}
           <div>
-            <img src="/logo.png" alt="Spring Bank" className="h-10 mb-4" />
-            <p className="text-sm">
+            <Link href="/" className="flex items-center gap-2 mb-6">
+               <span className="font-bold text-2xl text-white">Spring Bank</span>
+            </Link>
+            <p className="text-sm leading-relaxed text-gray-400">
               Spring Credit Union provides secure, fast, and innovative banking
-              solutions worldwide.
+              solutions worldwide. We are committed to financial freedom for everyone.
             </p>
           </div>
 
           {/* Company */}
           <div>
-            <h5 className="font-semibold mb-3 text-white">Our Company</h5>
-            <ul className="space-y-2 text-sm">
-              <li>About Us</li>
-              <li>Careers</li>
-              <li>Contact</li>
-              <li>Privacy Policy</li>
+            <h5 className="font-semibold mb-6 text-white tracking-wide uppercase text-sm">Our Company</h5>
+            <ul className="space-y-4 text-sm">
+              <li>
+                <Link href="/about" className="hover:text-blue-400 transition-colors">About Us</Link>
+              </li>
+              <li>
+                <Link href="/contact-us" className="hover:text-blue-400 transition-colors">Contact Us</Link>
+              </li>
+              <li>
+                <Link href="/privacy-policy" className="hover:text-blue-400 transition-colors">Privacy Policy</Link>
+              </li>
+              <li>
+                <Link href="#" className="hover:text-blue-400 transition-colors">Careers</Link>
+              </li>
             </ul>
           </div>
 
           {/* Products */}
           <div>
-            <h5 className="font-semibold mb-3 text-white">Products</h5>
-            <ul className="space-y-2 text-sm">
-              <li>Online Payments</li>
-              <li>Mobile Banking</li>
-              <li>Business Accounts</li>
-              <li>Savings Accounts</li>
+            <h5 className="font-semibold mb-6 text-white tracking-wide uppercase text-sm">Products</h5>
+            <ul className="space-y-4 text-sm">
+              <li>
+                <Link href="#" className="hover:text-blue-400 transition-colors">Online Payments</Link>
+              </li>
+              <li>
+                <Link href="#" className="hover:text-blue-400 transition-colors">Mobile Banking</Link>
+              </li>
+              <li>
+                <Link href="#" className="hover:text-blue-400 transition-colors">Business Accounts</Link>
+              </li>
+              <li>
+                <Link href="#" className="hover:text-blue-400 transition-colors">Savings Accounts</Link>
+              </li>
             </ul>
           </div>
 
           {/* Subscribe */}
           <div>
-            <h5 className="font-semibold mb-3 text-white">Subscribe</h5>
-            <p className="text-sm mb-3">
-              Subscribe to our newsletter to get updates.
+            <h5 className="font-semibold mb-6 text-white tracking-wide uppercase text-sm">Subscribe</h5>
+            <p className="text-sm mb-4 text-gray-400">
+              Subscribe to our newsletter to get the latest updates and offers.
             </p>
-            <div className="flex">
+            <form className="flex flex-col gap-3">
               <input
                 type="email"
                 placeholder="Your Email"
-                className="px-3 py-2 rounded-l bg-gray-800 text-sm focus:outline-none"
+                className="w-full px-4 py-3 rounded-lg bg-gray-800 text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 border border-gray-700 placeholder-gray-500"
               />
-              <button className="bg-teal-600 px-4 py-2 rounded-r text-sm text-white">
+              <button type="submit" className="bg-blue-600 px-4 py-3 rounded-lg text-sm font-semibold text-white hover:bg-blue-700 transition-colors">
                 Subscribe
               </button>
-            </div>
+            </form>
           </div>
         </div>
 
-        <p className="text-center text-xs text-gray-500 mt-10">
-          © 2026 Spring Credit Union. All Rights Reserved.
-        </p>
+        <div className="max-w-7xl mx-auto mt-16 pt-8 border-t border-gray-800 flex flex-col md:flex-row justify-between items-center gap-4">
+          <p className="text-xs text-gray-500">
+            © 2026 Spring Credit Union. All Rights Reserved.
+          </p>
+          <div className="flex gap-6">
+             {/* Social placeholders */}
+             <div className="w-5 h-5 bg-gray-700 rounded-full"></div>
+             <div className="w-5 h-5 bg-gray-700 rounded-full"></div>
+             <div className="w-5 h-5 bg-gray-700 rounded-full"></div>
+          </div>
+        </div>
       </footer>
     </>
   );

@@ -1,7 +1,8 @@
 import { 
   CheckCircleIcon, 
   NoSymbolIcon, 
-  TrashIcon 
+  TrashIcon,
+  BanknotesIcon
 } from "@heroicons/react/24/outline";
 
 export type UserData = {
@@ -19,9 +20,10 @@ interface UserTableProps {
   users: UserData[];
   onToggleBlock: (userId: string, currentStatus?: boolean) => void;
   onDelete: (userId: string) => void;
+  onFund: (user: UserData) => void;
 }
 
-export default function UserTable({ users, onToggleBlock, onDelete }: UserTableProps) {
+export default function UserTable({ users, onToggleBlock, onDelete, onFund }: UserTableProps) {
   return (
     <div className="overflow-x-auto">
       <table className="w-full text-left text-sm text-gray-600">
@@ -46,7 +48,7 @@ export default function UserTable({ users, onToggleBlock, onDelete }: UserTableP
               <tr key={user.id} className="hover:bg-gray-50 transition-colors">
                 <td className="px-6 py-4">
                   <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center text-gray-500 font-bold text-xs">
+                    <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-bold text-xs">
                       {user.firstName?.[0]}{user.lastName?.[0]}
                     </div>
                     <div>
@@ -58,7 +60,7 @@ export default function UserTable({ users, onToggleBlock, onDelete }: UserTableP
                 <td className="px-6 py-4">
                   <span className="capitalize">{user.accountType || "Standard"}</span>
                 </td>
-                <td className="px-6 py-4 font-mono">
+                <td className="px-6 py-4 font-mono font-medium text-gray-900">
                   ${user.balance?.toLocaleString() || "0.00"}
                 </td>
                 <td className="px-6 py-4">
@@ -72,6 +74,13 @@ export default function UserTable({ users, onToggleBlock, onDelete }: UserTableP
                 </td>
                 <td className="px-6 py-4 text-right">
                   <div className="flex items-center justify-end gap-2">
+                    <button 
+                      onClick={() => onFund(user)}
+                      className="p-1.5 text-blue-600 hover:bg-blue-50 rounded-md transition-colors"
+                      title="Fund Account"
+                    >
+                      <BanknotesIcon className="w-5 h-5" />
+                    </button>
                     <button 
                       onClick={() => onToggleBlock(user.id, user.blocked)}
                       className={`p-1.5 rounded-md transition-colors ${

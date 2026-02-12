@@ -1,143 +1,229 @@
 import Footer from "@/components/Footer";
 import Navbar from "@/components/Navbar";
+import HeroSlider from "@/components/HeroSlider";
 import Link from "next/link";
+import { 
+  CreditCardIcon, 
+  CurrencyDollarIcon, 
+  BanknotesIcon,
+  GlobeAltIcon,
+  ShieldCheckIcon,
+  DevicePhoneMobileIcon,
+  PaperAirplaneIcon
+} from "@heroicons/react/24/outline";
 
 export default function HomePage() {
   return (
-    <main className="w-full min-h-screen flex flex-col">
+    <main className="w-full min-h-screen flex flex-col bg-white">
       {/* NAVBAR */}
       <Navbar />
       
-      <div className="flex-grow">
-        {/* HERO SECTION */}
-        <section className="bg-gradient-to-r from-blue-50 to-white">
-          <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 items-center px-6 py-16 gap-10">
-            {/* Left Text */}
-            <div className="order-2 md:order-1">
-              <p className="text-sm text-blue-700 font-semibold mb-2 uppercase tracking-wide">
-                Simple. Transparent. Secure
-              </p>
-              <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold mb-6 leading-tight text-gray-900">
-                Fast & Secure <br/>
-                <span className="text-blue-700">Online Banking</span>
-              </h1>
-              <p className="text-gray-600 mb-8 max-w-lg text-lg leading-relaxed">
-                An innovative online banking solution that allows you to manage
-                your finances easily, securely, and from anywhere in the world.
-              </p>
-              <div className="flex flex-col sm:flex-row gap-4">
-                <Link
-                  href="/register"
-                  className="inline-flex justify-center items-center bg-blue-700 text-white px-8 py-3 rounded-lg text-base font-semibold hover:bg-blue-800 transition-all shadow-lg hover:shadow-xl"
-                >
-                  Get Started
-                </Link>
-                <Link
-                  href="/about"
-                  className="inline-flex justify-center items-center bg-white text-blue-700 border border-blue-200 px-8 py-3 rounded-lg text-base font-semibold hover:bg-blue-50 transition-all"
-                >
-                  Learn More
-                </Link>
+      {/* HERO SECTION */}
+      <HeroSlider />
+
+      {/* SMART BANKING SECTION */}
+      <section className="py-20 px-6">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center mb-16">
+            <span className="text-blue-600 font-semibold tracking-wide uppercase text-sm">Smart Banking</span>
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mt-2 mb-4">
+              The Better Way To Save & Send Money Online
+            </h2>
+            <p className="text-gray-600 max-w-2xl mx-auto">
+              A Fully Digital Bank! Fund your account, save, and pay bills
+              from anywhere in the world with Spring Credit Union.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {/* Card 1 */}
+            <div className="bg-white p-8 rounded-2xl shadow-lg border border-gray-100 hover:shadow-xl transition-shadow group">
+              <div className="w-14 h-14 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 mb-6 group-hover:bg-blue-600 group-hover:text-white transition-colors">
+                <GlobeAltIcon className="w-8 h-8" />
               </div>
+              <h3 className="text-xl font-bold text-gray-900 mb-3">Global Cards</h3>
+              <p className="text-gray-600 mb-6">
+                Cards that work all across the world. Shop online or offline with complete freedom.
+              </p>
             </div>
 
-            {/* Right Image */}
-            <div className="flex justify-center order-1 md:order-2">
-              <img
-                src="/hero-people.png"
-                alt="Happy banking users"
-                className="max-w-full h-auto drop-shadow-xl rounded-2xl animate-fade-in-up"
-              />
+            {/* Card 2 */}
+            <div className="bg-white p-8 rounded-2xl shadow-lg border border-gray-100 hover:shadow-xl transition-shadow group">
+              <div className="w-14 h-14 bg-green-100 rounded-full flex items-center justify-center text-green-600 mb-6 group-hover:bg-green-600 group-hover:text-white transition-colors">
+                <CurrencyDollarIcon className="w-8 h-8" />
+              </div>
+              <h3 className="text-xl font-bold text-gray-900 mb-3">High Returns</h3>
+              <p className="text-gray-600 mb-6">
+                Highest Returns on your investments. Grow your wealth with our premium savings accounts.
+              </p>
+            </div>
+
+            {/* Card 3 */}
+            <div className="bg-white p-8 rounded-2xl shadow-lg border border-gray-100 hover:shadow-xl transition-shadow group">
+              <div className="w-14 h-14 bg-purple-100 rounded-full flex items-center justify-center text-purple-600 mb-6 group-hover:bg-purple-600 group-hover:text-white transition-colors">
+                <BanknotesIcon className="w-8 h-8" />
+              </div>
+              <h3 className="text-xl font-bold text-gray-900 mb-3">Zero Fees</h3>
+              <p className="text-gray-600 mb-6">
+                No ATM fees. No minimum balance. No overdrafts. Keep more of your hard-earned money.
+              </p>
             </div>
           </div>
-        </section>
 
-        {/* FEATURES SECTION */}
-        <section className="bg-white py-20">
-          <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-16 px-6 items-center">
-            {/* Images */}
-            <div className="grid grid-cols-2 gap-6 relative">
-              <div className="absolute -z-10 bg-blue-100 rounded-full w-64 h-64 -top-10 -left-10 blur-3xl opacity-50"></div>
-              <img
-                src="/feature-1.jpg"
-                alt="Mobile banking interface"
-                className="rounded-2xl shadow-lg w-full h-64 object-cover transform translate-y-8"
-              />
-              <img
-                src="/feature-2.jpg"
-                alt="Secure transactions"
-                className="rounded-2xl shadow-lg w-full h-64 object-cover"
-              />
-            </div>
+          <div className="text-center mt-12">
+            <Link href="/about" className="text-blue-600 font-semibold hover:text-blue-800 flex items-center justify-center gap-2">
+              More About us
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+              </svg>
+            </Link>
+          </div>
+        </div>
+      </section>
 
-            {/* Text */}
+      {/* OUR FEATURE SECTION */}
+      <section className="bg-gray-50 py-20 px-6">
+        <div className="max-w-7xl mx-auto">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
             <div>
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 text-blue-700 text-xs font-semibold uppercase tracking-wider mb-4">
-                <span className="w-2 h-2 rounded-full bg-blue-700"></span>
-                Smart Banking
-              </div>
-              <h2 className="text-3xl md:text-4xl font-bold mb-6 text-gray-900">
-                The Better Way To Save & Send Money Online
+              <span className="text-blue-600 font-semibold tracking-wide uppercase text-sm">Our Feature</span>
+              <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mt-2 mb-6">
+                Payment Services Worldwide
               </h2>
-              <p className="text-gray-600 mb-6 text-lg">
-                Experience the future of banking with our cutting-edge platform. We prioritize security, speed, and user experience to give you the best financial tools available.
+              <p className="text-gray-600 mb-10 text-lg">
+                We provide a robust infrastructure for seamless global payments. Whether you're sending money to family or paying for services abroad, we've got you covered.
               </p>
               
-              <ul className="space-y-4 mb-8">
-                {[
-                  "Instant transfers to any bank",
-                  "Real-time spending notifications",
-                  "No hidden fees or monthly charges",
-                  "24/7 dedicated customer support"
-                ].map((item, i) => (
-                  <li key={i} className="flex items-center gap-3 text-gray-700">
-                    <div className="flex-shrink-0 w-6 h-6 rounded-full bg-green-100 text-green-600 flex items-center justify-center">
-                      <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
-                      </svg>
+              <div className="space-y-8">
+                <div className="flex gap-4">
+                  <div className="flex-shrink-0 w-12 h-12 bg-red-100 text-red-600 rounded-xl flex items-center justify-center">
+                    <ShieldCheckIcon className="w-6 h-6" />
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-bold text-gray-900 mb-1">Protect Your Card</h3>
+                    <p className="text-gray-600">Your Credit Card is encrypted with anti-fraud detection AI to keep your funds safe.</p>
+                  </div>
+                </div>
+
+                <div className="flex gap-4">
+                  <div className="flex-shrink-0 w-12 h-12 bg-blue-100 text-blue-600 rounded-xl flex items-center justify-center">
+                    <PaperAirplaneIcon className="w-6 h-6" />
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-bold text-gray-900 mb-1">Send Money</h3>
+                    <p className="text-gray-600">Send money across the globe in just a matter of minutes with low fees.</p>
+                  </div>
+                </div>
+
+                <div className="flex gap-4">
+                  <div className="flex-shrink-0 w-12 h-12 bg-indigo-100 text-indigo-600 rounded-xl flex items-center justify-center">
+                    <DevicePhoneMobileIcon className="w-6 h-6" />
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-bold text-gray-900 mb-1">Online Banking</h3>
+                    <p className="text-gray-600">A new paradigm shift disrupting the old order of Banking with our digital-first approach.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="relative">
+              <div className="absolute -inset-4 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-2xl opacity-20 blur-2xl"></div>
+              <div className="relative bg-white p-8 rounded-2xl shadow-xl border border-gray-100">
+                <div className="flex items-center justify-between mb-8">
+                  <div>
+                    <p className="text-gray-500 text-sm">Total Balance</p>
+                    <h3 className="text-3xl font-bold text-gray-900">$24,562.00</h3>
+                  </div>
+                  <div className="w-12 h-12 bg-blue-600 rounded-full flex items-center justify-center text-white">
+                    <CreditCardIcon className="w-6 h-6" />
+                  </div>
+                </div>
+                
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center text-green-600">
+                        <CurrencyDollarIcon className="w-5 h-5" />
+                      </div>
+                      <div>
+                        <p className="font-semibold text-gray-900">Income</p>
+                        <p className="text-xs text-gray-500">Freelance Project</p>
+                      </div>
                     </div>
-                    {item}
-                  </li>
-                ))}
-              </ul>
+                    <span className="text-green-600 font-semibold">+$2,450.00</span>
+                  </div>
+                  
+                  <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center text-red-600">
+                        <CreditCardIcon className="w-5 h-5" />
+                      </div>
+                      <div>
+                        <p className="font-semibold text-gray-900">Netflix</p>
+                        <p className="text-xs text-gray-500">Subscription</p>
+                      </div>
+                    </div>
+                    <span className="text-gray-900 font-semibold">-$14.99</span>
+                  </div>
 
-              <Link
-                href="/features"
-                className="text-blue-700 font-semibold hover:text-blue-800 flex items-center gap-2 group"
-              >
-                Explore all features
-                <svg className="w-4 h-4 transform group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 8l4 4m0 0l-4 4m4-4H3" />
-                </svg>
-              </Link>
+                  <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center text-blue-600">
+                        <PaperAirplaneIcon className="w-5 h-5" />
+                      </div>
+                      <div>
+                        <p className="font-semibold text-gray-900">Transfer</p>
+                        <p className="text-xs text-gray-500">To John Doe</p>
+                      </div>
+                    </div>
+                    <span className="text-gray-900 font-semibold">-$500.00</span>
+                  </div>
+                </div>
+                
+                <div className="mt-8">
+                   <button className="w-full bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 transition-colors">
+                     View All Transactions
+                   </button>
+                </div>
+              </div>
             </div>
           </div>
-        </section>
+        </div>
+      </section>
 
-        {/* CTA SECTION */}
-        <section className="bg-blue-900 text-white py-20">
-          <div className="max-w-4xl mx-auto text-center px-6">
-            <h2 className="text-3xl md:text-4xl font-bold mb-6">Ready to get started?</h2>
-            <p className="text-blue-100 text-lg mb-8 max-w-2xl mx-auto">
-              Join millions of users who trust Spring Bank for their daily financial needs. Open an account in less than 5 minutes.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link
-                href="/register"
-                className="bg-white text-blue-900 px-8 py-3 rounded-lg text-base font-semibold hover:bg-gray-100 transition-colors"
-              >
-                Open an Account
-              </Link>
-              <Link
-                href="/contact-us"
-                className="border border-white text-white px-8 py-3 rounded-lg text-base font-semibold hover:bg-white/10 transition-colors"
-              >
-                Contact Support
-              </Link>
+      {/* BANKING SECURITY SECTION */}
+      <section className="bg-blue-900 text-white py-20 px-6">
+        <div className="max-w-7xl mx-auto text-center">
+          <span className="text-blue-300 font-semibold tracking-wide uppercase text-sm">Banking Security</span>
+          <h2 className="text-3xl md:text-4xl font-bold mt-2 mb-6">
+            The Safest Way To Transact Your Money Fast
+          </h2>
+          <p className="text-blue-100 max-w-3xl mx-auto mb-12 text-lg">
+            With a Spring Credit Union account, you can expect a secure and reliable banking experience.
+            We use top-tier encryption and security protocols to ensure your data and money are always safe.
+          </p>
+          
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-8 text-center">
+            <div className="p-6 bg-blue-800 rounded-xl border border-blue-700">
+              <h3 className="text-3xl font-bold mb-2">256-bit</h3>
+              <p className="text-blue-200 text-sm">Encryption</p>
+            </div>
+            <div className="p-6 bg-blue-800 rounded-xl border border-blue-700">
+              <h3 className="text-3xl font-bold mb-2">24/7</h3>
+              <p className="text-blue-200 text-sm">Monitoring</p>
+            </div>
+            <div className="p-6 bg-blue-800 rounded-xl border border-blue-700">
+              <h3 className="text-3xl font-bold mb-2">100%</h3>
+              <p className="text-blue-200 text-sm">Secure</p>
+            </div>
+             <div className="p-6 bg-blue-800 rounded-xl border border-blue-700">
+              <h3 className="text-3xl font-bold mb-2">Multi</h3>
+              <p className="text-blue-200 text-sm">Factor Auth</p>
             </div>
           </div>
-        </section>
-      </div>
+        </div>
+      </section>
 
       <Footer />
     </main>

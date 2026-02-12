@@ -1,14 +1,29 @@
 "use client";
 
+import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { signOut } from "firebase/auth";
+import { auth } from "@/lib/firebase";
 import {
   Bars3Icon,
   BellIcon,
   UserCircleIcon,
+  ChevronDownIcon,
+  ArrowRightOnRectangleIcon
 } from "@heroicons/react/24/outline";
 
 export default function AdminHeader({ onMobileMenuClick }: { onMobileMenuClick?: () => void }) {
   const router = useRouter();
+  const [isProfileOpen, setIsProfileOpen] = useState(false);
+
+  const handleLogout = async () => {
+    try {
+      await signOut(auth);
+      router.push("/admin/login");
+    } catch (error) {
+      console.error("Logout failed", error);
+    }
+  };
   
   return (
     <header className="sticky top-0 z-10 flex h-20 w-full bg-white shadow-sm border-b border-gray-100 items-center justify-between px-6 lg:px-12">
@@ -16,7 +31,7 @@ export default function AdminHeader({ onMobileMenuClick }: { onMobileMenuClick?:
       <div className="flex items-center gap-4">
         <button 
           onClick={onMobileMenuClick}
-          className="lg:hidden p-2 text-gray-500 hover:text-red-600 transition-colors"
+          className="lg:hidden p-2 text-gray-500 hover:text-blue-600 transition-colors"
         >
           <Bars3Icon className="w-6 h-6" />
         </button>
@@ -28,20 +43,49 @@ export default function AdminHeader({ onMobileMenuClick }: { onMobileMenuClick?:
       {/* Right: Actions & Profile */}
       <div className="flex items-center gap-6">
         {/* Notifications */}
-        <button className="relative p-2 text-gray-400 hover:text-red-600 transition-colors">
+        <button className="relative p-2 text-gray-400 hover:text-blue-600 transition-colors">
           <BellIcon className="w-6 h-6" />
           <span className="absolute top-1 right-1 w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-white"></span>
         </button>
 
         {/* User Profile */}
-        <div className="flex items-center gap-3 pl-6 border-l border-gray-100">
-          <div className="text-right hidden md:block">
-            <p className="text-sm font-medium text-gray-700">Administrator</p>
-            <p className="text-xs text-gray-500">Super User</p>
-          </div>
-          <div className="h-10 w-10 bg-red-100 rounded-full flex items-center justify-center text-red-600">
-            <UserCircleIcon className="w-6 h-6" />
-          </div>
+        <div className="relative">
+          <button 
+            onClick={() => setIsProfileOpen(!isProfileOpen)}
+            className="flex items-center gap-3 pl-6 border-l border-gray-100 focus:outline-none group"
+          >
+            <div className="text-right hidden md:block">
+              <p className="text-sm font-medium text-gray-700 group-hover:text-blue-600 transition-colors">Administrator</p>
+              <p className="text-xs text-gray-500">Super User</p>
+            </div>
+            <div className="h-10 w-10 bg-blue-50 rounded-full flex items-center justify-center text-blue-600 group-hover:bg-blue-100 transition-colors">
+              <UserCircleIcon className="w-6 h-6" />
+            </div>
+            <ChevronDownIcon className={`w-4 h-4 text-gray-400 transition-transform duration-200 ${isProfileOpen ? 'rotate-180' : ''}`} />
+          </button>
+
+          {/* Dropdown Menu */}
+          {isProfileOpen && (
+            <>
+              <div 
+                className="fixed inset-0 z-10" 
+                onClick={() => setIsProfileOpen(false)}
+              ></div>
+              <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg py-1 border border-gray-100 ring-1 ring-black ring-opacity-5 z-20">
+                <div className="px-4 py-3 border-b border-gray-50 md:hidden">
+                  <p className="text-sm font-medium text-gray-900">Administrator</p>
+                  <p className="text-xs text-gray-500">Super User</p>
+                </div>
+                <button
+                  onClick={handleLogout}
+                  className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 flex items-center gap-2"
+                >
+                  <ArrowRightOnRectangleIcon className="w-4 h-4" />
+                  Sign out
+                </button>
+              </div>
+            </>
+          )}
         </div>
       </div>
     </header>
