@@ -22,19 +22,30 @@ export default function FundUserModal({ user, isOpen, onClose, onSuccess }: Fund
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
+    if (!isOpen) {
+      // Reset state when modal closes
+      setAmount("");
+      setLoading(false);
+      setFeedback(null);
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+        timeoutRef.current = null;
+      }
+    }
     return () => {
       if (timeoutRef.current) {
         clearTimeout(timeoutRef.current);
       }
     };
-  }, []);
+  }, [isOpen]);
 
   if (!isOpen || !user) return null;
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     setFeedback(null);
-    const fundAmount = parseFloat(amount);
+    const val = Number(amount);
+    const fundAmount = Number(val.toFixed(2));
     
     if (isNaN(fundAmount) || fundAmount <= 0) {
       setFeedback({ type: "error", message: "Please enter a valid amount" });
