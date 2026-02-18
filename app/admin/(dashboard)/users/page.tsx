@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { onAuthStateChanged } from "firebase/auth";
-import { collection, getDocs, query, doc, updateDoc, deleteDoc } from "firebase/firestore";
+import { collection, getDocs, query, doc, updateDoc, deleteDoc, getDoc } from "firebase/firestore";
 import { auth, db } from "@/lib/firebase";
 import UserTable, { UserData } from "@/components/UserTable";
 import FundUserModal from "@/components/FundUserModal";
@@ -22,6 +22,11 @@ export default function UsersPage() {
   useEffect(() => {
     const unsub = onAuthStateChanged(auth, async (user) => {
       if (!user) {
+        router.push("/admin/login");
+        return;
+      }
+      const profileSnap = await getDoc(doc(db, "users", user.uid));
+      if (!profileSnap.exists() || profileSnap.data()?.role !== "admin") {
         router.push("/admin/login");
         return;
       }

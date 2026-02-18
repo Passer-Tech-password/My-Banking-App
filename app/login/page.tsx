@@ -46,14 +46,14 @@ export default function LoginPage() {
         <div className="flex flex-col justify-center px-6 md:px-12 py-12">
           {/* Logo */}
           <div className="mb-6">
-            <img src="/logo.svg" alt="Spring Bank logo" className="h-12 w-auto" />
+            <img src="/logo.svg" alt="Aurora Bank logo" className="h-12 w-auto" />
           </div>
 
           <h2 className="text-2xl font-semibold mb-2">Sign-In</h2>
 
           <p className="text-sm text-gray-600 mb-6 border-l-4 border-blue-600 pl-3">
-            Access the Spring Credit Union online banking panel using your
-            Email Address and password.
+            Access your Aurora Bank online banking panel using your
+            registered email address and password.
           </p>
 
           {error && (

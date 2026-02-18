@@ -113,7 +113,7 @@ export default function RegisterPage() {
           {/* Header */}
           <h2 className="text-lg font-semibold text-blue-800 mb-4">
             Kindly provide the information required below to enable us create an
-            account for you
+            account for you with Aurora Bank.
           </h2>
 
           {/* Personal Details */}

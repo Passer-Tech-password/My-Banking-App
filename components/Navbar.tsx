@@ -28,8 +28,8 @@ export default function Navbar() {
           {/* Logo */}
           <div className="flex items-center">
             <Link href="/" className="flex-shrink-0 flex items-center gap-2">
-              <img src="/logo.svg" alt="Spring Bank logo" className="h-8 w-auto" />
-              <span className="font-bold text-xl text-blue-900">Spring Bank</span>
+              <img src="/logo.svg" alt="Aurora Bank logo" className="h-8 w-auto" />
+              <span className="font-bold text-xl text-blue-900">Aurora Bank</span>
             </Link>
           </div>
 

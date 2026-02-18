@@ -17,6 +17,30 @@ export default function GoogleTranslator() {
   useEffect(() => {
     if (typeof window === "undefined") return;
 
+    const initGoogleTranslate = () => {
+      if (!window.google || !window.google.translate) return;
+
+      const existing = document.getElementById("google_translate_element");
+      if (existing && existing.childElementCount > 0) {
+        return;
+      }
+
+      new window.google.translate.TranslateElement(
+        {
+          pageLanguage: "en",
+          layout: window.google.translate.TranslateElement.InlineLayout.SIMPLE,
+          autoDisplay: false,
+        },
+        "google_translate_element",
+      );
+    };
+
+    window.googleTranslateElementInit = initGoogleTranslate;
+
+    if (window.google && window.google.translate) {
+      initGoogleTranslate();
+    }
+
     const observer = new MutationObserver(() => {
       const combo = document.querySelector<HTMLSelectElement>(".goog-te-combo");
       if (combo) {
@@ -28,7 +52,12 @@ export default function GoogleTranslator() {
 
     observer.observe(document.body, { childList: true, subtree: true });
 
-    return () => observer.disconnect();
+    return () => {
+      observer.disconnect();
+      if (typeof window !== "undefined") {
+        delete window.googleTranslateElementInit;
+      }
+    };
   }, []);
 
   return (
@@ -39,28 +68,27 @@ export default function GoogleTranslator() {
         strategy="afterInteractive"
         onLoad={() => {
           if (
-            typeof window === "undefined" ||
-            !window.google ||
-            !window.google.translate
+            typeof window !== "undefined" &&
+            window.google &&
+            window.google.translate &&
+            typeof window.googleTranslateElementInit === "function"
           ) {
-            return;
+            window.googleTranslateElementInit();
           }
-
-          new window.google.translate.TranslateElement(
-            {
-              pageLanguage: "en",
-              layout:
-                window.google.translate.TranslateElement.InlineLayout.SIMPLE,
-              autoDisplay: false,
-            },
-            "google_translate_element"
-          );
         }}
       />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2 flex items-center justify-between gap-3">
         <button
           type="button"
-          onClick={() => setIsOpen((prev) => !prev)}
+          onClick={() => {
+            setIsOpen((prev) => !prev);
+            if (
+              typeof window !== "undefined" &&
+              typeof window.googleTranslateElementInit === "function"
+            ) {
+              window.googleTranslateElementInit();
+            }
+          }}
           className="inline-flex items-center gap-2 text-xs sm:text-sm text-gray-800 rounded-md px-2 py-1 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-50"
           aria-expanded={isOpen}
           aria-controls="google-translate-element-wrapper"
@@ -71,13 +99,13 @@ export default function GoogleTranslator() {
         </button>
         <div
           id="google-translate-element-wrapper"
-          className={`flex justify-end transition-all duration-150 ${
+          className={`flex justify-end max-w-full overflow-x-auto transition-all duration-150 ${
             isOpen
               ? "opacity-100 translate-y-0 pointer-events-auto"
               : "opacity-0 -translate-y-1 pointer-events-none sm:opacity-100 sm:translate-y-0 sm:pointer-events-auto"
           }`}
         >
-          <div id="google_translate_element" />
+          <div id="google_translate_element" className="inline-flex" />
         </div>
       </div>
       <style jsx global>{`
@@ -89,6 +117,7 @@ export default function GoogleTranslator() {
           font-size: 13px !important;
           display: flex !important;
           align-items: center !important;
+          white-space: nowrap !important;
         }
         .goog-te-gadget-simple .goog-te-menu-value {
           color: #374151 !important;

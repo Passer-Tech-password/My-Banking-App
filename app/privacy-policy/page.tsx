@@ -25,12 +25,15 @@ export default function PrivacyPolicyPage() {
       <section className="py-20 px-6">
         <div className="max-w-4xl mx-auto prose prose-blue prose-lg text-gray-600">
           <p className="lead text-xl text-gray-800 font-medium mb-8">
-            At Spring Credit Union, we value your privacy and are committed to protecting your personal information. This Privacy Policy explains how we collect, use, and share information about you when you use our website, mobile application, and other online products and services.
+            At Aurora Bank, we value your privacy and are committed to protecting your personal information.
+            This Privacy Policy explains, in clear terms, how we collect, use, store, and share information
+            about you when you use our website, mobile application, and other online products and services
+            in the United States and abroad.
           </p>
 
           <h2 className="text-2xl font-bold text-gray-900 mt-12 mb-4">1. Information We Collect</h2>
           <p className="mb-4">
-            We collect information you provide directly to us, such as when you create an account, update your profile, make a transaction, or contact customer support. This may include:
+            We collect information you provide directly to us, such as when you create an account, update your profile, make a transaction, or contact customer support. This may include, for example:
           </p>
           <ul className="list-disc pl-6 mb-6 space-y-2">
             <li>Name, email address, phone number, and mailing address</li>
@@ -58,7 +61,7 @@ export default function PrivacyPolicyPage() {
           <ul className="list-disc pl-6 mb-6 space-y-2">
             <li>With vendors, consultants, and other service providers who need access to such information to carry out work on our behalf</li>
             <li>In response to a request for information if we believe disclosure is in accordance with any applicable law, regulation, or legal process</li>
-            <li>If we believe your actions are inconsistent with our user agreements or policies, or to protect the rights, property, and safety of Spring Credit Union or others</li>
+            <li>If we believe your actions are inconsistent with our user agreements or policies, or to protect the rights, property, and safety of Aurora Bank or others</li>
           </ul>
 
           <h2 className="text-2xl font-bold text-gray-900 mt-12 mb-4">4. Security</h2>
@@ -71,10 +74,10 @@ export default function PrivacyPolicyPage() {
             If you have any questions about this Privacy Policy, please contact us at:
           </p>
           <div className="bg-gray-50 p-6 rounded-lg border border-gray-200">
-            <p className="font-semibold text-gray-900">Spring Credit Union</p>
+            <p className="font-semibold text-gray-900">Aurora Bank</p>
             <p>123 Banking Street</p>
             <p>New York, NY 10005</p>
-            <p className="mt-2 text-blue-600">privacy@springcu.pro</p>
+            <p className="mt-2 text-blue-600">privacy@aurorabank.pro</p>
           </div>
         </div>
       </section>

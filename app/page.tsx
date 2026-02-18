@@ -27,11 +27,11 @@ export default function HomePage() {
           <div className="text-center mb-16">
             <span className="text-blue-600 font-semibold tracking-wide uppercase text-sm">Smart Banking</span>
             <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mt-2 mb-4">
-              The Better Way To Save & Send Money Online
+              A Premium Way To Save, Spend & Send Money Online
             </h2>
             <p className="text-gray-600 max-w-2xl mx-auto">
-              A Fully Digital Bank! Fund your account, save, and pay bills
-              from anywhere in the world with Spring Credit Union.
+              Aurora Bank gives you a sophisticated, fully digital way to manage your money.
+              Open an account, grow your savings, and move funds globally with confidence.
             </p>
           </div>
 
@@ -91,7 +91,7 @@ export default function HomePage() {
                 Payment Services Worldwide
               </h2>
               <p className="text-gray-600 mb-10 text-lg">
-                We provide a robust infrastructure for seamless global payments. Whether you're sending money to family or paying for services abroad, we've got you covered.
+                We provide a robust infrastructure for seamless global payments. Whether you're sending money to family, funding your business, or paying for services abroad, we help your transfers move quickly and reliably.
               </p>
               
               <div className="space-y-8">
@@ -138,8 +138,8 @@ export default function HomePage() {
             The Safest Way To Transact Your Money Fast
           </h2>
           <p className="text-blue-100 max-w-3xl mx-auto mb-12 text-lg">
-            With a Spring Credit Union account, you can expect a secure and reliable banking experience.
-            We use top-tier encryption and security protocols to ensure your data and money are always safe.
+            With Aurora Bank, your money and data are protected by multi-layer security,
+            strong encryption, and continuous fraud monitoring, so you can bank with confidence.
           </p>
           
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8 text-center">

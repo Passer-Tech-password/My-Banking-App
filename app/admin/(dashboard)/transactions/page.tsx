@@ -1,8 +1,11 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { onAuthStateChanged } from "firebase/auth";
 import { collection, getDocs, query, orderBy, limit } from "firebase/firestore";
-import { db } from "@/lib/firebase";
+import { db, auth } from "@/lib/firebase";
+import { doc, getDoc } from "firebase/firestore";
 import { Transaction } from "@/lib/Transaction";
 import { 
   ArrowDownLeftIcon, 
@@ -11,12 +14,26 @@ import {
 } from "@heroicons/react/24/outline";
 
 export default function AdminTransactionsPage() {
+  const router = useRouter();
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetchTransactions();
-  }, []);
+    const unsub = onAuthStateChanged(auth, async (user) => {
+      if (!user) {
+        router.push("/admin/login");
+        return;
+      }
+      const profileSnap = await getDoc(doc(db, "users", user.uid));
+      if (!profileSnap.exists() || profileSnap.data()?.role !== "admin") {
+        router.push("/admin/login");
+        return;
+      }
+      fetchTransactions();
+    });
+
+    return () => unsub();
+  }, [router]);
 
   const fetchTransactions = async () => {
     try {

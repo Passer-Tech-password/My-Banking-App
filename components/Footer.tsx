@@ -12,11 +12,11 @@ export default function Footer() {
           {/* Logo */}
           <div>
             <Link href="/" className="flex items-center gap-2 mb-6">
-               <span className="font-bold text-2xl text-white">Spring Bank</span>
+               <span className="font-bold text-2xl text-white">Aurora Bank</span>
             </Link>
             <p className="text-sm leading-relaxed text-gray-400">
-              Spring Credit Union provides secure, fast, and innovative banking
-              solutions worldwide. We are committed to financial freedom for everyone.
+              Aurora Bank delivers secure, premium digital banking for individuals and businesses,
+              with tailored solutions and global access to your money.
             </p>
           </div>
 
@@ -79,7 +79,7 @@ export default function Footer() {
 
         <div className="max-w-7xl mx-auto mt-16 pt-8 border-t border-gray-800 flex flex-col md:flex-row justify-between items-center gap-4">
           <p className="text-xs text-gray-500">
-            © 2026 Spring Credit Union. All Rights Reserved.
+            © 2026 Aurora Bank. All rights reserved.
           </p>
           <div className="flex gap-6">
              {/* Social placeholders */}

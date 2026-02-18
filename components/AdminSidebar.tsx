@@ -44,10 +44,10 @@ export default function AdminSidebar({ mobile, onClose }: AdminSidebarProps) {
       <div className="flex items-center justify-between px-6 h-20 border-b border-blue-800 bg-blue-950">
         <Link href="/" className="flex items-center gap-2">
            <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
-             <span className="font-bold text-white text-lg">S</span>
+             <span className="font-bold text-white text-lg">A</span>
            </div>
           <span className="text-xl font-bold tracking-tight text-white">
-            Spring<span className="text-blue-400">Admin</span>
+            Aurora<span className="text-blue-400">Admin</span>
           </span>
         </Link>
         {mobile && (

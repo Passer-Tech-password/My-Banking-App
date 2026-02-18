@@ -40,8 +40,8 @@ export default function DashboardLayout({
              {/* Re-use Sidebar content or just import it if it accepts props to handle close */}
              {/* For simplicity, we just render the sidebar again but mobile optimized versions would be better */}
              <div className="h-full flex flex-col">
-                <div className="flex items-center justify-center h-16 border-b border-slate-800">
-                  <span className="text-xl font-bold text-white">SpringBank</span>
+               <div className="flex items-center justify-center h-16 border-b border-slate-800">
+                  <span className="text-xl font-bold text-white">AuroraBank</span>
                 </div>
                 {/* Navigation Links (dup for now or refactor) */}
                 {/* Ideally DashboardSidebar handles responsive, but for now this is a placeholder for mobile */}

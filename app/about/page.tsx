@@ -16,9 +16,9 @@ export default function AboutPage() {
         </div>
         
         <div className="max-w-7xl mx-auto px-6 relative z-10 text-center">
-          <h1 className="text-4xl md:text-5xl font-bold mb-6">About Spring Credit Union</h1>
+          <h1 className="text-4xl md:text-5xl font-bold mb-6">About Aurora Bank</h1>
           <p className="text-xl text-blue-100 max-w-2xl mx-auto">
-            We are building the bank of the future, today. Transparent, secure, and always putting you first.
+            Aurora Bank is a digital-first bank crafted for discerning clients who expect simplicity, transparency, and security on a global scale.
           </p>
         </div>
       </section>
@@ -32,10 +32,10 @@ export default function AboutPage() {
               A Financial Partner You Can Trust
             </h2>
             <p className="text-gray-600 mb-6 text-lg leading-relaxed">
-              Spring Credit Union was founded with a simple mission: to make banking accessible, fair, and transparent for everyone. We believe that your money should work for you, not against you.
+              Aurora Bank was founded with a simple mission: to offer modern banking that is accessible yet refined, combining fair pricing with a high‑touch service experience. Your money should work for you, not get lost in fees and complexity.
             </p>
             <p className="text-gray-600 mb-8 text-lg leading-relaxed">
-              Our team consists of financial experts, technology innovators, and customer service professionals dedicated to providing you with the best banking experience possible. From our seamless mobile app to our 24/7 support, everything we do is designed with you in mind.
+              Our specialists pair deep financial expertise with advanced technology to give you intuitive tools, insightful guidance, and responsive support wherever you are in the world.
             </p>
             
             <Link

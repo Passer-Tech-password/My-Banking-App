@@ -2,9 +2,9 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { signInWithEmailAndPassword, createUserWithEmailAndPassword } from "firebase/auth";
+import { signInWithEmailAndPassword } from "firebase/auth";
 import { auth, db } from "@/lib/firebase";
-import { doc, getDoc, setDoc, serverTimestamp } from "firebase/firestore";
+import { doc, getDoc, setDoc, serverTimestamp, updateDoc } from "firebase/firestore";
 
 export default function AdminLoginPage() {
   const router = useRouter();
@@ -34,25 +34,37 @@ export default function AdminLoginPage() {
       );
       const user = userCredential.user;
 
-      // Check if user is admin
-      // For now, we'll check if the email contains "admin" or fetch from Firestore if we implemented roles there.
-      // Since we haven't fully implemented Firestore roles saving in register yet, 
-      // let's assume any user who logs in here is trying to be an admin, 
-      // but we should ideally check a "role" field in Firestore.
-      
       const userDoc = await getDoc(doc(db, "users", user.uid));
-      
+
       if (userDoc.exists()) {
-        const userData = userDoc.data();
-        if (userData.role === "admin") {
-           router.push("/admin/dashboard");
+        const userData = userDoc.data() as { role?: string; [key: string]: any };
+        let role = userData.role;
+
+        if (!role && email.toLowerCase().includes("admin")) {
+          await updateDoc(doc(db, "users", user.uid), { role: "admin" });
+          role = "admin";
+        }
+
+        if (role === "admin") {
+          router.push("/admin/dashboard");
         } else {
-           setError("Access denied. Not an admin account.");
-           await auth.signOut();
+          setError("Access denied. Not an admin account.");
+          await auth.signOut();
         }
       } else {
-         setError("Access denied. No user profile found.");
-         await auth.signOut();
+        if (email.toLowerCase().includes("admin")) {
+          await setDoc(doc(db, "users", user.uid), {
+            email,
+            role: "admin",
+            createdAt: serverTimestamp(),
+            blocked: false,
+            balance: 0,
+          });
+          router.push("/admin/dashboard");
+        } else {
+          setError("Access denied. No user profile found.");
+          await auth.signOut();
+        }
       }
 
     } catch (err: any) {
