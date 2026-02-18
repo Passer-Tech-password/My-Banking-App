@@ -46,7 +46,7 @@ export default function LoginPage() {
         <div className="flex flex-col justify-center px-6 md:px-12 py-12">
           {/* Logo */}
           <div className="mb-6">
-            <img src="/logo.png" alt="Spring Bank Logo" className="h-12" />
+            <img src="/logo.svg" alt="Spring Bank logo" className="h-12 w-auto" />
           </div>
 
           <h2 className="text-2xl font-semibold mb-2">Sign-In</h2>
