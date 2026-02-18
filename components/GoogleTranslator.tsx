@@ -16,22 +16,6 @@ export default function GoogleTranslator() {
 
   useEffect(() => {
     if (typeof window === "undefined") return;
-    if (window.googleTranslateElementInit) return;
-
-    window.googleTranslateElementInit = function () {
-      new window.google.translate.TranslateElement(
-        {
-          pageLanguage: "en",
-          layout: window.google.translate.TranslateElement.InlineLayout.SIMPLE,
-          autoDisplay: false,
-        },
-        "google_translate_element"
-      );
-    };
-  }, []);
-
-  useEffect(() => {
-    if (typeof window === "undefined") return;
 
     const observer = new MutationObserver(() => {
       const combo = document.querySelector<HTMLSelectElement>(".goog-te-combo");
@@ -51,8 +35,27 @@ export default function GoogleTranslator() {
     <div className="w-full bg-gray-50 border-b border-gray-200 relative z-50">
       <Script
         id="google-translate-script"
-        src="https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"
+        src="https://translate.google.com/translate_a/element.js"
         strategy="afterInteractive"
+        onLoad={() => {
+          if (
+            typeof window === "undefined" ||
+            !window.google ||
+            !window.google.translate
+          ) {
+            return;
+          }
+
+          new window.google.translate.TranslateElement(
+            {
+              pageLanguage: "en",
+              layout:
+                window.google.translate.TranslateElement.InlineLayout.SIMPLE,
+              autoDisplay: false,
+            },
+            "google_translate_element"
+          );
+        }}
       />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2 flex items-center justify-between gap-3">
         <button

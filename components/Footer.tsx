@@ -34,7 +34,7 @@ export default function Footer() {
                 <Link href="/privacy-policy" className="hover:text-blue-400 transition-colors">Privacy Policy</Link>
               </li>
               <li>
-                <Link href="#" className="hover:text-blue-400 transition-colors">Careers</Link>
+                <span className="text-gray-500 cursor-default">Careers (Coming Soon)</span>
               </li>
             </ul>
           </div>
@@ -44,16 +44,16 @@ export default function Footer() {
             <h5 className="font-semibold mb-6 text-white tracking-wide uppercase text-sm">Products</h5>
             <ul className="space-y-4 text-sm">
               <li>
-                <Link href="#" className="hover:text-blue-400 transition-colors">Online Payments</Link>
+                <span className="text-gray-500 cursor-default">Online Payments (Coming Soon)</span>
               </li>
               <li>
-                <Link href="#" className="hover:text-blue-400 transition-colors">Mobile Banking</Link>
+                <span className="text-gray-500 cursor-default">Mobile Banking (Coming Soon)</span>
               </li>
               <li>
-                <Link href="#" className="hover:text-blue-400 transition-colors">Business Accounts</Link>
+                <span className="text-gray-500 cursor-default">Business Accounts (Coming Soon)</span>
               </li>
               <li>
-                <Link href="#" className="hover:text-blue-400 transition-colors">Savings Accounts</Link>
+                <span className="text-gray-500 cursor-default">Savings Accounts (Coming Soon)</span>
               </li>
             </ul>
           </div>

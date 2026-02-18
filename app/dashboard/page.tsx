@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import {
   collection,
   doc,
@@ -305,7 +306,12 @@ export default function DashboardPage() {
           <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
             <div className="flex items-center justify-between mb-6">
               <h3 className="font-semibold text-gray-900">My Cards</h3>
-              <button className="text-blue-600 hover:text-blue-700 text-sm font-medium">Add New</button>
+              <Link
+                href="/dashboard/cards"
+                className="text-blue-600 hover:text-blue-700 text-sm font-medium"
+              >
+                Manage Cards
+              </Link>
             </div>
             
             {/* Card Visual */}
@@ -385,5 +391,4 @@ export default function DashboardPage() {
     </div>
   );
 }
-
 

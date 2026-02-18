@@ -104,7 +104,7 @@ export default function HomePage() {
                     <p className="text-gray-600">Your Credit Card is encrypted with anti-fraud detection AI to keep your funds safe.</p>
                   </div>
                 </div>
-
+           
                 <div className="flex gap-4">
                   <div className="flex-shrink-0 w-12 h-12 bg-blue-100 text-blue-600 rounded-xl flex items-center justify-center">
                     <PaperAirplaneIcon className="w-6 h-6" />
@@ -114,7 +114,7 @@ export default function HomePage() {
                     <p className="text-gray-600">Send money across the globe in just a matter of minutes with low fees.</p>
                   </div>
                 </div>
-
+           
                 <div className="flex gap-4">
                   <div className="flex-shrink-0 w-12 h-12 bg-indigo-100 text-indigo-600 rounded-xl flex items-center justify-center">
                     <DevicePhoneMobileIcon className="w-6 h-6" />
@@ -123,68 +123,6 @@ export default function HomePage() {
                     <h3 className="text-lg font-bold text-gray-900 mb-1">Online Banking</h3>
                     <p className="text-gray-600">A new paradigm shift disrupting the old order of Banking with our digital-first approach.</p>
                   </div>
-                </div>
-              </div>
-            </div>
-
-            <div className="relative">
-              <div className="absolute -inset-4 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-2xl opacity-20 blur-2xl"></div>
-              <div className="relative bg-white p-8 rounded-2xl shadow-xl border border-gray-100">
-                <div className="flex items-center justify-between mb-8">
-                  <div>
-                    <p className="text-gray-500 text-sm">Total Balance</p>
-                    <h3 className="text-3xl font-bold text-gray-900">$24,562.00</h3>
-                  </div>
-                  <div className="w-12 h-12 bg-blue-600 rounded-full flex items-center justify-center text-white">
-                    <CreditCardIcon className="w-6 h-6" />
-                  </div>
-                </div>
-                
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center text-green-600">
-                        <CurrencyDollarIcon className="w-5 h-5" />
-                      </div>
-                      <div>
-                        <p className="font-semibold text-gray-900">Income</p>
-                        <p className="text-xs text-gray-500">Freelance Project</p>
-                      </div>
-                    </div>
-                    <span className="text-green-600 font-semibold">+$2,450.00</span>
-                  </div>
-                  
-                  <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center text-red-600">
-                        <CreditCardIcon className="w-5 h-5" />
-                      </div>
-                      <div>
-                        <p className="font-semibold text-gray-900">Netflix</p>
-                        <p className="text-xs text-gray-500">Subscription</p>
-                      </div>
-                    </div>
-                    <span className="text-gray-900 font-semibold">-$14.99</span>
-                  </div>
-
-                  <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center text-blue-600">
-                        <PaperAirplaneIcon className="w-5 h-5" />
-                      </div>
-                      <div>
-                        <p className="font-semibold text-gray-900">Transfer</p>
-                        <p className="text-xs text-gray-500">To John Doe</p>
-                      </div>
-                    </div>
-                    <span className="text-gray-900 font-semibold">-$500.00</span>
-                  </div>
-                </div>
-                
-                <div className="mt-8">
-                   <button className="w-full bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 transition-colors">
-                     View All Transactions
-                   </button>
                 </div>
               </div>
             </div>

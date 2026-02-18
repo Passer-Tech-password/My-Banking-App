@@ -81,7 +81,7 @@ export default function LoginPage() {
               <div className="flex justify-between items-center">
                 <label className="text-sm font-medium">Password</label>
                 <Link
-                  href="#"
+                  href="/contact-us"
                   className="text-xs text-blue-600 hover:underline"
                 >
                   Forgot Code?
