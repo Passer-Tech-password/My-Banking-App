@@ -18,17 +18,22 @@ export default function GoogleTranslator() {
     if (typeof window === "undefined") return;
 
     const initGoogleTranslate = () => {
-      if (!window.google || !window.google.translate) return;
+      const TranslateElement = window.google?.translate?.TranslateElement;
+      if (!TranslateElement) return;
 
       const existing = document.getElementById("google_translate_element");
       if (existing && existing.childElementCount > 0) {
         return;
       }
 
-      new window.google.translate.TranslateElement(
+      const layout =
+        (TranslateElement as any).InlineLayout &&
+        (TranslateElement as any).InlineLayout.SIMPLE;
+
+      new (TranslateElement as any)(
         {
           pageLanguage: "en",
-          layout: window.google.translate.TranslateElement.InlineLayout.SIMPLE,
+          layout,
           autoDisplay: false,
         },
         "google_translate_element",
