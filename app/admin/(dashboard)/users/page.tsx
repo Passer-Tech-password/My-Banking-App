@@ -14,6 +14,7 @@ export default function UsersPage() {
   const [users, setUsers] = useState<UserData[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
+  const [error, setError] = useState<string | null>(null);
 
   // Fund Modal State
   const [fundModalOpen, setFundModalOpen] = useState(false);
@@ -25,12 +26,19 @@ export default function UsersPage() {
         router.push("/admin/login");
         return;
       }
-      const profileSnap = await getDoc(doc(db, "users", user.uid));
-      if (!profileSnap.exists() || profileSnap.data()?.role !== "admin") {
+      try {
+        setError(null);
+        const profileSnap = await getDoc(doc(db, "users", user.uid));
+        if (!profileSnap.exists() || profileSnap.data()?.role !== "admin") {
+          router.push("/admin/login");
+          return;
+        }
+        fetchUsers();
+      } catch (error) {
+        console.error("Error verifying admin user:", error);
+        setLoading(false);
         router.push("/admin/login");
-        return;
       }
-      fetchUsers();
     });
 
     return () => unsub();
@@ -38,6 +46,7 @@ export default function UsersPage() {
 
   const fetchUsers = async () => {
     try {
+      setError(null);
       const q = query(collection(db, "users"));
       const querySnapshot = await getDocs(q);
       const fetchedUsers: UserData[] = [];
@@ -47,6 +56,7 @@ export default function UsersPage() {
       setUsers(fetchedUsers);
     } catch (error) {
       console.error("Error fetching users:", error);
+      setError("Failed to load users. Please try again later.");
     } finally {
       setLoading(false);
     }
@@ -102,6 +112,11 @@ export default function UsersPage() {
 
   return (
     <div className="space-y-6">
+      {error && (
+        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
+          {error}
+        </div>
+      )}
       {/* User Management Section */}
       <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
         <div className="p-6 border-b border-gray-100 flex flex-col sm:flex-row sm:items-center justify-between gap-4">

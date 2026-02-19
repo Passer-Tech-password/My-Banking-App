@@ -17,6 +17,7 @@ export default function AdminTransactionsPage() {
   const router = useRouter();
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const unsub = onAuthStateChanged(auth, async (user) => {
@@ -24,12 +25,19 @@ export default function AdminTransactionsPage() {
         router.push("/admin/login");
         return;
       }
-      const profileSnap = await getDoc(doc(db, "users", user.uid));
-      if (!profileSnap.exists() || profileSnap.data()?.role !== "admin") {
+      try {
+        setError(null);
+        const profileSnap = await getDoc(doc(db, "users", user.uid));
+        if (!profileSnap.exists() || profileSnap.data()?.role !== "admin") {
+          router.push("/admin/login");
+          return;
+        }
+        fetchTransactions();
+      } catch (error) {
+        console.error("Error verifying admin user:", error);
+        setLoading(false);
         router.push("/admin/login");
-        return;
       }
-      fetchTransactions();
     });
 
     return () => unsub();
@@ -37,6 +45,7 @@ export default function AdminTransactionsPage() {
 
   const fetchTransactions = async () => {
     try {
+      setError(null);
       const q = query(
         collection(db, "transactions"), 
         orderBy("date", "desc"),
@@ -51,6 +60,7 @@ export default function AdminTransactionsPage() {
       setTransactions(txs);
     } catch (error) {
       console.error("Error fetching transactions:", error);
+      setError("Failed to load transactions. Please try again later.");
     } finally {
       setLoading(false);
     }
@@ -66,6 +76,11 @@ export default function AdminTransactionsPage() {
 
   return (
     <div className="space-y-6">
+      {error && (
+        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
+          {error}
+        </div>
+      )}
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold text-gray-900">Transaction Logs</h1>
         <div className="text-sm text-gray-500">

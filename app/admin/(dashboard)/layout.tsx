@@ -12,7 +12,7 @@ export default function AdminLayout({
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   return (
-    <div className="flex h-screen bg-gray-50 overflow-hidden">
+    <div className="flex min-h-screen bg-gray-50 overflow-x-hidden">
       {/* Sidebar - Desktop */}
       <div className="hidden lg:block">
         <AdminSidebar />

@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { auth, db } from "@/lib/firebase";
-import { doc, getDoc, setDoc, serverTimestamp, updateDoc } from "firebase/firestore";
+import { doc, getDoc } from "firebase/firestore";
 
 export default function AdminLoginPage() {
   const router = useRouter();
@@ -30,7 +30,7 @@ export default function AdminLoginPage() {
       const userCredential = await signInWithEmailAndPassword(
         auth,
         email,
-        formData.password
+        formData.password,
       );
       const user = userCredential.user;
 
@@ -38,33 +38,15 @@ export default function AdminLoginPage() {
 
       if (userDoc.exists()) {
         const userData = userDoc.data() as { role?: string; [key: string]: any };
-        let role = userData.role;
-
-        if (!role && email.toLowerCase().includes("admin")) {
-          await updateDoc(doc(db, "users", user.uid), { role: "admin" });
-          role = "admin";
-        }
-
-        if (role === "admin") {
+        if (userData.role === "admin") {
           router.push("/admin/dashboard");
         } else {
           setError("Access denied. Not an admin account.");
           await auth.signOut();
         }
       } else {
-        if (email.toLowerCase().includes("admin")) {
-          await setDoc(doc(db, "users", user.uid), {
-            email,
-            role: "admin",
-            createdAt: serverTimestamp(),
-            blocked: false,
-            balance: 0,
-          });
-          router.push("/admin/dashboard");
-        } else {
-          setError("Access denied. No user profile found.");
-          await auth.signOut();
-        }
+        setError("Access denied. No user profile found.");
+        await auth.signOut();
       }
 
     } catch (err: any) {

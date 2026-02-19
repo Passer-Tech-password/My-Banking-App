@@ -19,6 +19,7 @@ export default function AdminDashboardPage() {
   const [users, setUsers] = useState<UserData[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
+  const [error, setError] = useState<string | null>(null);
   
   // Fund Modal State
   const [fundModalOpen, setFundModalOpen] = useState(false);
@@ -30,12 +31,19 @@ export default function AdminDashboardPage() {
         router.push("/admin/login");
         return;
       }
-      const profileSnap = await getDoc(doc(db, "users", user.uid));
-      if (!profileSnap.exists() || profileSnap.data()?.role !== "admin") {
+      try {
+        setError(null);
+        const profileSnap = await getDoc(doc(db, "users", user.uid));
+        if (!profileSnap.exists() || profileSnap.data()?.role !== "admin") {
+          router.push("/admin/login");
+          return;
+        }
+        fetchUsers();
+      } catch (error) {
+        console.error("Error verifying admin user:", error);
+        setLoading(false);
         router.push("/admin/login");
-        return;
       }
-      fetchUsers();
     });
 
     return () => unsub();
@@ -43,6 +51,7 @@ export default function AdminDashboardPage() {
 
   const fetchUsers = async () => {
     try {
+      setError(null);
       const q = query(collection(db, "users"));
       const querySnapshot = await getDocs(q);
       const fetchedUsers: UserData[] = [];
@@ -52,6 +61,7 @@ export default function AdminDashboardPage() {
       setUsers(fetchedUsers);
     } catch (error) {
       console.error("Error fetching users:", error);
+      setError("Failed to load users. Please try again later.");
     } finally {
       setLoading(false);
     }
@@ -113,6 +123,11 @@ export default function AdminDashboardPage() {
 
   return (
     <div className="space-y-6">
+      {error && (
+        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
+          {error}
+        </div>
+      )}
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 flex items-center gap-4">
