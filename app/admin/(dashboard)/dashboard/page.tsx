@@ -42,6 +42,7 @@ export default function AdminDashboardPage() {
       } catch (error) {
         console.error("Error verifying admin user:", error);
         setLoading(false);
+        setError("Authentication failed");
         router.push("/admin/login");
       }
     });

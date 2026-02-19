@@ -36,6 +36,7 @@ export default function AdminTransactionsPage() {
       } catch (error) {
         console.error("Error verifying admin user:", error);
         setLoading(false);
+        setError("Authentication failed");
         router.push("/admin/login");
       }
     });

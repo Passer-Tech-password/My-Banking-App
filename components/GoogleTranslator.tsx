@@ -61,7 +61,7 @@ export default function GoogleTranslator() {
   }, []);
 
   return (
-    <div className="w-full bg-gray-50 border-b border-gray-200 relative z-50">
+    <div className="w-full bg-gray-50 border-b border-gray-200 relative z-40">
       <Script
         id="google-translate-script"
         src="https://translate.google.com/translate_a/element.js"

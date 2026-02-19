@@ -37,6 +37,7 @@ export default function UsersPage() {
       } catch (error) {
         console.error("Error verifying admin user:", error);
         setLoading(false);
+        setError("Authentication failed");
         router.push("/admin/login");
       }
     });
