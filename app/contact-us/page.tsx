@@ -2,6 +2,9 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { EnvelopeIcon, PhoneIcon, MapPinIcon } from "@heroicons/react/24/outline";
 
+const CONTACT_PHONE_PRIMARY =
+  process.env.NEXT_PUBLIC_CONTACT_PHONE_PRIMARY || "+1 (555) 123-4567";
+
 export default function ContactPage() {
   return (
     <main className="w-full min-h-screen flex flex-col bg-white">
@@ -63,7 +66,7 @@ export default function ContactPage() {
                 </div>
                 <div>
                   <h3 className="text-lg font-bold text-gray-900 mb-1">Call Us</h3>
-                  <p className="text-gray-600">+1 (555) 123-4567</p>
+                  <p className="text-gray-600">{CONTACT_PHONE_PRIMARY}</p>
                   <p className="text-gray-600">+1 (555) 987-6543</p>
                 </div>
               </div>

@@ -11,6 +11,9 @@ import {
   CurrencyDollarIcon,
 } from "@heroicons/react/24/outline";
 
+const CONTACT_PHONE_PRIMARY =
+  process.env.NEXT_PUBLIC_CONTACT_PHONE_PRIMARY || "+1 (555) 123-4567";
+
 export default function ServicesPage() {
   return (
     <main className="w-full min-h-screen flex flex-col bg-white">
@@ -202,7 +205,7 @@ export default function ServicesPage() {
                     Phone
                   </p>
                   <p className="font-semibold text-gray-900">
-                    +1 (555) 123-4567
+                    {CONTACT_PHONE_PRIMARY}
                   </p>
                 </div>
                 <div className="p-4 rounded-xl bg-gray-50">
