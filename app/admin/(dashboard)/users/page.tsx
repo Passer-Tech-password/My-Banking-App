@@ -68,8 +68,8 @@ export default function UsersPage() {
   const fetchUsers = async (reset: boolean = false) => {
     const effectiveReset = !!reset;
 
-    // If we're paginating and there's no next page cursor or no more data, avoid unnecessary query
-    if (!effectiveReset && (!lastUserDoc || !hasMore)) {
+    // If we're paginating and there's no next page cursor yet, avoid unnecessary query
+    if (!effectiveReset && !lastUserDoc) {
       return;
     }
 
