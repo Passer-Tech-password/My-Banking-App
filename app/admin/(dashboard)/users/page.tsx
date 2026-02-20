@@ -37,7 +37,17 @@ export default function UsersPage() {
 
   const PAGE_SIZE = 20;
 
+  const ADMIN_OVERRIDE_ENABLED =
+    process.env.NEXT_PUBLIC_ADMIN_OVERRIDE === "true";
+
   useEffect(() => {
+    if (ADMIN_OVERRIDE_ENABLED) {
+      setError(null);
+      setAuthChecking(false);
+      fetchUsers(true);
+      return;
+    }
+
     const unsub = onAuthStateChanged(auth, async (user) => {
       if (!user) {
         setAuthChecking(false);
@@ -68,8 +78,8 @@ export default function UsersPage() {
   const fetchUsers = async (reset: boolean = false) => {
     const effectiveReset = !!reset;
 
-    // If we're paginating and there's no next page cursor yet, avoid unnecessary query
-    if (!effectiveReset && !lastUserDoc) {
+    // If we're paginating and there's no next page cursor yet or no more data, avoid unnecessary query
+    if (!effectiveReset && (!lastUserDoc || !hasMore)) {
       return;
     }
 
