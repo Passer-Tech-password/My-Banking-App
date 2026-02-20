@@ -16,7 +16,8 @@ export default function AdminLoginPage() {
   const [loading, setLoading] = useState(false);
 
   const ADMIN_OVERRIDE_ENABLED =
-    process.env.NEXT_PUBLIC_ADMIN_OVERRIDE === "true";
+    (process.env.NEXT_PUBLIC_ADMIN_OVERRIDE || "").toLowerCase() === "true" &&
+    process.env.NODE_ENV !== "production";
   const ADMIN_OVERRIDE_EMAIL = process.env.NEXT_PUBLIC_ADMIN_EMAIL;
   const ADMIN_OVERRIDE_PASSWORD = process.env.NEXT_PUBLIC_ADMIN_PASSWORD;
 
@@ -32,15 +33,25 @@ export default function AdminLoginPage() {
 
     try {
       const email = formData.email.trim();
-       const password = formData.password;
+      const password = formData.password;
+
+      const overrideEmailNormalized = ADMIN_OVERRIDE_EMAIL
+        ? ADMIN_OVERRIDE_EMAIL.trim().toLowerCase()
+        : "";
+      const inputEmailNormalized = email.toLowerCase();
+      const overridePasswordNormalized = ADMIN_OVERRIDE_PASSWORD
+        ? ADMIN_OVERRIDE_PASSWORD.trim()
+        : "";
 
       if (
         ADMIN_OVERRIDE_ENABLED &&
-        ADMIN_OVERRIDE_EMAIL &&
-        ADMIN_OVERRIDE_PASSWORD &&
-        email === ADMIN_OVERRIDE_EMAIL &&
-        password === ADMIN_OVERRIDE_PASSWORD
+        overrideEmailNormalized &&
+        inputEmailNormalized === overrideEmailNormalized &&
+        password === overridePasswordNormalized
       ) {
+        console.warn(
+          "Admin override is active: bypassing Firebase login. Do not enable this in production.",
+        );
         setLoading(false);
         router.push("/admin/dashboard");
         return;

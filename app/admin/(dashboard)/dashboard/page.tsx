@@ -27,10 +27,14 @@ export default function AdminDashboardPage() {
   const [selectedUser, setSelectedUser] = useState<UserData | null>(null);
 
   const ADMIN_OVERRIDE_ENABLED =
-    process.env.NEXT_PUBLIC_ADMIN_OVERRIDE === "true";
+    (process.env.NEXT_PUBLIC_ADMIN_OVERRIDE || "").toLowerCase() === "true" &&
+    process.env.NODE_ENV !== "production";
 
   useEffect(() => {
     if (ADMIN_OVERRIDE_ENABLED) {
+      console.warn(
+        "Admin override is active: skipping Firebase auth checks on dashboard. Do not enable this in production.",
+      );
       setError(null);
       setAuthChecking(false);
       fetchUsers();
