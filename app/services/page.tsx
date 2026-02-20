@@ -10,9 +10,7 @@ import {
   BriefcaseIcon,
   CurrencyDollarIcon,
 } from "@heroicons/react/24/outline";
-
-const CONTACT_PHONE_PRIMARY =
-  process.env.NEXT_PUBLIC_CONTACT_PHONE_PRIMARY || "+1 (555) 123-4567";
+import { CONTACT_PHONE_PRIMARY } from "@/lib/config";
 
 export default function ServicesPage() {
   return (

@@ -51,11 +51,15 @@ export default function AdminLoginPage() {
 
     } catch (err: any) {
       console.error("Login error:", err);
-      
-      if (err.code === 'auth/invalid-credential') {
-         setError("Invalid email or password.");
+
+      if (err.code === "auth/invalid-credential") {
+        setError("Invalid email or password.");
+      } else if (err.code === "auth/network-request-failed") {
+        setError(
+          "Network error while contacting Firebase. Please check your internet connection, VPN, or ad blockers and try again.",
+        );
       } else {
-         setError("Login failed. Please try again.");
+        setError("Login failed. Please try again.");
       }
     } finally {
       setLoading(false);

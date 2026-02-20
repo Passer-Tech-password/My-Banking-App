@@ -1,0 +1,3 @@
+export const CONTACT_PHONE_PRIMARY =
+  process.env.NEXT_PUBLIC_CONTACT_PHONE_PRIMARY || "+1 (555) 123-4567";
+

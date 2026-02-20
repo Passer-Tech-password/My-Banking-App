@@ -17,7 +17,8 @@ import {
 export default function AdminDashboardPage() {
   const router = useRouter();
   const [users, setUsers] = useState<UserData[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [authChecking, setAuthChecking] = useState(true);
+  const [usersLoading, setUsersLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [error, setError] = useState<string | null>(null);
   
@@ -28,6 +29,7 @@ export default function AdminDashboardPage() {
   useEffect(() => {
     const unsub = onAuthStateChanged(auth, async (user) => {
       if (!user) {
+        setAuthChecking(false);
         router.push("/admin/login");
         return;
       }
@@ -35,13 +37,15 @@ export default function AdminDashboardPage() {
         setError(null);
         const profileSnap = await getDoc(doc(db, "users", user.uid));
         if (!profileSnap.exists() || profileSnap.data()?.role !== "admin") {
+          setAuthChecking(false);
           router.push("/admin/login");
           return;
         }
+        setAuthChecking(false);
         fetchUsers();
       } catch (error) {
         console.error("Error verifying admin user:", error);
-        setLoading(false);
+        setAuthChecking(false);
         setError("Authentication failed");
         router.push("/admin/login");
       }
@@ -53,6 +57,7 @@ export default function AdminDashboardPage() {
   const fetchUsers = async () => {
     try {
       setError(null);
+      setUsersLoading(true);
       const q = query(collection(db, "users"));
       const querySnapshot = await getDocs(q);
       const fetchedUsers: UserData[] = [];
@@ -64,7 +69,7 @@ export default function AdminDashboardPage() {
       console.error("Error fetching users:", error);
       setError("Failed to load users. Please try again later.");
     } finally {
-      setLoading(false);
+      setUsersLoading(false);
     }
   };
 
@@ -114,7 +119,7 @@ export default function AdminDashboardPage() {
     blocked: users.filter(u => u.blocked).length
   };
 
-  if (loading) {
+  if (authChecking) {
     return (
       <div className="flex items-center justify-center h-full min-h-[50vh]">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
@@ -164,15 +169,23 @@ export default function AdminDashboardPage() {
       <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
         <div className="p-6 border-b border-gray-100 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <h2 className="text-lg font-bold text-gray-900">User Management</h2>
-          <div className="relative">
-            <MagnifyingGlassIcon className="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-            <input 
-              type="text" 
-              placeholder="Search users..." 
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent w-full sm:w-64"
-            />
+          <div className="flex flex-col sm:flex-row sm:items-center gap-3">
+            <div className="relative">
+              <MagnifyingGlassIcon className="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+              <input 
+                type="text" 
+                placeholder="Search users..." 
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent w-full sm:w-64"
+              />
+            </div>
+            {usersLoading && (
+              <div className="flex items-center gap-2 text-sm text-gray-500">
+                <span className="inline-block h-4 w-4 border-b-2 border-blue-500 rounded-full animate-spin" />
+                <span>Loading users...</span>
+              </div>
+            )}
           </div>
         </div>
         

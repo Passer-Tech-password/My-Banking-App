@@ -3,9 +3,8 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { onAuthStateChanged } from "firebase/auth";
-import { collection, getDocs, query, orderBy, limit } from "firebase/firestore";
+import { collection, getDocs, query, orderBy, limit, doc, getDoc } from "firebase/firestore";
 import { db, auth } from "@/lib/firebase";
-import { doc, getDoc } from "firebase/firestore";
 import { Transaction } from "@/lib/Transaction";
 import { 
   ArrowDownLeftIcon, 
@@ -16,12 +15,14 @@ import {
 export default function AdminTransactionsPage() {
   const router = useRouter();
   const [transactions, setTransactions] = useState<Transaction[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [authChecking, setAuthChecking] = useState(true);
+  const [txLoading, setTxLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const unsub = onAuthStateChanged(auth, async (user) => {
       if (!user) {
+        setAuthChecking(false);
         router.push("/admin/login");
         return;
       }
@@ -29,13 +30,15 @@ export default function AdminTransactionsPage() {
         setError(null);
         const profileSnap = await getDoc(doc(db, "users", user.uid));
         if (!profileSnap.exists() || profileSnap.data()?.role !== "admin") {
+          setAuthChecking(false);
           router.push("/admin/login");
           return;
         }
+        setAuthChecking(false);
         fetchTransactions();
       } catch (error) {
         console.error("Error verifying admin user:", error);
-        setLoading(false);
+        setAuthChecking(false);
         setError("Authentication failed");
         router.push("/admin/login");
       }
@@ -47,6 +50,7 @@ export default function AdminTransactionsPage() {
   const fetchTransactions = async () => {
     try {
       setError(null);
+      setTxLoading(true);
       const q = query(
         collection(db, "transactions"), 
         orderBy("date", "desc"),
@@ -63,11 +67,11 @@ export default function AdminTransactionsPage() {
       console.error("Error fetching transactions:", error);
       setError("Failed to load transactions. Please try again later.");
     } finally {
-      setLoading(false);
+      setTxLoading(false);
     }
   };
 
-  if (loading) {
+  if (authChecking) {
     return (
       <div className="flex items-center justify-center h-full min-h-[50vh]">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
@@ -84,8 +88,11 @@ export default function AdminTransactionsPage() {
       )}
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold text-gray-900">Transaction Logs</h1>
-        <div className="text-sm text-gray-500">
-          Showing last {transactions.length} transactions
+        <div className="flex items-center gap-2 text-sm text-gray-500">
+          <span>Showing last {transactions.length} transactions</span>
+          {txLoading && (
+            <span className="inline-block h-3 w-3 border-b-2 border-blue-500 rounded-full animate-spin" />
+          )}
         </div>
       </div>
 
