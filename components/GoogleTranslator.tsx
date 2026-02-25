@@ -168,7 +168,7 @@ export default function GoogleTranslator() {
   }, []);
 
   const handleLanguageSelect = (langCode: string) => {
-    const combo = document.querySelector(".goog-te-combo") as HTMLSelectElement;
+    const combo = wrapperRef.current?.querySelector(".goog-te-combo") as HTMLSelectElement;
     if (combo) {
       combo.value = langCode;
       combo.dispatchEvent(new Event("change"));
