@@ -168,7 +168,13 @@ export default function GoogleTranslator() {
   }, []);
 
   const handleLanguageSelect = (langCode: string) => {
-    const combo = wrapperRef.current?.querySelector(".goog-te-combo") as HTMLSelectElement;
+    let combo = wrapperRef.current?.querySelector(".goog-te-combo") as HTMLSelectElement;
+    
+    // Fallback to document.querySelector if not found in wrapper (sometimes Google moves it)
+    if (!combo) {
+      combo = document.querySelector(".goog-te-combo") as HTMLSelectElement;
+    }
+
     if (combo) {
       combo.value = langCode;
       combo.dispatchEvent(new Event("change"));
@@ -208,7 +214,7 @@ export default function GoogleTranslator() {
         {/* Hidden Google Translate Element */}
         <div 
           id="google_translate_element" 
-          className="absolute opacity-0 pointer-events-none h-0 w-0 overflow-hidden" 
+          className="fixed bottom-0 right-0 opacity-0 pointer-events-none" 
           aria-hidden="true"
         />
 
