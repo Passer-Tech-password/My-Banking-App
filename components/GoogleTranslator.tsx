@@ -155,6 +155,7 @@ export default function GoogleTranslator() {
           pageLanguage: "en",
           layout,
           autoDisplay: false,
+          // includedLanguages: LANGUAGES.map(l => l.code).join(','), // Commented out to debug if restriction is causing issues
         },
         "google_translate_element",
       );
@@ -168,17 +169,57 @@ export default function GoogleTranslator() {
   }, []);
 
   const handleLanguageSelect = (langCode: string) => {
-    let combo = wrapperRef.current?.querySelector(".goog-te-combo") as HTMLSelectElement;
+    let combo = wrapperRef.current?.querySelector(".goog-te-combo");
     
     // Fallback to document.querySelector if not found in wrapper (sometimes Google moves it)
     if (!combo) {
-      combo = document.querySelector(".goog-te-combo") as HTMLSelectElement;
+      combo = document.querySelector(".goog-te-combo");
     }
 
-    if (combo) {
+    if (combo instanceof HTMLSelectElement) {
       combo.value = langCode;
       combo.dispatchEvent(new Event("change"));
       setCurrentLang(langCode);
+    } else {
+      console.warn("Google Translate combo box not found. Retrying...");
+      
+      // Retry strategy: check multiple times and look inside iframes
+      let attempts = 0;
+      const maxAttempts = 10;
+      
+      const intervalId = setInterval(() => {
+        attempts++;
+        let retryCombo = document.querySelector(".goog-te-combo");
+        
+        // Sometimes Google renders inside an iframe
+        if (!retryCombo) {
+          const frames = document.getElementsByTagName("iframe");
+          for (let i = 0; i < frames.length; i++) {
+            try {
+              const frameDoc = frames[i].contentDocument || frames[i].contentWindow?.document;
+              if (frameDoc) {
+                const found = frameDoc.querySelector(".goog-te-combo");
+                if (found) {
+                  retryCombo = found;
+                  break;
+                }
+              }
+            } catch (e) {
+              // Cross-origin access might fail, ignore
+            }
+          }
+        }
+
+        if (retryCombo instanceof HTMLSelectElement) {
+           retryCombo.value = langCode;
+           retryCombo.dispatchEvent(new Event("change"));
+           setCurrentLang(langCode);
+           clearInterval(intervalId);
+        } else if (attempts >= maxAttempts) {
+           console.error("Google Translate combo box still not found after multiple attempts");
+           clearInterval(intervalId);
+        }
+      }, 500);
     }
     setIsOpen(false);
     setSearchQuery("");
@@ -214,7 +255,7 @@ export default function GoogleTranslator() {
         {/* Hidden Google Translate Element */}
         <div 
           id="google_translate_element" 
-          className="fixed bottom-0 right-0 opacity-0 pointer-events-none" 
+          className="fixed bottom-0 right-0 pointer-events-none opacity-0" 
           aria-hidden="true"
         />
 
