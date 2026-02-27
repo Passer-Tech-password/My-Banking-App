@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { cookies } from "next/headers";
 import { getLocaleFromCookies } from "@/lib/i18n/server";
+import { defaultLocale } from "@/lib/i18n/messages";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -24,12 +25,18 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const locale = getLocaleFromCookies(cookies());
+  let locale = defaultLocale;
+  try {
+    const cookieStore = await cookies();
+    locale = getLocaleFromCookies(cookieStore);
+  } catch (error) {
+    // Fallback to default locale
+  }
 
   return (
     <html lang={locale}>

@@ -2,9 +2,16 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { cookies } from "next/headers";
 import { getLocaleFromCookies } from "@/lib/i18n/server";
+import { defaultLocale } from "@/lib/i18n/messages";
 
-export default function PrivacyPolicyPage() {
-  const locale = getLocaleFromCookies(cookies());
+export default async function PrivacyPolicyPage() {
+  let locale = defaultLocale;
+  try {
+    const cookieStore = await cookies();
+    locale = getLocaleFromCookies(cookieStore);
+  } catch (error) {
+    // Fallback to default locale
+  }
 
   return (
     <main className="w-full min-h-screen flex flex-col bg-white">
