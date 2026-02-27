@@ -1,6 +1,9 @@
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import Link from "next/link";
+import { cookies } from "next/headers";
+import { getLocaleFromCookies } from "@/lib/i18n/server";
+import { createTranslator } from "@/lib/i18n/messages";
 import {
   BanknotesIcon,
   CreditCardIcon,
@@ -12,7 +15,11 @@ import {
 } from "@heroicons/react/24/outline";
 import { CONTACT_PHONE_PRIMARY } from "@/lib/config";
 
-export default function ServicesPage() {
+export default async function ServicesPage() {
+  const cookieStore = await cookies();
+  const locale = getLocaleFromCookies(cookieStore);
+  const t = createTranslator(locale);
+
   return (
     <main className="w-full min-h-screen flex flex-col bg-white">
       <Navbar />
@@ -25,12 +32,10 @@ export default function ServicesPage() {
 
         <div className="max-w-7xl mx-auto px-6 relative z-10 text-center">
           <h1 className="text-4xl md:text-5xl font-bold mb-6">
-            Banking Services Designed Around You
+            {t("services.title")}
           </h1>
           <p className="text-xl text-blue-100 max-w-3xl mx-auto">
-            From everyday banking to major life milestones, Aurora Bank offers
-            tailored credit cards, loans, and financing solutions to help you
-            move confidently.
+            {t("services.description")}
           </p>
         </div>
       </section>
@@ -43,22 +48,16 @@ export default function ServicesPage() {
                 <CreditCardIcon className="w-6 h-6" />
               </div>
               <h2 className="text-2xl font-bold text-gray-900 mb-3">
-                Credit Cards
+                {t("services.card1.title")}
               </h2>
               <p className="text-gray-600 mb-6">
-                Flexible credit with transparent pricing, rich rewards, and
-                real-time controls in your dashboard.
+                {t("services.card1.description")}
               </p>
-              <ul className="space-y-2 text-sm text-gray-600 mb-6">
-                <li>• Cashback on everyday purchases</li>
-                <li>• Virtual cards for safer online payments</li>
-                <li>• Real-time card lock and spend alerts</li>
-              </ul>
               <Link
                 href="/register"
                 className="mt-auto inline-flex items-center gap-2 text-blue-700 font-semibold hover:text-blue-900"
               >
-                Apply for a credit card
+                {t("services.cta.button")}
                 <ArrowRightIcon className="w-4 h-4" />
               </Link>
             </div>
@@ -68,22 +67,16 @@ export default function ServicesPage() {
                 <BanknotesIcon className="w-6 h-6" />
               </div>
               <h2 className="text-2xl font-bold text-gray-900 mb-3">
-                Personal Loans
+                {t("services.card4.title")}
               </h2>
               <p className="text-gray-600 mb-6">
-                Simple, unsecured loans with clear terms for consolidating
-                debt, funding projects, or handling the unexpected.
+                {t("services.card4.description")}
               </p>
-              <ul className="space-y-2 text-sm text-gray-600 mb-6">
-                <li>• Competitive fixed interest rates</li>
-                <li>• Flexible repayment schedules</li>
-                <li>• No early repayment penalties</li>
-              </ul>
               <Link
                 href="/contact-us"
                 className="mt-auto inline-flex items-center gap-2 text-blue-700 font-semibold hover:text-blue-900"
               >
-                Discuss a personal loan
+                {t("about.getInTouch")}
                 <ArrowRightIcon className="w-4 h-4" />
               </Link>
             </div>
@@ -93,27 +86,107 @@ export default function ServicesPage() {
                 <HomeModernIcon className="w-6 h-6" />
               </div>
               <h2 className="text-2xl font-bold text-gray-900 mb-3">
-                Home & Vehicle Financing
+                {t("services.card5.title")}
               </h2>
               <p className="text-gray-600 mb-6">
-                Structured financing for property and vehicles with guidance
-                from experienced specialists.
+                {t("services.card5.description")}
               </p>
-              <ul className="space-y-2 text-sm text-gray-600 mb-6">
-                <li>• Mortgage and refinancing options</li>
-                <li>• Auto financing with predictable payments</li>
-                <li>• Expert support from application to closing</li>
-              </ul>
               <Link
                 href="/contact-us"
                 className="mt-auto inline-flex items-center gap-2 text-blue-700 font-semibold hover:text-blue-900"
               >
-                Talk to a financing specialist
+                {t("about.getInTouch")}
                 <ArrowRightIcon className="w-4 h-4" />
               </Link>
             </div>
 
             <div className="bg-gray-50 rounded-2xl p-8 border border-gray-100 flex flex-col">
+              <div className="w-12 h-12 rounded-xl bg-orange-100 text-orange-600 flex items-center justify-center mb-5">
+                <CurrencyDollarIcon className="w-6 h-6" />
+              </div>
+              <h2 className="text-2xl font-bold text-gray-900 mb-3">
+                {t("services.card2.title")}
+              </h2>
+              <p className="text-gray-600 mb-6">
+                {t("services.card2.description")}
+              </p>
+              <Link
+                href="/register"
+                className="mt-auto inline-flex items-center gap-2 text-blue-700 font-semibold hover:text-blue-900"
+              >
+                {t("services.cta.button")}
+                <ArrowRightIcon className="w-4 h-4" />
+              </Link>
+            </div>
+
+            <div className="bg-gray-50 rounded-2xl p-8 border border-gray-100 flex flex-col">
+              <div className="w-12 h-12 rounded-xl bg-indigo-100 text-indigo-600 flex items-center justify-center mb-5">
+                <BriefcaseIcon className="w-6 h-6" />
+              </div>
+              <h2 className="text-2xl font-bold text-gray-900 mb-3">
+                {t("services.card3.title")}
+              </h2>
+              <p className="text-gray-600 mb-6">
+                {t("services.card3.description")}
+              </p>
+              <Link
+                href="/contact-us"
+                className="mt-auto inline-flex items-center gap-2 text-blue-700 font-semibold hover:text-blue-900"
+              >
+                {t("about.getInTouch")}
+                <ArrowRightIcon className="w-4 h-4" />
+              </Link>
+            </div>
+
+            <div className="bg-gray-50 rounded-2xl p-8 border border-gray-100 flex flex-col">
+              <div className="w-12 h-12 rounded-xl bg-teal-100 text-teal-600 flex items-center justify-center mb-5">
+                <ShieldCheckIcon className="w-6 h-6" />
+              </div>
+              <h2 className="text-2xl font-bold text-gray-900 mb-3">
+                {t("services.card6.title")}
+              </h2>
+              <p className="text-gray-600 mb-6">
+                {t("services.card6.description")}
+              </p>
+              <Link
+                href="/contact-us"
+                className="mt-auto inline-flex items-center gap-2 text-blue-700 font-semibold hover:text-blue-900"
+              >
+                {t("about.getInTouch")}
+                <ArrowRightIcon className="w-4 h-4" />
+              </Link>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section className="bg-blue-600 py-16 px-6">
+        <div className="max-w-4xl mx-auto text-center text-white">
+          <h2 className="text-3xl font-bold mb-6">{t("services.cta.title")}</h2>
+          <p className="text-blue-100 text-lg mb-8 max-w-2xl mx-auto">
+            {t("services.cta.description")}
+          </p>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <Link
+              href="/register"
+              className="bg-white text-blue-600 px-8 py-3 rounded-lg font-bold hover:bg-blue-50 transition-colors"
+            >
+              {t("services.cta.button")}
+            </Link>
+            <Link
+              href="/contact-us"
+              className="bg-blue-700 text-white border border-blue-500 px-8 py-3 rounded-lg font-bold hover:bg-blue-800 transition-colors"
+            >
+              {t("contact.title")}
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      <Footer />
+    </main>
+  );
+}
               <div className="w-12 h-12 rounded-xl bg-amber-100 text-amber-600 flex items-center justify-center mb-5">
                 <BriefcaseIcon className="w-6 h-6" />
               </div>
@@ -220,7 +293,7 @@ export default function ServicesPage() {
         </div>
       </section>
 
-      <Footer />
+      <Footer locale={locale} />
     </main>
   );
 }

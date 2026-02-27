@@ -2,30 +2,43 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import { createTranslator, type Locale } from "@/lib/i18n/messages";
+import { getLocaleFromDocument } from "@/lib/i18n/client";
 
-const slides = [
-  {
-    title: "Reliable. Zero Service Charge",
-    subtitle: "Move Your Money In Easy Secured Steps",
-    description: "Dea of denouncing pleasure and praising pain was born and lete system, and expound the ac teachings aitems to sed quia non numquam amet sit dolor.",
-    bg: "bg-gradient-to-br from-blue-900 to-slate-900"
-  },
-  {
-    title: "Easy. Fastest. Secure",
-    subtitle: "Secured & Easy Online Payment Solution",
-    description: "Dea of denouncing pleasure and praising pain was born and lete system, and expound the ac teachings aitems to sed quia non numquam amet sit dolor.",
-    bg: "bg-gradient-to-br from-indigo-900 to-blue-900"
-  },
-  {
-    title: "Simple. Transparent. Secure",
-    subtitle: "Fast & Secure Online Money Transfer",
-    description: "An international account to send money to over 60 countries around the world, up to 7x cheaper the bank.",
-    bg: "bg-gradient-to-br from-slate-900 to-gray-900"
-  }
-];
-
-export default function HeroSlider() {
+export default function HeroSlider({ locale }: { locale?: Locale }) {
   const [current, setCurrent] = useState(0);
+  const [resolvedLocale, setResolvedLocale] = useState<Locale>(locale ?? "en");
+
+  useEffect(() => {
+    if (locale) {
+      setResolvedLocale(locale);
+      return;
+    }
+    setResolvedLocale(getLocaleFromDocument());
+  }, [locale]);
+
+  const t = createTranslator(resolvedLocale);
+
+  const slides = [
+    {
+      title: t("hero.slide1.title"),
+      subtitle: t("hero.slide1.subtitle"),
+      description: t("hero.slide1.description"),
+      bg: "bg-gradient-to-br from-blue-900 to-slate-900",
+    },
+    {
+      title: t("hero.slide2.title"),
+      subtitle: t("hero.slide2.subtitle"),
+      description: t("hero.slide2.description"),
+      bg: "bg-gradient-to-br from-indigo-900 to-blue-900",
+    },
+    {
+      title: t("hero.slide3.title"),
+      subtitle: t("hero.slide3.subtitle"),
+      description: t("hero.slide3.description"),
+      bg: "bg-gradient-to-br from-slate-900 to-gray-900",
+    },
+  ];
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -64,7 +77,7 @@ export default function HeroSlider() {
                 href="/register"
                 className="inline-block bg-blue-600 hover:bg-blue-700 text-white font-semibold px-8 py-4 rounded-lg transition-all shadow-lg transform hover:scale-105 hover:shadow-blue-500/25"
               >
-                Get Started
+                {t("hero.getStarted")}
               </Link>
             </div>
           </div>

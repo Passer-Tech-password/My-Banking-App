@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
-import GoogleTranslator from "@/components/GoogleTranslator";
+import { cookies } from "next/headers";
+import { getLocaleFromCookies } from "@/lib/i18n/server";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -28,12 +29,13 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const locale = getLocaleFromCookies(cookies());
+
   return (
-    <html lang="en">
+    <html lang={locale}>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <GoogleTranslator />
         {children}
       </body>
     </html>

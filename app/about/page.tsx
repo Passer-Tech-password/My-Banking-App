@@ -2,8 +2,15 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import Link from "next/link";
 import { UserGroupIcon, BuildingOfficeIcon, GlobeAmericasIcon } from "@heroicons/react/24/outline";
+import { cookies } from "next/headers";
+import { getLocaleFromCookies } from "@/lib/i18n/server";
+import { createTranslator } from "@/lib/i18n/messages";
 
-export default function AboutPage() {
+export default async function AboutPage() {
+  const cookieStore = await cookies();
+  const locale = getLocaleFromCookies(cookieStore);
+  const t = createTranslator(locale);
+
   return (
     <main className="w-full min-h-screen flex flex-col bg-white">
       <Navbar />
@@ -16,9 +23,9 @@ export default function AboutPage() {
         </div>
         
         <div className="max-w-7xl mx-auto px-6 relative z-10 text-center">
-          <h1 className="text-4xl md:text-5xl font-bold mb-6">About Aurora Bank</h1>
+          <h1 className="text-4xl md:text-5xl font-bold mb-6">{t("about.title")}</h1>
           <p className="text-xl text-blue-100 max-w-2xl mx-auto">
-            Aurora Bank is a digital-first bank crafted for discerning clients who expect simplicity, transparency, and security on a global scale.
+            {t("about.description")}
           </p>
         </div>
       </section>
@@ -27,22 +34,22 @@ export default function AboutPage() {
       <section className="py-20 px-6">
         <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
           <div>
-            <span className="text-blue-600 font-semibold tracking-wide uppercase text-sm">Who We Are</span>
+            <span className="text-blue-600 font-semibold tracking-wide uppercase text-sm">{t("about.whoWeAre")}</span>
             <h2 className="text-3xl font-bold text-gray-900 mt-2 mb-6">
-              A Financial Partner You Can Trust
+              {t("about.trustTitle")}
             </h2>
             <p className="text-gray-600 mb-6 text-lg leading-relaxed">
-              Aurora Bank was founded with a simple mission: to offer modern banking that is accessible yet refined, combining fair pricing with a high‑touch service experience. Your money should work for you, not get lost in fees and complexity.
+              {t("about.trustText1")}
             </p>
             <p className="text-gray-600 mb-8 text-lg leading-relaxed">
-              Our specialists pair deep financial expertise with advanced technology to give you intuitive tools, insightful guidance, and responsive support wherever you are in the world.
+              {t("about.trustText2")}
             </p>
             
             <Link
               href="/contact-us"
               className="inline-flex items-center gap-2 bg-blue-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-700 transition-colors"
             >
-              Get in Touch
+              {t("about.getInTouch")}
               <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
               </svg>
@@ -55,15 +62,15 @@ export default function AboutPage() {
                 <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center text-blue-600 mb-4">
                   <UserGroupIcon className="w-6 h-6" />
                 </div>
-                <h3 className="text-xl font-bold text-gray-900 mb-2">Customer First</h3>
-                <p className="text-gray-600 text-sm">We prioritize your needs and goals above all else.</p>
+                <h3 className="text-xl font-bold text-gray-900 mb-2">{t("about.customerFirst")}</h3>
+                <p className="text-gray-600 text-sm">{t("about.customerFirstText")}</p>
               </div>
               <div className="bg-gray-50 p-6 rounded-2xl">
                 <div className="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center text-green-600 mb-4">
                   <GlobeAmericasIcon className="w-6 h-6" />
                 </div>
-                <h3 className="text-xl font-bold text-gray-900 mb-2">Global Reach</h3>
-                <p className="text-gray-600 text-sm">Access your money from anywhere in the world.</p>
+                <h3 className="text-xl font-bold text-gray-900 mb-2">{t("about.globalReach")}</h3>
+                <p className="text-gray-600 text-sm">{t("about.globalReachText")}</p>
               </div>
             </div>
             <div className="space-y-6">
@@ -71,8 +78,8 @@ export default function AboutPage() {
                 <div className="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center text-purple-600 mb-4">
                   <BuildingOfficeIcon className="w-6 h-6" />
                 </div>
-                <h3 className="text-xl font-bold text-gray-900 mb-2">Secure & Safe</h3>
-                <p className="text-gray-600 text-sm">Bank-grade security protocols to protect your assets.</p>
+                <h3 className="text-xl font-bold text-gray-900 mb-2">{t("about.secure")}</h3>
+                <p className="text-gray-600 text-sm">{t("about.secureText")}</p>
               </div>
               <div className="bg-blue-600 p-6 rounded-2xl text-white">
                 <h3 className="text-4xl font-bold mb-2">10+</h3>
@@ -94,15 +101,15 @@ export default function AboutPage() {
             </div>
             <div>
               <div className="text-4xl font-bold text-blue-400 mb-2">$5B+</div>
-              <div className="text-gray-400">Transactions</div>
+              <div className="text-gray-400">{t("about.stat.transactions")}</div>
             </div>
             <div>
               <div className="text-4xl font-bold text-blue-400 mb-2">60+</div>
-              <div className="text-gray-400">Countries</div>
+              <div className="text-gray-400">{t("about.stat.countries")}</div>
             </div>
             <div>
               <div className="text-4xl font-bold text-blue-400 mb-2">24/7</div>
-              <div className="text-gray-400">Support</div>
+              <div className="text-gray-400">{t("about.stat.support")}</div>
             </div>
           </div>
         </div>

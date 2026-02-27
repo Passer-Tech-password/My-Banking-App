@@ -1,10 +1,14 @@
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import { cookies } from "next/headers";
+import { getLocaleFromCookies } from "@/lib/i18n/server";
 
 export default function PrivacyPolicyPage() {
+  const locale = getLocaleFromCookies(cookies());
+
   return (
     <main className="w-full min-h-screen flex flex-col bg-white">
-      <Navbar />
+      <Navbar locale={locale} />
 
       {/* Hero Section */}
       <section className="bg-blue-900 text-white py-16 relative overflow-hidden">
@@ -82,7 +86,7 @@ export default function PrivacyPolicyPage() {
         </div>
       </section>
 
-      <Footer />
+      <Footer locale={locale} />
     </main>
   );
 }

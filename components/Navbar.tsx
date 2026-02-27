@@ -1,14 +1,30 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { signOut } from "firebase/auth";
 import { auth } from "@/lib/firebase";
+import LanguageSwitcher from "@/components/LanguageSwitcher";
+import { createTranslator, type Locale } from "@/lib/i18n/messages";
+import { getLocaleFromDocument } from "@/lib/i18n/client";
 
-export default function Navbar() {
+export default function Navbar({ locale }: { locale?: Locale }) {
   const [isOpen, setIsOpen] = useState(false);
   const router = useRouter();
+  const [resolvedLocale, setResolvedLocale] = useState<Locale>(
+    locale ?? "en",
+  );
+
+  useEffect(() => {
+    if (locale) {
+      setResolvedLocale(locale);
+      return;
+    }
+    setResolvedLocale(getLocaleFromDocument());
+  }, [locale]);
+
+  const t = createTranslator(resolvedLocale);
 
   const handleLogout = async () => {
     await signOut(auth);
@@ -16,10 +32,10 @@ export default function Navbar() {
   };
 
   const navLinks = [
-    { name: "Home", href: "/" },
-    { name: "About Us", href: "/about" },
-    { name: "Services", href: "/services" },
-    { name: "Contact Us", href: "/contact-us" },
+    { name: t("nav.home"), href: "/" },
+    { name: t("nav.about"), href: "/about" },
+    { name: t("nav.services"), href: "/services" },
+    { name: t("nav.contact"), href: "/contact-us" },
   ];
 
   return (
@@ -46,17 +62,21 @@ export default function Navbar() {
               </Link>
             ))}
             <div className="flex items-center gap-4 ml-4">
+              <LanguageSwitcher
+                locale={resolvedLocale}
+                onChange={(next) => setResolvedLocale(next)}
+              />
               <Link
                 href="/login"
                 className="text-gray-700 hover:text-blue-700 font-medium text-sm"
               >
-                Login
+                {t("nav.login")}
               </Link>
               <Link
                 href="/register"
                 className="bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-blue-800 transition-colors"
               >
-                Register Now
+                {t("nav.register")}
               </Link>
             </div>
           </div>
@@ -120,19 +140,25 @@ export default function Navbar() {
               </Link>
             ))}
             <div className="mt-4 pt-4 border-t border-gray-100">
+              <div className="px-3 py-2">
+                <LanguageSwitcher
+                  locale={resolvedLocale}
+                  onChange={(next) => setResolvedLocale(next)}
+                />
+              </div>
               <Link
                 href="/login"
                 onClick={() => setIsOpen(false)}
                 className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-blue-700 hover:bg-gray-50"
               >
-                Login
+                {t("nav.login")}
               </Link>
               <Link
                 href="/register"
                 onClick={() => setIsOpen(false)}
                 className="block w-full text-center mt-2 px-4 py-2 border border-transparent text-base font-medium rounded-md text-white bg-blue-700 hover:bg-blue-800"
               >
-                Register Now
+                {t("nav.register")}
               </Link>
             </div>
           </div>
