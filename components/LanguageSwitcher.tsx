@@ -31,7 +31,8 @@ export default function LanguageSwitcher() {
     setLocaleCookie(newLocale);
     setCurrentLocale(newLocale);
     setIsOpen(false);
-    router.refresh();
+    // Force a hard refresh to ensure server components re-render with the new cookie
+    window.location.reload(); 
   };
 
   const filteredLocales = locales.filter(locale => 

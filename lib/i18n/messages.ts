@@ -1,6 +1,7 @@
 export const locales = [
   "en", "fr", "es", "de", "it", "pt", "ru", "zh", "ja", "ko", 
-  "ar", "hi", "bn", "pa", "jv", "ms", "vi", "th", "tr", "nl"
+  "ar", "hi", "bn", "pa", "jv", "ms", "vi", "th", "tr", "nl",
+  "pl", "uk", "ro", "el", "sv", "hu", "cs", "id", "tl", "fa", "sw", "he"
 ] as const;
 export type Locale = (typeof locales)[number];
 
@@ -169,6 +170,18 @@ const MESSAGES = {
   th: BASE_MESSAGES,
   tr: BASE_MESSAGES,
   nl: BASE_MESSAGES,
+  pl: BASE_MESSAGES,
+  uk: BASE_MESSAGES,
+  ro: BASE_MESSAGES,
+  el: BASE_MESSAGES,
+  sv: BASE_MESSAGES,
+  hu: BASE_MESSAGES,
+  cs: BASE_MESSAGES,
+  id: BASE_MESSAGES,
+  tl: BASE_MESSAGES,
+  fa: BASE_MESSAGES,
+  sw: BASE_MESSAGES,
+  he: BASE_MESSAGES,
 } as const;
 
 export type MessageKey = keyof (typeof MESSAGES)["en"];
@@ -200,5 +213,17 @@ export const localeLabels: Record<Locale, string> = {
   vi: "Tiếng Việt",
   th: "ไทย",
   tr: "Türkçe",
-  nl: "Nederlands"
+  nl: "Nederlands",
+  pl: "Polski",
+  uk: "Українська",
+  ro: "Română",
+  el: "Ελληνικά",
+  sv: "Svenska",
+  hu: "Magyar",
+  cs: "Čeština",
+  id: "Bahasa Indonesia",
+  tl: "Filipino",
+  fa: "فارسی",
+  sw: "Kiswahili",
+  he: "עברית"
 };
