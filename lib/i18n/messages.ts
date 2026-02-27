@@ -1,7 +1,8 @@
 export const locales = [
   "en", "fr", "es", "de", "it", "pt", "ru", "zh", "ja", "ko", 
   "ar", "hi", "bn", "pa", "jv", "ms", "vi", "th", "tr", "nl",
-  "pl", "uk", "ro", "el", "sv", "hu", "cs", "id", "tl", "fa", "sw", "he"
+  "pl", "uk", "ro", "el", "sv", "hu", "cs", "id", "tl", "fa", "sw", "he",
+  "da", "fi", "no"
 ] as const;
 export type Locale = (typeof locales)[number];
 
@@ -153,35 +154,294 @@ const MESSAGES = {
   }},
   // Fallback for other languages to English (BASE_MESSAGES) for now, 
   // since generating full translations for 20 languages would be too large for this file.
-  de: BASE_MESSAGES,
-  it: BASE_MESSAGES,
-  pt: BASE_MESSAGES,
-  ru: BASE_MESSAGES,
-  zh: BASE_MESSAGES,
-  ja: BASE_MESSAGES,
-  ko: BASE_MESSAGES,
-  ar: BASE_MESSAGES,
-  hi: BASE_MESSAGES,
-  bn: BASE_MESSAGES,
-  pa: BASE_MESSAGES,
-  jv: BASE_MESSAGES,
-  ms: BASE_MESSAGES,
-  vi: BASE_MESSAGES,
-  th: BASE_MESSAGES,
-  tr: BASE_MESSAGES,
-  nl: BASE_MESSAGES,
-  pl: BASE_MESSAGES,
-  uk: BASE_MESSAGES,
-  ro: BASE_MESSAGES,
-  el: BASE_MESSAGES,
-  sv: BASE_MESSAGES,
-  hu: BASE_MESSAGES,
-  cs: BASE_MESSAGES,
-  id: BASE_MESSAGES,
-  tl: BASE_MESSAGES,
-  fa: BASE_MESSAGES,
-  sw: BASE_MESSAGES,
-  he: BASE_MESSAGES,
+  de: { ...BASE_MESSAGES, ...{
+    "nav.home": "Startseite",
+    "nav.about": "Über uns",
+    "nav.services": "Dienstleistungen",
+    "nav.contact": "Kontakt",
+    "nav.login": "Anmelden",
+    "nav.register": "Registrieren",
+    "nav.language": "Sprache"
+  }},
+  it: { ...BASE_MESSAGES, ...{
+    "nav.home": "Home",
+    "nav.about": "Chi siamo",
+    "nav.services": "Servizi",
+    "nav.contact": "Contatti",
+    "nav.login": "Accedi",
+    "nav.register": "Registrati",
+    "nav.language": "Lingua"
+  }},
+  pt: { ...BASE_MESSAGES, ...{
+    "nav.home": "Início",
+    "nav.about": "Sobre nós",
+    "nav.services": "Serviços",
+    "nav.contact": "Contato",
+    "nav.login": "Entrar",
+    "nav.register": "Registrar",
+    "nav.language": "Idioma"
+  }},
+  ru: { ...BASE_MESSAGES, ...{
+    "nav.home": "Главная",
+    "nav.about": "О нас",
+    "nav.services": "Услуги",
+    "nav.contact": "Контакты",
+    "nav.login": "Войти",
+    "nav.register": "Регистрация",
+    "nav.language": "Язык"
+  }},
+  zh: { ...BASE_MESSAGES, ...{
+    "nav.home": "首页",
+    "nav.about": "关于我们",
+    "nav.services": "服务",
+    "nav.contact": "联系我们",
+    "nav.login": "登录",
+    "nav.register": "注册",
+    "nav.language": "语言"
+  }},
+  ja: { ...BASE_MESSAGES, ...{
+    "nav.home": "ホーム",
+    "nav.about": "私たちについて",
+    "nav.services": "サービス",
+    "nav.contact": "お問い合わせ",
+    "nav.login": "ログイン",
+    "nav.register": "登録",
+    "nav.language": "言語"
+  }},
+  ko: { ...BASE_MESSAGES, ...{
+    "nav.home": "홈",
+    "nav.about": "회사 소개",
+    "nav.services": "서비스",
+    "nav.contact": "문의하기",
+    "nav.login": "로그인",
+    "nav.register": "회원가입",
+    "nav.language": "언어"
+  }},
+  ar: { ...BASE_MESSAGES, ...{
+    "nav.home": "الرئيسية",
+    "nav.about": "معلومات عنا",
+    "nav.services": "الخدمات",
+    "nav.contact": "اتصل بنا",
+    "nav.login": "تسجيل الدخول",
+    "nav.register": "تسجيل",
+    "nav.language": "اللغة"
+  }},
+  hi: { ...BASE_MESSAGES, ...{
+    "nav.home": "होम",
+    "nav.about": "हमारे बारे में",
+    "nav.services": "सेवाएं",
+    "nav.contact": "संपर्क करें",
+    "nav.login": "लॉग इन",
+    "nav.register": "रजिस्टर करें",
+    "nav.language": "भाषा"
+  }},
+  bn: { ...BASE_MESSAGES, ...{
+    "nav.home": "হোম",
+    "nav.about": "আমাদের সম্পর্কে",
+    "nav.services": "পরিষেবা",
+    "nav.contact": "যোগাযোগ",
+    "nav.login": "লগ ইন",
+    "nav.register": "নিবন্ধন",
+    "nav.language": "ভাষা"
+  }},
+  pa: { ...BASE_MESSAGES, ...{
+    "nav.home": "ਘਰ",
+    "nav.about": "ਸਾਡੇ ਬਾਰੇ",
+    "nav.services": "ਸੇਵਾਵਾਂ",
+    "nav.contact": "ਸੰਪਰਕ ਕਰੋ",
+    "nav.login": "ਲਾਗ ਇਨ",
+    "nav.register": "ਰਜਿਸਟਰ",
+    "nav.language": "ਭਾਸ਼ਾ"
+  }},
+  jv: { ...BASE_MESSAGES, ...{
+    "nav.home": "Omah",
+    "nav.about": "Babagan Kita",
+    "nav.services": "Layanan",
+    "nav.contact": "Hubungi Kita",
+    "nav.login": "Mlebu",
+    "nav.register": "Daftar",
+    "nav.language": "Basa"
+  }},
+  ms: { ...BASE_MESSAGES, ...{
+    "nav.home": "Laman Utama",
+    "nav.about": "Tentang Kami",
+    "nav.services": "Perkhidmatan",
+    "nav.contact": "Hubungi Kami",
+    "nav.login": "Log Masuk",
+    "nav.register": "Daftar",
+    "nav.language": "Bahasa"
+  }},
+  vi: { ...BASE_MESSAGES, ...{
+    "nav.home": "Trang chủ",
+    "nav.about": "Về chúng tôi",
+    "nav.services": "Dịch vụ",
+    "nav.contact": "Liên hệ",
+    "nav.login": "Đăng nhập",
+    "nav.register": "Đăng ký",
+    "nav.language": "Ngôn ngữ"
+  }},
+  th: { ...BASE_MESSAGES, ...{
+    "nav.home": "หน้าแรก",
+    "nav.about": "เกี่ยวกับเรา",
+    "nav.services": "บริการ",
+    "nav.contact": "ติดต่อเรา",
+    "nav.login": "เข้าสู่ระบบ",
+    "nav.register": "ลงทะเบียน",
+    "nav.language": "ภาษา"
+  }},
+  tr: { ...BASE_MESSAGES, ...{
+    "nav.home": "Anasayfa",
+    "nav.about": "Hakkımızda",
+    "nav.services": "Hizmetler",
+    "nav.contact": "İletişim",
+    "nav.login": "Giriş Yap",
+    "nav.register": "Kayıt Ol",
+    "nav.language": "Dil"
+  }},
+  nl: { ...BASE_MESSAGES, ...{
+    "nav.home": "Home",
+    "nav.about": "Over ons",
+    "nav.services": "Diensten",
+    "nav.contact": "Contact",
+    "nav.login": "Inloggen",
+    "nav.register": "Registreren",
+    "nav.language": "Taal"
+  }},
+  pl: { ...BASE_MESSAGES, ...{
+    "nav.home": "Strona główna",
+    "nav.about": "O nas",
+    "nav.services": "Usługi",
+    "nav.contact": "Kontakt",
+    "nav.login": "Zaloguj się",
+    "nav.register": "Zarejestruj się",
+    "nav.language": "Język"
+  }},
+  uk: { ...BASE_MESSAGES, ...{
+    "nav.home": "Головна",
+    "nav.about": "Про нас",
+    "nav.services": "Послуги",
+    "nav.contact": "Контакти",
+    "nav.login": "Увійти",
+    "nav.register": "Реєстрація",
+    "nav.language": "Мова"
+  }},
+  ro: { ...BASE_MESSAGES, ...{
+    "nav.home": "Acasă",
+    "nav.about": "Despre noi",
+    "nav.services": "Servicii",
+    "nav.contact": "Contact",
+    "nav.login": "Autentificare",
+    "nav.register": "Înregistrare",
+    "nav.language": "Limbă"
+  }},
+  el: { ...BASE_MESSAGES, ...{
+    "nav.home": "Αρχική",
+    "nav.about": "Σχετικά με εμάς",
+    "nav.services": "Υπηρεσίες",
+    "nav.contact": "Επικοινωνία",
+    "nav.login": "Σύνδεση",
+    "nav.register": "Εγγραφή",
+    "nav.language": "Γλώσσα"
+  }},
+  sv: { ...BASE_MESSAGES, ...{
+    "nav.home": "Hem",
+    "nav.about": "Om oss",
+    "nav.services": "Tjänster",
+    "nav.contact": "Kontakt",
+    "nav.login": "Logga in",
+    "nav.register": "Registrera dig",
+    "nav.language": "Språk"
+  }},
+  hu: { ...BASE_MESSAGES, ...{
+    "nav.home": "Kezdőlap",
+    "nav.about": "Rólunk",
+    "nav.services": "Szolgáltatások",
+    "nav.contact": "Kapcsolat",
+    "nav.login": "Bejelentkezés",
+    "nav.register": "Regisztráció",
+    "nav.language": "Nyelv"
+  }},
+  cs: { ...BASE_MESSAGES, ...{
+    "nav.home": "Domů",
+    "nav.about": "O nás",
+    "nav.services": "Služby",
+    "nav.contact": "Kontakt",
+    "nav.login": "Přihlásit se",
+    "nav.register": "Registrace",
+    "nav.language": "Jazyk"
+  }},
+  id: { ...BASE_MESSAGES, ...{
+    "nav.home": "Beranda",
+    "nav.about": "Tentang Kami",
+    "nav.services": "Layanan",
+    "nav.contact": "Kontak",
+    "nav.login": "Masuk",
+    "nav.register": "Daftar",
+    "nav.language": "Bahasa"
+  }},
+  tl: { ...BASE_MESSAGES, ...{
+    "nav.home": "Home",
+    "nav.about": "Tungkol sa Amin",
+    "nav.services": "Serbisyo",
+    "nav.contact": "Makipag-ugnayan",
+    "nav.login": "Mag-login",
+    "nav.register": "Magrehistro",
+    "nav.language": "Wika"
+  }},
+  fa: { ...BASE_MESSAGES, ...{
+    "nav.home": "خانه",
+    "nav.about": "درباره ما",
+    "nav.services": "خدمات",
+    "nav.contact": "تماس با ما",
+    "nav.login": "ورود",
+    "nav.register": "ثبت نام",
+    "nav.language": "زبان"
+  }},
+  sw: { ...BASE_MESSAGES, ...{
+    "nav.home": "Nyumbani",
+    "nav.about": "Kuhusu Sisi",
+    "nav.services": "Huduma",
+    "nav.contact": "Wasiliana Nasi",
+    "nav.login": "Ingia",
+    "nav.register": "Jisajili",
+    "nav.language": "Lugha"
+  }},
+  he: { ...BASE_MESSAGES, ...{
+    "nav.home": "בית",
+    "nav.about": "אודות",
+    "nav.services": "שירותים",
+    "nav.contact": "צור קשר",
+    "nav.login": "התחברות",
+    "nav.register": "הרשמה",
+    "nav.language": "שפה"
+  }},
+  da: { ...BASE_MESSAGES, ...{
+    "nav.home": "Hjem",
+    "nav.about": "Om os",
+    "nav.services": "Tjenester",
+    "nav.contact": "Kontakt os",
+    "nav.login": "Log ind",
+    "nav.register": "Tilmeld",
+    "nav.language": "Sprog"
+  }},
+  fi: { ...BASE_MESSAGES, ...{
+    "nav.home": "Koti",
+    "nav.about": "Meistä",
+    "nav.services": "Palvelut",
+    "nav.contact": "Ota yhteyttä",
+    "nav.login": "Kirjaudu",
+    "nav.register": "Rekisteröidy",
+    "nav.language": "Kieli"
+  }},
+  no: { ...BASE_MESSAGES, ...{
+    "nav.home": "Hjem",
+    "nav.about": "Om oss",
+    "nav.services": "Tjenester",
+    "nav.contact": "Kontakt oss",
+    "nav.login": "Logg inn",
+    "nav.register": "Registrer deg",
+    "nav.language": "Språk"
+  }},
 } as const;
 
 export type MessageKey = keyof (typeof MESSAGES)["en"];
@@ -225,5 +485,8 @@ export const localeLabels: Record<Locale, string> = {
   tl: "Filipino",
   fa: "فارسی",
   sw: "Kiswahili",
-  he: "עברית"
+  he: "עברית",
+  da: "Dansk",
+  fi: "Suomi",
+  no: "Norsk"
 };
