@@ -23,7 +23,7 @@ export default async function HomePage() {
   return (
     <main className="w-full min-h-screen flex flex-col bg-white">
       {/* NAVBAR */}
-      <Navbar />
+      <Navbar locale={locale} />
       
       {/* HERO SECTION */}
       <HeroSlider />
@@ -137,32 +137,49 @@ export default async function HomePage() {
       </section>
 
       {/* BANKING SECURITY SECTION */}
-      <section className="bg-blue-900 text-white py-20 px-6">
-        <div className="max-w-7xl mx-auto text-center">
-          <span className="text-blue-300 font-semibold tracking-wide uppercase text-sm">{t("home.security")}</span>
-          <h2 className="text-3xl md:text-4xl font-bold mt-2 mb-6">
-            {t("home.security.title")}
-          </h2>
-          <p className="text-blue-100 max-w-3xl mx-auto mb-12 text-lg">
-            {t("home.security.description")}
-          </p>
-          
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-8 text-center">
-            <div className="p-6 bg-blue-800 rounded-xl border border-blue-700">
-              <h3 className="text-3xl font-bold mb-2">256-bit</h3>
-              <p className="text-blue-200 text-sm">{t("home.security.encryption")}</p>
+      <section className="bg-blue-900 text-white py-20 px-6 overflow-hidden">
+        <div className="max-w-7xl mx-auto">
+          <div className="flex flex-col lg:flex-row items-center gap-16">
+            <div className="flex-1 text-center lg:text-left">
+              <span className="text-blue-300 font-semibold tracking-wide uppercase text-sm">{t("home.security")}</span>
+              <h2 className="text-3xl md:text-4xl font-bold mt-2 mb-6">
+                {t("home.security.title")}
+              </h2>
+              <p className="text-blue-100 mb-10 text-lg">
+                {t("home.security.description")}
+              </p>
+              
+              <div className="grid grid-cols-2 gap-6">
+                <div className="p-6 bg-blue-800/50 rounded-xl border border-blue-700/50 backdrop-blur-sm">
+                  <h3 className="text-3xl font-bold mb-1">256-bit</h3>
+                  <p className="text-blue-200 text-sm">{t("home.security.encryption")}</p>
+                </div>
+                <div className="p-6 bg-blue-800/50 rounded-xl border border-blue-700/50 backdrop-blur-sm">
+                  <h3 className="text-3xl font-bold mb-1">24/7</h3>
+                  <p className="text-blue-200 text-sm">{t("home.security.monitoring")}</p>
+                </div>
+                <div className="p-6 bg-blue-800/50 rounded-xl border border-blue-700/50 backdrop-blur-sm">
+                  <h3 className="text-3xl font-bold mb-1">100%</h3>
+                  <p className="text-blue-200 text-sm">{t("home.security.secure")}</p>
+                </div>
+                <div className="p-6 bg-blue-800/50 rounded-xl border border-blue-700/50 backdrop-blur-sm">
+                  <h3 className="text-3xl font-bold mb-1">Multi</h3>
+                  <p className="text-blue-200 text-sm">{t("home.security.auth")}</p>
+                </div>
+              </div>
             </div>
-            <div className="p-6 bg-blue-800 rounded-xl border border-blue-700">
-              <h3 className="text-3xl font-bold mb-2">24/7</h3>
-              <p className="text-blue-200 text-sm">{t("home.security.monitoring")}</p>
-            </div>
-            <div className="p-6 bg-blue-800 rounded-xl border border-blue-700">
-              <h3 className="text-3xl font-bold mb-2">100%</h3>
-              <p className="text-blue-200 text-sm">{t("home.security.secure")}</p>
-            </div>
-             <div className="p-6 bg-blue-800 rounded-xl border border-blue-700">
-              <h3 className="text-3xl font-bold mb-2">Multi</h3>
-              <p className="text-blue-200 text-sm">{t("home.security.auth")}</p>
+
+            <div className="flex-1 relative w-full max-w-lg lg:max-w-none">
+              <div className="relative w-full aspect-square flex items-center justify-center animate-float">
+                 {/* Decorative background glow */}
+                 <div className="absolute inset-0 bg-gradient-to-br from-blue-500/30 to-purple-500/30 rounded-full blur-3xl transform scale-75"></div>
+                 
+                 <img 
+                   src="/security-image.png-removebg-preview.png" 
+                   alt="Banking Security" 
+                   className="relative z-10 object-contain w-full h-full drop-shadow-2xl transition-transform duration-500 hover:scale-105"
+                 />
+              </div>
             </div>
           </div>
         </div>

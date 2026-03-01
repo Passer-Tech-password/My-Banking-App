@@ -48,7 +48,7 @@ export default function HeroSlider({ locale }: { locale?: Locale }) {
   }, []);
 
   return (
-    <div className="relative w-full h-[600px] overflow-hidden bg-gray-900 text-white">
+    <div className="relative w-full h-[900px] md:h-[600px] overflow-hidden bg-gray-900 text-white">
       {slides.map((slide, index) => (
         <div
           key={index}
@@ -62,23 +62,41 @@ export default function HeroSlider({ locale }: { locale?: Locale }) {
              <div className="absolute bottom-0 right-0 w-96 h-96 rounded-full bg-indigo-500 blur-3xl"></div>
           </div>
 
-          <div className="max-w-4xl px-6 text-center relative z-20">
-            <h2 className="text-xl md:text-2xl font-medium text-blue-300 mb-4 tracking-wide uppercase animate-fade-in-up">
-              {slide.title}
-            </h2>
-            <h1 className="text-4xl md:text-6xl font-bold mb-6 leading-tight animate-fade-in-up delay-100">
-              {slide.subtitle}
-            </h1>
-            <p className="text-gray-300 text-lg md:text-xl mb-10 max-w-2xl mx-auto animate-fade-in-up delay-200">
-              {slide.description}
-            </p>
-            <div className="animate-fade-in-up delay-300">
-              <Link
-                href="/register"
-                className="inline-block bg-blue-600 hover:bg-blue-700 text-white font-semibold px-8 py-4 rounded-lg transition-all shadow-lg transform hover:scale-105 hover:shadow-blue-500/25"
-              >
-                {t("hero.getStarted")}
-              </Link>
+          <div className="max-w-7xl mx-auto px-6 relative z-20 w-full">
+            <div className="flex flex-col md:flex-row items-center justify-between gap-12">
+              <div className="flex-1 text-center md:text-left">
+                <h2 className="text-xl md:text-2xl font-medium text-blue-300 mb-4 tracking-wide uppercase animate-fade-in-up">
+                  {slide.title}
+                </h2>
+                <h1 className="text-4xl md:text-6xl font-bold mb-6 leading-tight animate-fade-in-up delay-100">
+                  {slide.subtitle}
+                </h1>
+                <p className="text-gray-300 text-lg md:text-xl mb-10 max-w-2xl mx-auto md:mx-0 animate-fade-in-up delay-200">
+                  {slide.description}
+                </p>
+                <div className="animate-fade-in-up delay-300">
+                  <Link
+                    href="/register"
+                    className="inline-block bg-blue-600 hover:bg-blue-700 text-white font-semibold px-8 py-4 rounded-lg transition-all shadow-lg transform hover:scale-105 hover:shadow-blue-500/25"
+                  >
+                    {t("hero.getStarted")}
+                  </Link>
+                </div>
+              </div>
+              
+              <div className="flex-1 block animate-fade-in-up delay-500 mt-8 md:mt-0">
+                <div className="relative w-full h-[300px] md:h-[500px] flex items-center justify-center animate-float">
+                  {/* Decorative glow behind the image */}
+                  <div className="absolute inset-0 bg-gradient-to-tr from-blue-500/20 to-purple-500/20 rounded-full blur-3xl transform scale-75"></div>
+                  
+                  {/* Placeholder for the user's image */}
+                  <img 
+                    src="/hero-image.png-removebg-preview.png" 
+                    alt="Happy banking customers" 
+                    className="relative z-10 object-contain max-h-full max-w-full drop-shadow-2xl transition-transform duration-500 hover:scale-105"
+                  />
+                </div>
+              </div>
             </div>
           </div>
         </div>

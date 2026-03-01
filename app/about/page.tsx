@@ -13,7 +13,7 @@ export default async function AboutPage() {
 
   return (
     <main className="w-full min-h-screen flex flex-col bg-white">
-      <Navbar />
+      <Navbar locale={locale} />
 
       {/* Hero Section */}
       <section className="bg-blue-900 text-white py-24 relative overflow-hidden">
