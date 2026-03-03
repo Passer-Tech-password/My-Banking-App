@@ -11,7 +11,10 @@ export function getLocaleFromDocument(): Locale {
   return defaultLocale;
 }
 
-export function setLocaleCookie(locale: Locale) {
+export function setLocaleCookie(locale: Locale, callback?: () => void) {
   document.cookie = `aurora_locale=${locale}; path=/; max-age=31536000; samesite=lax`;
+  if (callback) {
+    callback();
+  }
 }
 

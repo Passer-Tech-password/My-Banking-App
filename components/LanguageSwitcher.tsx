@@ -28,15 +28,12 @@ export default function LanguageSwitcher() {
   }, []);
 
   const handleLanguageChange = (newLocale: Locale) => {
-    // Set cookie first
-    setLocaleCookie(newLocale);
-    setCurrentLocale(newLocale);
-    setIsOpen(false);
-    
-    // Use a small timeout to ensure cookie is set before reloading
-    setTimeout(() => {
+    // Set cookie and reload immediately via callback
+    setLocaleCookie(newLocale, () => {
       window.location.reload();
-    }, 100);
+    });
+    
+    setIsOpen(false);
   };
 
   const filteredLocales = locales.filter(locale => 

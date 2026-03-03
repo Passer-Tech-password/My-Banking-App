@@ -36,6 +36,7 @@ export default function Navbar({ locale }: { locale?: Locale }) {
     { name: t("nav.about"), href: "/about" },
     { name: t("nav.services"), href: "/services" },
     { name: t("nav.contact"), href: "/contact-us" },
+    { name: t("nav.privacy"), href: "/privacy-policy" },
   ];
 
   return (
@@ -62,10 +63,7 @@ export default function Navbar({ locale }: { locale?: Locale }) {
               </Link>
             ))}
             <div className="flex items-center gap-4 ml-4">
-              <LanguageSwitcher
-                locale={resolvedLocale}
-                onChange={(next) => setResolvedLocale(next)}
-              />
+              <LanguageSwitcher />
               <Link
                 href="/login"
                 className="text-gray-700 hover:text-blue-700 font-medium text-sm"
@@ -141,10 +139,7 @@ export default function Navbar({ locale }: { locale?: Locale }) {
             ))}
             <div className="mt-4 pt-4 border-t border-gray-100">
               <div className="px-3 py-2">
-                <LanguageSwitcher
-                  locale={resolvedLocale}
-                  onChange={(next) => setResolvedLocale(next)}
-                />
+                <LanguageSwitcher />
               </div>
               <Link
                 href="/login"

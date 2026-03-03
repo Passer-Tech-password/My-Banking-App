@@ -31,58 +31,79 @@ export default async function HomePage() {
       {/* SMART BANKING SECTION */}
       <section className="py-20 px-6">
         <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-16">
-            <span className="text-blue-600 font-semibold tracking-wide uppercase text-sm">{t("home.smartBanking")}</span>
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mt-2 mb-4">
-              {t("home.smartBanking.title")}
-            </h2>
-            <p className="text-gray-600 max-w-2xl mx-auto">
-              {t("home.smartBanking.description")}
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {/* Card 1 */}
-            <div className="bg-white p-8 rounded-2xl shadow-lg border border-gray-100 hover:shadow-xl transition-shadow group">
-              <div className="w-14 h-14 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 mb-6 group-hover:bg-blue-600 group-hover:text-white transition-colors">
-                <GlobeAltIcon className="w-8 h-8" />
-              </div>
-              <h3 className="text-xl font-bold text-gray-900 mb-3">{t("home.card1.title")}</h3>
-              <p className="text-gray-600 mb-6">
-                {t("home.card1.description")}
-              </p>
+          <div className="flex flex-col lg:flex-row items-center gap-16">
+            <div className="flex-1 relative w-full max-w-lg lg:max-w-none mb-10 lg:mb-0">
+               <div className="relative w-full aspect-square flex items-center justify-center animate-float">
+                 {/* Decorative background glow */}
+                 <div className="absolute inset-0 bg-gradient-to-tr from-blue-100 to-purple-100 rounded-full blur-3xl transform scale-75"></div>
+                 
+                 <img 
+                   src="/smart-banking-image.png" 
+                   alt={t("home.smartBanking.title")} 
+                   className="relative z-10 object-contain w-full h-full drop-shadow-2xl transition-transform duration-500 hover:scale-105"
+                 />
+               </div>
             </div>
 
-            {/* Card 2 */}
-            <div className="bg-white p-8 rounded-2xl shadow-lg border border-gray-100 hover:shadow-xl transition-shadow group">
-              <div className="w-14 h-14 bg-green-100 rounded-full flex items-center justify-center text-green-600 mb-6 group-hover:bg-green-600 group-hover:text-white transition-colors">
-                <CurrencyDollarIcon className="w-8 h-8" />
-              </div>
-              <h3 className="text-xl font-bold text-gray-900 mb-3">{t("home.card2.title")}</h3>
-              <p className="text-gray-600 mb-6">
-                {t("home.card2.description")}
+            <div className="flex-1">
+              <span className="text-blue-600 font-semibold tracking-wide uppercase text-sm">{t("home.smartBanking")}</span>
+              <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mt-2 mb-6">
+                {t("home.smartBanking.title")}
+              </h2>
+              <p className="text-gray-600 mb-10 text-lg">
+                {t("home.smartBanking.description")}
               </p>
-            </div>
 
-            {/* Card 3 */}
-            <div className="bg-white p-8 rounded-2xl shadow-lg border border-gray-100 hover:shadow-xl transition-shadow group">
-              <div className="w-14 h-14 bg-purple-100 rounded-full flex items-center justify-center text-purple-600 mb-6 group-hover:bg-purple-600 group-hover:text-white transition-colors">
-                <BanknotesIcon className="w-8 h-8" />
+              <div className="grid grid-cols-1 gap-6">
+                {/* Card 1 */}
+                <div className="flex gap-4 p-4 rounded-xl hover:bg-gray-50 transition-colors">
+                  <div className="flex-shrink-0 w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center text-blue-600">
+                    <GlobeAltIcon className="w-6 h-6" />
+                  </div>
+                  <div>
+                    <h3 className="text-xl font-bold text-gray-900 mb-2">{t("home.card1.title")}</h3>
+                    <p className="text-gray-600">
+                      {t("home.card1.description")}
+                    </p>
+                  </div>
+                </div>
+
+                {/* Card 2 */}
+                <div className="flex gap-4 p-4 rounded-xl hover:bg-gray-50 transition-colors">
+                  <div className="flex-shrink-0 w-12 h-12 bg-green-100 rounded-full flex items-center justify-center text-green-600">
+                    <CurrencyDollarIcon className="w-6 h-6" />
+                  </div>
+                  <div>
+                    <h3 className="text-xl font-bold text-gray-900 mb-2">{t("home.card2.title")}</h3>
+                    <p className="text-gray-600">
+                      {t("home.card2.description")}
+                    </p>
+                  </div>
+                </div>
+
+                {/* Card 3 */}
+                <div className="flex gap-4 p-4 rounded-xl hover:bg-gray-50 transition-colors">
+                  <div className="flex-shrink-0 w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center text-purple-600">
+                    <BanknotesIcon className="w-6 h-6" />
+                  </div>
+                  <div>
+                    <h3 className="text-xl font-bold text-gray-900 mb-2">{t("home.card3.title")}</h3>
+                    <p className="text-gray-600">
+                      {t("home.card3.description")}
+                    </p>
+                  </div>
+                </div>
               </div>
-              <h3 className="text-xl font-bold text-gray-900 mb-3">{t("home.card3.title")}</h3>
-              <p className="text-gray-600 mb-6">
-                {t("home.card3.description")}
-              </p>
-            </div>
-          </div>
 
-          <div className="text-center mt-12">
-            <Link href="/about" className="text-blue-600 font-semibold hover:text-blue-800 flex items-center justify-center gap-2">
-              {t("home.moreAboutUs")}
-              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
-              </svg>
-            </Link>
+              <div className="mt-10">
+                <Link href="/about" className="inline-flex items-center gap-2 text-blue-600 font-bold hover:text-blue-800 transition-colors group">
+                  {t("home.moreAboutUs")}
+                  <svg className="w-5 h-5 transform group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                  </svg>
+                </Link>
+              </div>
+            </div>
           </div>
         </div>
       </section>
@@ -90,46 +111,40 @@ export default async function HomePage() {
       {/* OUR FEATURE SECTION */}
       <section className="bg-gray-50 py-20 px-6">
         <div className="max-w-7xl mx-auto">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
-            <div>
+          <div className="flex flex-col items-center">
+            <div className="text-center max-w-3xl mb-16">
               <span className="text-blue-600 font-semibold tracking-wide uppercase text-sm">{t("home.ourFeature")}</span>
               <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mt-2 mb-6">
                 {t("home.feature.title")}
               </h2>
-              <p className="text-gray-600 mb-10 text-lg">
+              <p className="text-gray-600 text-lg">
                 {t("home.feature.description")}
               </p>
-              
-              <div className="space-y-8">
-                <div className="flex gap-4">
-                  <div className="flex-shrink-0 w-12 h-12 bg-red-100 text-red-600 rounded-xl flex items-center justify-center">
-                    <ShieldCheckIcon className="w-6 h-6" />
-                  </div>
-                  <div>
-                    <h3 className="text-lg font-bold text-gray-900 mb-1">{t("home.feature1.title")}</h3>
-                    <p className="text-gray-600">{t("home.feature1.description")}</p>
-                  </div>
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 w-full">
+              <div className="bg-white p-8 rounded-2xl shadow-sm border border-gray-100 flex flex-col items-center text-center hover:shadow-md transition-shadow">
+                <div className="w-16 h-16 bg-red-100 text-red-600 rounded-2xl flex items-center justify-center mb-6">
+                  <ShieldCheckIcon className="w-8 h-8" />
                 </div>
-           
-                <div className="flex gap-4">
-                  <div className="flex-shrink-0 w-12 h-12 bg-blue-100 text-blue-600 rounded-xl flex items-center justify-center">
-                    <PaperAirplaneIcon className="w-6 h-6" />
-                  </div>
-                  <div>
-                    <h3 className="text-lg font-bold text-gray-900 mb-1">{t("home.feature2.title")}</h3>
-                    <p className="text-gray-600">{t("home.feature2.description")}</p>
-                  </div>
+                <h3 className="text-xl font-bold text-gray-900 mb-3">{t("home.feature1.title")}</h3>
+                <p className="text-gray-600 leading-relaxed">{t("home.feature1.description")}</p>
+              </div>
+         
+              <div className="bg-white p-8 rounded-2xl shadow-sm border border-gray-100 flex flex-col items-center text-center hover:shadow-md transition-shadow">
+                <div className="w-16 h-16 bg-blue-100 text-blue-600 rounded-2xl flex items-center justify-center mb-6">
+                  <PaperAirplaneIcon className="w-8 h-8" />
                 </div>
-           
-                <div className="flex gap-4">
-                  <div className="flex-shrink-0 w-12 h-12 bg-indigo-100 text-indigo-600 rounded-xl flex items-center justify-center">
-                    <DevicePhoneMobileIcon className="w-6 h-6" />
-                  </div>
-                  <div>
-                    <h3 className="text-lg font-bold text-gray-900 mb-1">{t("home.feature3.title")}</h3>
-                    <p className="text-gray-600">{t("home.feature3.description")}</p>
-                  </div>
+                <h3 className="text-xl font-bold text-gray-900 mb-3">{t("home.feature2.title")}</h3>
+                <p className="text-gray-600 leading-relaxed">{t("home.feature2.description")}</p>
+              </div>
+         
+              <div className="bg-white p-8 rounded-2xl shadow-sm border border-gray-100 flex flex-col items-center text-center hover:shadow-md transition-shadow">
+                <div className="w-16 h-16 bg-indigo-100 text-indigo-600 rounded-2xl flex items-center justify-center mb-6">
+                  <DevicePhoneMobileIcon className="w-8 h-8" />
                 </div>
+                <h3 className="text-xl font-bold text-gray-900 mb-3">{t("home.feature3.title")}</h3>
+                <p className="text-gray-600 leading-relaxed">{t("home.feature3.description")}</p>
               </div>
             </div>
           </div>

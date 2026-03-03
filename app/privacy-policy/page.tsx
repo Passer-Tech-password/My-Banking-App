@@ -2,7 +2,7 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { cookies } from "next/headers";
 import { getLocaleFromCookies } from "@/lib/i18n/server";
-import { defaultLocale } from "@/lib/i18n/messages";
+import { defaultLocale, createTranslator } from "@/lib/i18n/messages";
 
 export default async function PrivacyPolicyPage() {
   let locale = defaultLocale;
@@ -12,6 +12,8 @@ export default async function PrivacyPolicyPage() {
   } catch (error) {
     // Fallback to default locale
   }
+
+  const t = createTranslator(locale);
 
   return (
     <main className="w-full min-h-screen flex flex-col bg-white">
@@ -24,71 +26,81 @@ export default async function PrivacyPolicyPage() {
           <div className="absolute bottom-0 right-0 w-96 h-96 rounded-full bg-indigo-500 blur-3xl"></div>
         </div>
         
-        <div className="max-w-4xl mx-auto px-6 relative z-10">
-          <h1 className="text-3xl md:text-4xl font-bold mb-4">Privacy Policy</h1>
-          <p className="text-blue-100 text-lg">
-            Last updated: October 24, 2024
-          </p>
+        <div className="max-w-7xl mx-auto px-6 relative z-10">
+          <div className="flex flex-col md:flex-row items-center justify-between gap-10">
+            <div className="flex-1">
+              <h1 className="text-3xl md:text-5xl font-bold mb-4">Privacy Policy</h1>
+              <p className="text-blue-100 text-lg">
+                {t("privacy.breadcrumb")}
+              </p>
+            </div>
+            <div className="flex-1 relative w-full max-w-md hidden md:block">
+               <div className="relative w-full aspect-[4/3] flex items-center justify-center animate-float">
+                 <div className="absolute inset-0 bg-gradient-to-tr from-blue-400/20 to-purple-400/20 rounded-full blur-3xl transform scale-75"></div>
+                 <img 
+                   src="/privacy-hero-image.png" 
+                   alt={t("privacy.heroAlt") || "Privacy Policy"} 
+                   className="relative z-10 object-contain w-full h-full drop-shadow-2xl transition-transform duration-500 hover:scale-105"
+                 />
+               </div>
+            </div>
+          </div>
         </div>
       </section>
 
       {/* Content */}
       <section className="py-20 px-6">
-        <div className="max-w-4xl mx-auto prose prose-blue prose-lg text-gray-600">
-          <p className="lead text-xl text-gray-800 font-medium mb-8">
-            At Aurora Bank, we value your privacy and are committed to protecting your personal information.
-            This Privacy Policy explains, in clear terms, how we collect, use, store, and share information
-            about you when you use our website, mobile application, and other online products and services
-            in the United States and abroad.
-          </p>
+        <div className="max-w-4xl mx-auto">
+          <div className="prose prose-lg text-gray-600 max-w-none">
+            <div className="mb-12">
+              <h2 className="text-2xl font-bold text-gray-900 mb-4">{t("privacy.section1.title")}</h2>
+              <p className="text-gray-600 leading-relaxed">
+                {t("privacy.section1.content")}
+              </p>
+            </div>
 
-          <h2 className="text-2xl font-bold text-gray-900 mt-12 mb-4">1. Information We Collect</h2>
-          <p className="mb-4">
-            We collect information you provide directly to us, such as when you create an account, update your profile, make a transaction, or contact customer support. This may include, for example:
-          </p>
-          <ul className="list-disc pl-6 mb-6 space-y-2">
-            <li>Name, email address, phone number, and mailing address</li>
-            <li>Social Security number and other government identification</li>
-            <li>Financial information, including bank account numbers and transaction history</li>
-            <li>Login credentials and biometric data</li>
-          </ul>
+            <div className="mb-12">
+              <h2 className="text-2xl font-bold text-gray-900 mb-4">{t("privacy.section2.title")}</h2>
+              <p className="text-gray-600 leading-relaxed">
+                {t("privacy.section2.content")}
+              </p>
+            </div>
 
-          <h2 className="text-2xl font-bold text-gray-900 mt-12 mb-4">2. How We Use Your Information</h2>
-          <p className="mb-4">
-            We use the information we collect to provide, maintain, and improve our services, such as to:
-          </p>
-          <ul className="list-disc pl-6 mb-6 space-y-2">
-            <li>Process transactions and send notices about your transactions</li>
-            <li>Verify your identity and prevent fraud</li>
-            <li>Respond to your comments, questions, and requests</li>
-            <li>Communicate with you about products, services, offers, and events</li>
-            <li>Monitor and analyze trends, usage, and activities in connection with our services</li>
-          </ul>
+            <div className="mb-12">
+              <h2 className="text-2xl font-bold text-gray-900 mb-4">{t("privacy.section3.title")}</h2>
+              <p className="text-gray-600 leading-relaxed">
+                {t("privacy.section3.content")}
+              </p>
+            </div>
 
-          <h2 className="text-2xl font-bold text-gray-900 mt-12 mb-4">3. Information Sharing</h2>
-          <p className="mb-4">
-            We may share information about you as follows or as otherwise described in this Privacy Policy:
-          </p>
-          <ul className="list-disc pl-6 mb-6 space-y-2">
-            <li>With vendors, consultants, and other service providers who need access to such information to carry out work on our behalf</li>
-            <li>In response to a request for information if we believe disclosure is in accordance with any applicable law, regulation, or legal process</li>
-            <li>If we believe your actions are inconsistent with our user agreements or policies, or to protect the rights, property, and safety of Aurora Bank or others</li>
-          </ul>
+            <div className="mb-12">
+              <h2 className="text-2xl font-bold text-gray-900 mb-4">{t("privacy.section4.title")}</h2>
+              <p className="text-gray-600 leading-relaxed mb-4">
+                {t("privacy.section4.content")}
+              </p>
+              <p className="text-gray-600 leading-relaxed">
+                {t("privacy.section4.browser_info")}
+              </p>
+            </div>
 
-          <h2 className="text-2xl font-bold text-gray-900 mt-12 mb-4">4. Security</h2>
-          <p className="mb-6">
-            We take reasonable measures to help protect information about you from loss, theft, misuse, and unauthorized access, disclosure, alteration, and destruction. We use industry-standard encryption and security protocols to safeguard your financial data.
-          </p>
+            <div className="mb-12">
+              <h2 className="text-2xl font-bold text-gray-900 mb-4">{t("privacy.section5.title")}</h2>
+              <p className="text-gray-600 leading-relaxed mb-6">
+                {t("privacy.section5.content")}
+              </p>
+              <ol className="list-decimal pl-6 space-y-4 text-gray-600">
+                <li className="pl-2">{t("privacy.list1")}</li>
+                <li className="pl-2">{t("privacy.list2")}</li>
+                <li className="pl-2">{t("privacy.list3")}</li>
+              </ol>
+            </div>
 
-          <h2 className="text-2xl font-bold text-gray-900 mt-12 mb-4">5. Contact Us</h2>
-          <p className="mb-6">
-            If you have any questions about this Privacy Policy, please contact us at:
-          </p>
-          <div className="bg-gray-50 p-6 rounded-lg border border-gray-200">
-            <p className="font-semibold text-gray-900">Aurora Bank</p>
-            <p>123 Banking Street</p>
-            <p>New York, NY 10005</p>
-            <p className="mt-2 text-blue-600">privacy@aurorabank.pro</p>
+            <div className="mb-12">
+              <h2 className="text-2xl font-bold text-gray-900 mb-4">{t("privacy.section6.title")}</h2>
+              <p className="text-gray-600 leading-relaxed">
+                {t("privacy.section6.content")}
+              </p>
+            </div>
           </div>
         </div>
       </section>

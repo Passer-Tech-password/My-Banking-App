@@ -22,11 +22,25 @@ export default async function AboutPage() {
           <div className="absolute bottom-0 right-0 w-96 h-96 rounded-full bg-indigo-500 blur-3xl"></div>
         </div>
         
-        <div className="max-w-7xl mx-auto px-6 relative z-10 text-center">
-          <h1 className="text-4xl md:text-5xl font-bold mb-6">{t("about.title")}</h1>
-          <p className="text-xl text-blue-100 max-w-2xl mx-auto">
-            {t("about.description")}
-          </p>
+        <div className="max-w-7xl mx-auto px-6 relative z-10">
+          <div className="flex flex-col md:flex-row items-center justify-between gap-10">
+            <div className="flex-1 text-center md:text-left">
+              <h1 className="text-4xl md:text-5xl font-bold mb-6">{t("about.title")}</h1>
+              <p className="text-xl text-blue-100 max-w-2xl mx-auto md:mx-0">
+                {t("about.description")}
+              </p>
+            </div>
+            <div className="flex-1 relative w-full max-w-md hidden md:block">
+               <div className="relative w-full aspect-[4/3] flex items-center justify-center animate-float">
+                 <div className="absolute inset-0 bg-gradient-to-tr from-blue-400/20 to-purple-400/20 rounded-full blur-3xl transform scale-75"></div>
+                 <img 
+                   src="/about-hero-image.png" 
+                   alt={t("about.heroAlt") || "About Aurora Bank"} 
+                   className="relative z-10 object-contain w-full h-full drop-shadow-2xl transition-transform duration-500 hover:scale-105"
+                 />
+               </div>
+            </div>
+          </div>
         </div>
       </section>
 

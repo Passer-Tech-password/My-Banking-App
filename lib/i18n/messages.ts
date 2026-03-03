@@ -17,6 +17,7 @@ const BASE_MESSAGES = {
     "nav.about": "About Us",
     "nav.services": "Services",
     "nav.contact": "Contact Us",
+    "nav.privacy": "Privacy Policy",
     "nav.login": "Login",
     "nav.register": "Register Now",
     "nav.language": "Language",
@@ -98,6 +99,10 @@ const BASE_MESSAGES = {
     "about.stat.countries": "Countries",
     "about.stat.support": "Support",
 
+    "about.heroAlt": "About Aurora Bank",
+    "contact.heroAlt": "Contact Aurora Bank",
+    "privacy.heroAlt": "Privacy Policy",
+    
     "services.title": "Banking Services Designed Around You",
     "services.description": "From everyday banking to major life milestones, Aurora Bank offers tailored credit cards, loans, and financing solutions to help you move confidently.",
     "services.card1.title": "Checking Accounts",
@@ -128,10 +133,28 @@ const BASE_MESSAGES = {
     "contact.form.email": "Email Address",
     "contact.form.message": "Your Message",
     "contact.form.send": "Send Message",
+    "privacy.title": "Privacy Policy",
+    "privacy.breadcrumb": "Home » Privacy Policy",
+    "privacy.section1.title": "What Data We Get",
+    "privacy.section1.content": "We collect certain data from you directly like information you enter yourself, information about your banking activities and data from financial institutions you connect with Aurora Bank. We also collect some data automatically information about your device and what parts of our Services you interact with or spend time using.",
+    "privacy.section2.title": "Data You Provide to Us",
+    "privacy.section2.content": "We may collect different data from or about you depending on how you use the Services. Below are some examples to help you better understand the data we collect.",
+    "privacy.section3.title": "How We Get Data About You",
+    "privacy.section3.content": "We use tools like cookies, web beacons, analytics services, and advertising providers to gather the data listed above. Some of these tools offer you the ability to opt out of data collection.",
+    "privacy.section4.title": "Your Choices About the Use of Your Data",
+    "privacy.section4.content": "To stop receiving promotional communications from us, you can opt out by using the unsubscribe mechanism in the promotional communication you receive or by changing the email preferences in your account. Note that regardless of your email preference settings, we will send you transactional and relationship messages regarding the Services, including administrative confirmations, order confirmations, important updates about the Services, and notices about our policies.",
+    "privacy.section4.browser_info": "The browser or device you use may allow you to control cookies and other types of local data storage. Your wireless device may also allow you to control whether location or other data is collected and shared. You can manage Adobe’s LSOs through their Website Storage Settings panel.",
+    "privacy.section5.title": "What We Use Your Data For",
+    "privacy.section5.content": "We use your data to provide banking services, process transactions, prevent fraud, and comply with legal requirements.",
+    "privacy.list1": "Responding to your questions and concerns;",
+    "privacy.list2": "Sending you administrative messages and information, including notifications about changes to our Service, and updates to our agreements;",
+    "privacy.list3": "Sending push notifications to your wireless device to provide updates and other relevant messages (which you can manage from the “options” or “settings” page of the mobile app);",
+    "privacy.section6.title": "Our Policy For Age Under 18",
+    "privacy.section6.content": "We recognize the privacy interests of children and encourage parents and guardians to take an active role in their children’s online activities and interests. Children under 13 (or under 16 in the European Economic Area) should not use the Services. If we learn that we’ve collected personal data from a child under those ages.",
 };
 
 const MESSAGES = {
-  en: BASE_MESSAGES,
+    en: BASE_MESSAGES,
   fr: { ...BASE_MESSAGES, ...{
     "nav.home": "Accueil",
     "nav.about": "À propos",
@@ -159,6 +182,7 @@ const MESSAGES = {
     "nav.about": "Über uns",
     "nav.services": "Dienstleistungen",
     "nav.contact": "Kontakt",
+    "nav.privacy": "Datenschutz",
     "nav.login": "Anmelden",
     "nav.register": "Registrieren",
     "nav.language": "Sprache",
@@ -265,6 +289,30 @@ const MESSAGES = {
     "contact.form.email": "E-Mail-Adresse",
     "contact.form.message": "Ihre Nachricht",
     "contact.form.send": "Nachricht senden",
+
+    "privacy.title": "Datenschutzrichtlinie",
+    "privacy.breadcrumb": "Startseite » Datenschutzrichtlinie",
+    "privacy.lastUpdated": "Zuletzt aktualisiert: 24. Oktober 2024",
+    "privacy.intro": "Bei der Aurora Bank schätzen wir Ihre Privatsphäre und verpflichten uns, Ihre persönlichen Daten zu schützen. Diese Datenschutzrichtlinie erklärt in klaren Worten, wie wir Informationen über Sie sammeln, verwenden, speichern und weitergeben, wenn Sie unsere Website, mobile Anwendung und andere Online-Produkte und -Dienste nutzen.",
+    "privacy.section1.title": "Welche Daten wir erhalten",
+    "about.heroAlt": "Über Aurora Bank",
+    "contact.heroAlt": "Kontaktieren Sie uns",
+    "privacy.heroAlt": "Datenschutzrichtlinie",
+    "privacy.section1.content": "Wir erheben bestimmte Daten direkt von Ihnen, wie Informationen, die Sie selbst eingeben, Informationen über Ihre Bankaktivitäten und Daten von Finanzinstituten, die Sie mit der Aurora Bank verbinden. Wir erheben auch automatisch einige Daten, Informationen über Ihr Gerät und welche Teile unserer Dienste Sie nutzen.",
+    "privacy.section2.title": "Daten, die Sie uns bereitstellen",
+    "privacy.section2.content": "Wir können unterschiedliche Daten von Ihnen oder über Sie erfassen, je nachdem, wie Sie die Dienste nutzen. Nachfolgend finden Sie einige Beispiele, um die von uns erfassten Daten besser zu verstehen.",
+    "privacy.section3.title": "Wie wir Daten über Sie erhalten",
+    "privacy.section3.content": "Wir verwenden Tools wie Cookies, Web-Beacons, Analysedienste und Werbeanbieter, um die oben aufgeführten Daten zu sammeln. Einige dieser Tools bieten Ihnen die Möglichkeit, die Datenerfassung abzulehnen.",
+    "privacy.section4.title": "Ihre Wahlmöglichkeiten bezüglich der Verwendung Ihrer Daten",
+    "privacy.section4.content": "Um keine Werbemitteilungen mehr von uns zu erhalten, können Sie sich abmelden, indem Sie den Abmeldemechanismus in der erhaltenen Werbemitteilung verwenden oder die E-Mail-Einstellungen in Ihrem Konto ändern. Beachten Sie, dass wir Ihnen unabhängig von Ihren E-Mail-Einstellungen transaktions- und beziehungsbezogene Nachrichten zu den Diensten senden, einschließlich administrativer Bestätigungen, Auftragsbestätigungen, wichtiger Updates zu den Diensten und Mitteilungen zu unseren Richtlinien.",
+    "privacy.section4.browser_info": "Der von Ihnen verwendete Browser oder das Gerät ermöglicht es Ihnen möglicherweise, Cookies und andere Arten der lokalen Datenspeicherung zu kontrollieren. Ihr drahtloses Gerät ermöglicht es Ihnen möglicherweise auch zu kontrollieren, ob Standort- oder andere Daten erfasst und geteilt werden. Sie können Adobe LSOs über das Bedienfeld für Website-Speichereinstellungen verwalten.",
+    "privacy.section5.title": "Wofür wir Ihre Daten verwenden",
+    "privacy.section5.content": "Wir verwenden Ihre Daten, um Bankdienstleistungen zu erbringen, Transaktionen zu verarbeiten, Betrug zu verhindern und gesetzliche Anforderungen zu erfüllen.",
+    "privacy.list1": "Beantwortung Ihrer Fragen und Anliegen;",
+    "privacy.list2": "Senden von administrativen Nachrichten und Informationen, einschließlich Benachrichtigungen über Änderungen an unserem Dienst und Updates unserer Vereinbarungen;",
+    "privacy.list3": "Senden von Push-Benachrichtigungen an Ihr drahtloses Gerät, um Updates und andere relevante Nachrichten bereitzustellen (die Sie über die Seite „Optionen“ oder „Einstellungen“ der mobilen App verwalten können);",
+    "privacy.section6.title": "Unsere Richtlinie für Kinder unter 18 Jahren",
+    "privacy.section6.content": "Wir erkennen die Datenschutzinteressen von Kindern an und ermutigen Eltern und Erziehungsberechtigte, eine aktive Rolle bei den Online-Aktivitäten und Interessen ihrer Kinder zu spielen. Kinder unter 13 Jahren (oder unter 16 Jahren im Europäischen Wirtschaftsraum) sollten die Dienste nicht nutzen.",
   },
   it: {
     "nav.home": "Home",
@@ -3743,9 +3791,10 @@ const MESSAGES = {
 export type MessageKey = keyof (typeof MESSAGES)["en"];
 
 export function createTranslator(locale: Locale) {
-  const selected = MESSAGES[locale] ?? MESSAGES[defaultLocale];
+  const selected = (MESSAGES[locale] ?? MESSAGES[defaultLocale]) as Partial<Record<MessageKey, string>>;
+  const defaults = MESSAGES[defaultLocale] as Record<MessageKey, string>;
   return (key: MessageKey) => {
-    return selected[key] ?? MESSAGES[defaultLocale][key] ?? key;
+    return selected[key] ?? defaults[key] ?? key;
   };
 }
 
