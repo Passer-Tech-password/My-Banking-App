@@ -13,6 +13,8 @@ import {
   getDocs,
   runTransaction,
   serverTimestamp,
+  limit,
+  addDoc,
 } from "firebase/firestore";
 import { auth, db } from "@/lib/firebase";
 import { onAuthStateChanged } from "firebase/auth";
@@ -24,12 +26,26 @@ import {
   UserCircleIcon 
 } from "@heroicons/react/24/outline";
 
+interface Card {
+  id: string;
+  network: "VISA" | "MasterCard" | "Amex";
+  number: string;
+  holder: string;
+  expires: string;
+}
+
 export default function DashboardPage() {
   const router = useRouter();
   const [userId, setUserId] = useState<string | null>(null);
   const [balance, setBalance] = useState(0);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [loading, setLoading] = useState(true);
+  const [income, setIncome] = useState(0);
+  const [expense, setExpense] = useState(0);
+  const [mainCard, setMainCard] = useState<Card | null>(null);
+  const [recipientEmail, setRecipientEmail] = useState("");
+  const [transferAmount, setTransferAmount] = useState("");
+  const [transferLoading, setTransferLoading] = useState(false);
 
   // Auth check + load user data
   useEffect(() => {
@@ -50,7 +66,7 @@ export default function DashboardPage() {
           createdAt: serverTimestamp(),
         });
       } else {
-        setBalance(snap.data().balance);
+        setBalance(snap.data()?.balance ?? 0);
       }
 
       const q = query(
@@ -60,13 +76,34 @@ export default function DashboardPage() {
 
       const querySnap = await getDocs(q);
       const txs: Transaction[] = [];
+      let inc = 0;
+      let exp = 0;
 
       querySnap.forEach(doc => {
         const data = doc.data();
-        txs.push({ id: doc.id, ...data } as Transaction);
+        const tx = { id: doc.id, ...data } as Transaction;
+        txs.push(tx);
+
+        if (tx.type === 'deposit' || (tx.type === 'transfer' && tx.direction === 'incoming')) {
+           inc += tx.amount;
+        } else if (tx.type === 'withdrawal' || (tx.type === 'transfer' && tx.direction === 'outgoing')) {
+           exp += tx.amount;
+        }
       });
 
       setTransactions(txs.reverse());
+      setIncome(inc);
+      setExpense(exp);
+
+      // Fetch Main Card
+      const cardsQ = query(collection(db, `users/${user.uid}/cards`), limit(1));
+      const cardsSnap = await getDocs(cardsQ);
+      if (!cardsSnap.empty) {
+        setMainCard({ id: cardsSnap.docs[0].id, ...cardsSnap.docs[0].data() } as Card);
+      } else {
+        setMainCard(null);
+      }
+
       setLoading(false);
     });
 
@@ -124,9 +161,113 @@ export default function DashboardPage() {
       });
       setTransactions(prev => [newTx, ...prev]);
 
+      if (type === "deposit") {
+        setIncome(prev => prev + amount);
+      } else {
+        setExpense(prev => prev + amount);
+      }
+
     } catch (e) {
       console.error("Transaction failed:", e);
       alert("Transaction failed: " + (e instanceof Error ? e.message : "Unknown error"));
+    }
+  };
+
+  const handleQuickTransfer = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!userId || !recipientEmail || !transferAmount) return;
+
+    try {
+      setTransferLoading(true);
+      const amount = parseFloat(transferAmount);
+      if (isNaN(amount) || amount <= 0) throw new Error("Invalid amount");
+      if (amount > balance) throw new Error("Insufficient funds");
+
+      // Find recipient
+      const usersQ = query(collection(db, "users"), where("email", "==", recipientEmail));
+      const usersSnap = await getDocs(usersQ);
+      
+      if (usersSnap.empty) {
+        alert("User not found");
+        return;
+      }
+
+      const recipientDoc = usersSnap.docs[0];
+      const recipientId = recipientDoc.id;
+
+      if (recipientId === userId) {
+        alert("Cannot transfer to yourself");
+        return;
+      }
+
+      await runTransaction(db, async (transaction) => {
+        const senderRef = doc(db, "users", userId);
+        const receiverRef = doc(db, "users", recipientId);
+        
+        const senderDoc = await transaction.get(senderRef);
+        const receiverDoc = await transaction.get(receiverRef);
+
+        if (!senderDoc.exists() || !receiverDoc.exists()) throw new Error("User error");
+
+        const senderBalance = senderDoc.data().balance || 0;
+        const receiverBalance = receiverDoc.data().balance || 0;
+
+        if (senderBalance < amount) throw new Error("Insufficient funds");
+
+        transaction.update(senderRef, { balance: senderBalance - amount });
+        transaction.update(receiverRef, { balance: receiverBalance + amount });
+
+        // Create sender transaction
+        const senderTxRef = doc(collection(db, "transactions"));
+        transaction.set(senderTxRef, {
+          userId: userId,
+          type: "transfer",
+          direction: "outgoing",
+          amount: amount,
+          date: new Date().toISOString(),
+          status: "completed",
+          description: `Transfer to ${recipientEmail}`,
+          receiverName: recipientEmail, // using email as name for simplicity
+        });
+
+        // Create receiver transaction
+        const receiverTxRef = doc(collection(db, "transactions"));
+        transaction.set(receiverTxRef, {
+          userId: recipientId,
+          type: "transfer",
+          direction: "incoming",
+          amount: amount,
+          date: new Date().toISOString(),
+          status: "completed",
+          description: `Transfer from ${auth.currentUser?.email}`,
+          senderName: auth.currentUser?.email,
+        });
+      });
+
+      // Update local state
+      setBalance(prev => prev - amount);
+      setExpense(prev => prev + amount);
+      // Add to transactions list
+      setTransactions(prev => [{
+          id: "temp-" + Date.now(),
+          userId,
+          type: "transfer",
+          direction: "outgoing",
+          amount,
+          date: new Date().toISOString(),
+          status: "completed",
+          description: `Transfer to ${recipientEmail}`,
+      } as Transaction, ...prev]);
+
+      setRecipientEmail("");
+      setTransferAmount("");
+      alert("Transfer successful!");
+
+    } catch (error) {
+      console.error("Transfer error:", error);
+      alert(error instanceof Error ? error.message : "Transfer failed");
+    } finally {
+      setTransferLoading(false);
     }
   };
 
@@ -183,7 +324,7 @@ export default function DashboardPage() {
             <div className="relative z-10">
               <p className="text-blue-100 text-sm font-medium mb-1">Total Balance</p>
               <h2 className="text-4xl font-bold mb-6">
-                ${balance.toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                ${(balance || 0).toLocaleString('en-US', { minimumFractionDigits: 2 })}
               </h2>
               
               <div className="flex items-center gap-8">
@@ -191,14 +332,14 @@ export default function DashboardPage() {
                   <p className="text-blue-200 text-xs mb-1">Income</p>
                   <p className="font-semibold text-lg flex items-center gap-1">
                     <ArrowUpRightIcon className="w-4 h-4 text-green-300" />
-                    $2,450.00
+                    ${income.toLocaleString('en-US', { minimumFractionDigits: 2 })}
                   </p>
                 </div>
                 <div>
                   <p className="text-blue-200 text-xs mb-1">Expenses</p>
                   <p className="font-semibold text-lg flex items-center gap-1">
                     <ArrowUpRightIcon className="w-4 h-4 text-red-300 rotate-90" />
-                    $1,200.50
+                    ${expense.toLocaleString('en-US', { minimumFractionDigits: 2 })}
                   </p>
                 </div>
               </div>
@@ -227,9 +368,11 @@ export default function DashboardPage() {
               <span className="text-sm font-medium text-gray-700">Withdraw</span>
             </button>
             
-            {/* Placeholders for visual completeness */}
-            <button className="bg-white p-4 rounded-xl border border-gray-100 shadow-sm hover:shadow-md transition-all flex flex-col items-center justify-center gap-2 group opacity-60 cursor-not-allowed">
-              <div className="w-10 h-10 bg-blue-50 rounded-full flex items-center justify-center text-blue-600">
+            <button 
+              onClick={() => document.getElementById('transfer-widget')?.scrollIntoView({ behavior: 'smooth' })}
+              className="bg-white p-4 rounded-xl border border-gray-100 shadow-sm hover:shadow-md transition-all flex flex-col items-center justify-center gap-2 group"
+            >
+              <div className="w-10 h-10 bg-blue-50 rounded-full flex items-center justify-center text-blue-600 group-hover:bg-blue-100 transition-colors">
                 <ArrowUpRightIcon className="w-6 h-6" />
               </div>
               <span className="text-sm font-medium text-gray-700">Transfer</span>
@@ -246,7 +389,7 @@ export default function DashboardPage() {
           <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
             <div className="p-6 border-b border-gray-100 flex items-center justify-between">
               <h3 className="font-semibold text-gray-900">Recent Transactions</h3>
-              <button className="text-sm text-blue-600 hover:text-blue-700 font-medium">View All</button>
+              <Link href="/dashboard/transactions" className="text-sm text-blue-600 hover:text-blue-700 font-medium">View All</Link>
             </div>
             <div className="overflow-x-auto">
               <table className="w-full text-left text-sm text-gray-600">
@@ -314,77 +457,85 @@ export default function DashboardPage() {
               </Link>
             </div>
             
-            {/* Card Visual */}
-            <div className="bg-slate-900 rounded-2xl p-6 text-white shadow-xl mb-4 relative overflow-hidden">
-               <div className="absolute top-0 right-0 w-32 h-32 bg-white opacity-10 rounded-full -mr-10 -mt-10 blur-2xl"></div>
-               <div className="flex justify-between items-start mb-8 relative z-10">
-                 <span className="font-bold text-lg tracking-widest">VISA</span>
-                 <div className="flex gap-1">
-                   <div className="w-2 h-2 bg-red-500 rounded-full"></div>
-                   <div className="w-2 h-2 bg-yellow-500 rounded-full"></div>
-                 </div>
-               </div>
-               <div className="mb-4 relative z-10">
-                 <p className="text-xs text-slate-400 mb-1">Card Number</p>
-                 <p className="font-mono text-lg tracking-wider">**** **** **** 4589</p>
-               </div>
-               <div className="flex justify-between items-end relative z-10">
-                 <div>
-                   <p className="text-xs text-slate-400 mb-1">Card Holder</p>
-                   <p className="font-medium text-sm">JOHN DOE</p>
-                 </div>
-                 <div>
-                   <p className="text-xs text-slate-400 mb-1">Expires</p>
-                   <p className="font-medium text-sm">12/26</p>
-                 </div>
-               </div>
-            </div>
+            {mainCard ? (
+              <>
+                <div className={`rounded-2xl p-6 text-white shadow-xl mb-4 relative overflow-hidden ${
+                  mainCard.network === 'VISA' ? 'bg-blue-900' : mainCard.network === 'MasterCard' ? 'bg-slate-800' : 'bg-indigo-900'
+                }`}>
+                   <div className="absolute top-0 right-0 w-32 h-32 bg-white opacity-10 rounded-full -mr-10 -mt-10 blur-2xl"></div>
+                   <div className="flex justify-between items-start mb-8 relative z-10">
+                     <span className="font-bold text-lg tracking-widest uppercase">{mainCard.network}</span>
+                     <div className="w-8 h-5 bg-yellow-400/80 rounded-sm"></div>
+                   </div>
+                   <div className="mb-4 relative z-10">
+                     <p className="text-xs opacity-70 mb-1">Card Number</p>
+                     <p className="font-mono text-lg tracking-wider">{mainCard.number}</p>
+                   </div>
+                   <div className="flex justify-between items-end relative z-10">
+                     <div>
+                       <p className="text-xs opacity-70 mb-1">Card Holder</p>
+                       <p className="font-medium text-sm uppercase">{mainCard.holder}</p>
+                     </div>
+                     <div>
+                       <p className="text-xs opacity-70 mb-1">Expires</p>
+                       <p className="font-medium text-sm">{mainCard.expires}</p>
+                     </div>
+                   </div>
+                </div>
 
-            <div className="space-y-3">
-              <div className="flex items-center justify-between text-sm">
-                <span className="text-gray-600">Card Status</span>
-                <span className="text-green-600 font-medium bg-green-50 px-2 py-1 rounded">Active</span>
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-gray-600">Card Status</span>
+                    <span className="text-green-600 font-medium bg-green-50 px-2 py-1 rounded">Active</span>
+                  </div>
+                </div>
+              </>
+            ) : (
+              <div className="text-center py-8 bg-gray-50 rounded-xl border border-dashed border-gray-200">
+                <p className="text-gray-500 mb-4">No cards added</p>
+                <Link href="/dashboard/cards" className="text-blue-600 font-medium">Add Card</Link>
               </div>
-              <div className="flex items-center justify-between text-sm">
-                 <span className="text-gray-600">Daily Limit</span>
-                 <span className="font-medium">$2,000.00</span>
-              </div>
-            </div>
+            )}
           </div>
 
-          {/* Quick Transfer Widget (Placeholder) */}
-          <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+          {/* Quick Transfer Widget */}
+           <div id="transfer-widget" className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
              <h3 className="font-semibold text-gray-900 mb-4">Quick Transfer</h3>
-             <div className="space-y-4">
-               <div className="flex items-center gap-3 overflow-x-auto pb-2">
-                 {[1,2,3].map((i) => (
-                   <div key={i} className="flex flex-col items-center gap-1 min-w-[60px]">
-                     <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center text-gray-400">
-                       <UserCircleIcon className="w-6 h-6" />
-                     </div>
-                     <span className="text-xs text-gray-600">User {i}</span>
-                   </div>
-                 ))}
-                 <button className="flex flex-col items-center gap-1 min-w-[60px]">
-                    <div className="w-12 h-12 border-2 border-dashed border-gray-300 rounded-full flex items-center justify-center text-gray-400 hover:border-blue-500 hover:text-blue-500 transition-colors">
-                       <PlusIcon className="w-5 h-5" />
-                    </div>
-                    <span className="text-xs text-gray-600">Add</span>
-                 </button>
+             <form onSubmit={handleQuickTransfer} className="space-y-4">
+               <div>
+                 <label className="text-xs font-medium text-gray-700 mb-1 block">Recipient Email</label>
+                 <input
+                   type="email"
+                   required
+                   placeholder="friend@example.com"
+                   value={recipientEmail}
+                   onChange={(e) => setRecipientEmail(e.target.value)}
+                   className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-blue-500"
+                 />
                </div>
                
                <div className="relative">
                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 font-medium">$</span>
                  <input 
                    type="number" 
-                   placeholder="0.00" 
-                   className="w-full pl-8 pr-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                   required
+                   min="1"
+                   step="0.01"
+                   placeholder="0.00"
+                   value={transferAmount}
+                   onChange={(e) => setTransferAmount(e.target.value)}
+                   className="w-full pl-7 pr-4 py-3 bg-gray-50 border-none rounded-xl text-lg font-semibold text-gray-900 focus:ring-2 focus:ring-blue-500 transition-all placeholder:text-gray-400"
                  />
                </div>
-               <button className="w-full bg-blue-600 text-white py-2 rounded-lg font-medium hover:bg-blue-700 transition-colors">
-                 Send Money
+
+               <button 
+                 type="submit"
+                 disabled={transferLoading || !recipientEmail || !transferAmount}
+                 className="w-full bg-blue-600 text-white py-3 rounded-xl font-semibold hover:bg-blue-700 transition-colors shadow-lg shadow-blue-200 disabled:opacity-50 disabled:cursor-not-allowed"
+               >
+                 {transferLoading ? "Sending..." : "Send Money"}
                </button>
-             </div>
+             </form>
           </div>
         </div>
       </div>
