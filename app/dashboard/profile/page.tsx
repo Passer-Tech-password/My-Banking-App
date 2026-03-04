@@ -6,9 +6,11 @@ import { auth, db } from "@/lib/firebase";
 import { onAuthStateChanged, updateProfile } from "firebase/auth";
 import { useRouter } from "next/navigation";
 import { UserCircleIcon, PencilIcon, CheckIcon } from "@heroicons/react/24/outline";
+import { useToast } from "@/components/ToastProvider";
 
 export default function ProfilePage() {
   const router = useRouter();
+  const toast = useToast();
   const [loading, setLoading] = useState(true);
   const [editing, setEditing] = useState(false);
   const [formData, setFormData] = useState({
@@ -64,9 +66,10 @@ export default function ProfilePage() {
       }
 
       setEditing(false);
+      toast.success("Profile updated");
     } catch (error) {
       console.error("Error updating profile:", error);
-      alert("Failed to update profile. Please try again.");
+      toast.error("Failed to update profile. Please try again.");
     } finally {
       setLoading(false);
     }

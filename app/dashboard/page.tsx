@@ -11,14 +11,16 @@ import {
   query,
   where,
   getDocs,
+  onSnapshot,
   runTransaction,
   serverTimestamp,
   limit,
-  addDoc,
+  orderBy,
 } from "firebase/firestore";
 import { auth, db } from "@/lib/firebase";
 import { onAuthStateChanged } from "firebase/auth";
 import { Transaction } from "@/lib/Transaction";
+import { useToast } from "@/components/ToastProvider";
 import { 
   PlusIcon, 
   MinusIcon, 
@@ -36,6 +38,7 @@ interface Card {
 
 export default function DashboardPage() {
   const router = useRouter();
+  const toast = useToast();
   const [userId, setUserId] = useState<string | null>(null);
   const [balance, setBalance] = useState(0);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
@@ -46,68 +49,113 @@ export default function DashboardPage() {
   const [recipientEmail, setRecipientEmail] = useState("");
   const [transferAmount, setTransferAmount] = useState("");
   const [transferLoading, setTransferLoading] = useState(false);
+  const [greeting, setGreeting] = useState("");
+  const [recentContacts, setRecentContacts] = useState<string[]>([]);
 
   // Auth check + load user data
   useEffect(() => {
+    const hour = new Date().getHours();
+    setGreeting(hour < 12 ? "Good morning" : hour < 18 ? "Good afternoon" : "Good evening");
+
+    let isMounted = true;
+    let txUnsub: null | (() => void) = null;
+    
+    const safetyTimer = setTimeout(() => {
+      if (isMounted) setLoading(false);
+    }, 15000);
+
     const unsub = onAuthStateChanged(auth, async user => {
+      if (!isMounted) return;
+      
       if (!user) {
         router.push("/login");
         return;
       }
 
-      setUserId(user.uid);
+      try {
+        setUserId(user.uid);
 
-      const userRef = doc(db, "users", user.uid);
-      const snap = await getDoc(userRef);
+        const userRef = doc(db, "users", user.uid);
+        const snap = await getDoc(userRef);
 
-      if (!snap.exists()) {
-        await setDoc(userRef, {
-          balance: 0,
-          createdAt: serverTimestamp(),
-        });
-      } else {
-        setBalance(snap.data()?.balance ?? 0);
-      }
-
-      const q = query(
-        collection(db, "transactions"),
-        where("userId", "==", user.uid)
-      );
-
-      const querySnap = await getDocs(q);
-      const txs: Transaction[] = [];
-      let inc = 0;
-      let exp = 0;
-
-      querySnap.forEach(doc => {
-        const data = doc.data();
-        const tx = { id: doc.id, ...data } as Transaction;
-        txs.push(tx);
-
-        if (tx.type === 'deposit' || (tx.type === 'transfer' && tx.direction === 'incoming')) {
-           inc += tx.amount;
-        } else if (tx.type === 'withdrawal' || (tx.type === 'transfer' && tx.direction === 'outgoing')) {
-           exp += tx.amount;
+        if (!snap.exists()) {
+          await setDoc(userRef, {
+            balance: 0,
+            createdAt: serverTimestamp(),
+          });
+        } else {
+          setBalance(snap.data()?.balance ?? 0);
         }
-      });
 
-      setTransactions(txs.reverse());
-      setIncome(inc);
-      setExpense(exp);
+        if (txUnsub) txUnsub();
+        const txQuery = query(
+          collection(db, "transactions"),
+          where("userId", "==", user.uid),
+          orderBy("date", "desc"),
+          limit(20),
+        );
 
-      // Fetch Main Card
-      const cardsQ = query(collection(db, `users/${user.uid}/cards`), limit(1));
-      const cardsSnap = await getDocs(cardsQ);
-      if (!cardsSnap.empty) {
-        setMainCard({ id: cardsSnap.docs[0].id, ...cardsSnap.docs[0].data() } as Card);
-      } else {
-        setMainCard(null);
+        txUnsub = onSnapshot(
+          txQuery,
+          (querySnap) => {
+            const txs: Transaction[] = [];
+            let inc = 0;
+            let exp = 0;
+            const contactsSet = new Set<string>();
+
+            querySnap.forEach((docSnap) => {
+              const data = docSnap.data();
+              const tx = { id: docSnap.id, ...data } as Transaction;
+              txs.push(tx);
+
+              if (tx.type === "deposit" || (tx.type === "transfer" && tx.direction === "incoming")) {
+                inc += tx.amount;
+              } else if (
+                tx.type === "withdrawal" ||
+                (tx.type === "transfer" && tx.direction === "outgoing")
+              ) {
+                exp += tx.amount;
+                if (tx.receiverName) contactsSet.add(tx.receiverName);
+              }
+            });
+
+            if (isMounted) {
+              setTransactions(txs);
+              setIncome(inc);
+              setExpense(exp);
+              setRecentContacts(Array.from(contactsSet).slice(0, 5));
+            }
+          },
+          (error) => {
+            console.error("Dashboard transactions stream error:", error);
+            toast.error("Failed to load live transactions");
+          },
+        );
+
+        // Fetch Main Card
+        const cardsQ = query(collection(db, `users/${user.uid}/cards`), limit(1));
+        const cardsSnap = await getDocs(cardsQ);
+        if (isMounted) {
+          if (!cardsSnap.empty) {
+            setMainCard({ id: cardsSnap.docs[0].id, ...cardsSnap.docs[0].data() } as Card);
+          } else {
+            setMainCard(null);
+          }
+        }
+      } catch (error) {
+        console.error("Dashboard error:", error);
+      } finally {
+        if (isMounted) setLoading(false);
+        clearTimeout(safetyTimer);
       }
-
-      setLoading(false);
     });
 
-    return () => unsub();
+    return () => {
+      isMounted = false;
+      if (txUnsub) txUnsub();
+      clearTimeout(safetyTimer);
+      unsub();
+    };
   }, [router]);
 
   const saveTransaction = async (
@@ -169,7 +217,7 @@ export default function DashboardPage() {
 
     } catch (e) {
       console.error("Transaction failed:", e);
-      alert("Transaction failed: " + (e instanceof Error ? e.message : "Unknown error"));
+      toast.error("Transaction failed: " + (e instanceof Error ? e.message : "Unknown error"));
     }
   };
 
@@ -188,7 +236,7 @@ export default function DashboardPage() {
       const usersSnap = await getDocs(usersQ);
       
       if (usersSnap.empty) {
-        alert("User not found");
+        toast.error("User not found");
         return;
       }
 
@@ -196,7 +244,7 @@ export default function DashboardPage() {
       const recipientId = recipientDoc.id;
 
       if (recipientId === userId) {
-        alert("Cannot transfer to yourself");
+        toast.error("Cannot transfer to yourself");
         return;
       }
 
@@ -261,11 +309,11 @@ export default function DashboardPage() {
 
       setRecipientEmail("");
       setTransferAmount("");
-      alert("Transfer successful!");
+      toast.success("Transfer successful!");
 
     } catch (error) {
       console.error("Transfer error:", error);
-      alert(error instanceof Error ? error.message : "Transfer failed");
+      toast.error(error instanceof Error ? error.message : "Transfer failed");
     } finally {
       setTransferLoading(false);
     }
@@ -279,7 +327,7 @@ export default function DashboardPage() {
   const withdraw = async () => {
     const amount = 500;
     if (balance < amount) {
-      alert("Insufficient funds");
+      toast.error("Insufficient funds");
       return;
     }
     await saveTransaction("withdrawal", amount);
@@ -299,7 +347,7 @@ export default function DashboardPage() {
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
-          <p className="text-sm text-gray-500">Welcome back, User</p>
+          <p className="text-sm text-gray-500">{greeting || "Welcome back"}, User</p>
         </div>
         <div className="flex items-center gap-3">
           <button className="bg-white border border-gray-300 text-gray-700 px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-50 transition-colors">
@@ -341,6 +389,19 @@ export default function DashboardPage() {
                     <ArrowUpRightIcon className="w-4 h-4 text-red-300 rotate-90" />
                     ${expense.toLocaleString('en-US', { minimumFractionDigits: 2 })}
                   </p>
+                </div>
+              </div>
+              
+              <div className="mt-6 pt-4 border-t border-blue-500/30">
+                <div className="flex justify-between items-center text-xs text-blue-200 mb-2">
+                  <span>Monthly Budget</span>
+                  <span>{Math.round((expense / (income || 1)) * 100)}%</span>
+                </div>
+                <div className="h-1.5 bg-blue-900/50 rounded-full overflow-hidden">
+                  <div 
+                    className="h-full bg-blue-300 rounded-full transition-all duration-1000 ease-out"
+                    style={{ width: `${Math.min((expense / (income || 1)) * 100, 100)}%` }}
+                  />
                 </div>
               </div>
             </div>
@@ -498,9 +559,78 @@ export default function DashboardPage() {
             )}
           </div>
 
+          <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="font-semibold text-gray-900">Activity Feed</h3>
+              <Link href="/dashboard/transactions" className="text-sm text-blue-600 hover:text-blue-700 font-medium">
+                View All
+              </Link>
+            </div>
+
+            {transactions.length === 0 ? (
+              <div className="text-sm text-gray-500">No activity yet.</div>
+            ) : (
+              <div className="space-y-3">
+                {transactions.slice(0, 6).map((tx, idx) => {
+                  const isIncome =
+                    tx.type === "deposit" ||
+                    tx.type === "credit" ||
+                    (tx.type === "transfer" && tx.direction === "incoming");
+                  return (
+                    <div key={tx.id || idx} className="flex items-start gap-3">
+                      <div
+                        className={`w-9 h-9 rounded-full flex items-center justify-center ${
+                          isIncome ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"
+                        }`}
+                      >
+                        {isIncome ? <PlusIcon className="w-4 h-4" /> : <MinusIcon className="w-4 h-4" />}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center justify-between gap-3">
+                          <p className="text-sm font-medium text-gray-900 truncate">
+                            {tx.description || tx.type}
+                          </p>
+                          <p className={`text-sm font-semibold ${isIncome ? "text-green-700" : "text-gray-900"}`}>
+                            {isIncome ? "+" : "-"}${Math.abs(tx.amount || 0).toLocaleString("en-US", { minimumFractionDigits: 2 })}
+                          </p>
+                        </div>
+                        <p className="text-xs text-gray-500">
+                          {tx.date ? new Date(tx.date).toLocaleString() : ""}
+                        </p>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+
           {/* Quick Transfer Widget */}
            <div id="transfer-widget" className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
              <h3 className="font-semibold text-gray-900 mb-4">Quick Transfer</h3>
+             
+             {/* Recent Contacts */}
+             {recentContacts.length > 0 && (
+               <div className="mb-4">
+                  <p className="text-xs font-medium text-gray-500 mb-2">Recent</p>
+                  <div className="flex items-center gap-3 overflow-x-auto pb-2 scrollbar-none">
+                    {recentContacts.map((email) => (
+                       <button 
+                         key={email} 
+                         onClick={() => setRecipientEmail(email)}
+                         type="button"
+                         className="flex flex-col items-center gap-1 min-w-[50px] group"
+                       >
+                         <div className={`w-10 h-10 rounded-full flex items-center justify-center text-white text-xs font-bold transition-transform group-hover:scale-110 ${recipientEmail === email ? 'bg-blue-600 ring-2 ring-blue-200' : 'bg-gradient-to-br from-blue-400 to-blue-600'}`}>
+                           {email.charAt(0).toUpperCase()}
+                         </div>
+                         <span className="text-[10px] text-gray-600 truncate w-12 text-center">{email.split('@')[0]}</span>
+                       </button>
+                    ))}
+                  </div>
+               </div>
+             )}
+
              <form onSubmit={handleQuickTransfer} className="space-y-4">
                <div>
                  <label className="text-xs font-medium text-gray-700 mb-1 block">Recipient Email</label>

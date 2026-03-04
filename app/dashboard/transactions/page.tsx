@@ -5,11 +5,13 @@ import { collection, query, where, getDocs, orderBy, limit, startAfter, QueryDoc
 import { auth, db } from "@/lib/firebase";
 import { onAuthStateChanged } from "firebase/auth";
 import { Transaction } from "@/lib/Transaction";
-import { ArrowUpRightIcon, ArrowDownLeftIcon, FunnelIcon } from "@heroicons/react/24/outline";
+import { ArrowUpRightIcon, ArrowDownLeftIcon, FunnelIcon, ArrowDownTrayIcon } from "@heroicons/react/24/outline";
 import { useRouter } from "next/navigation";
+import { useToast } from "@/components/ToastProvider";
 
 export default function TransactionsPage() {
   const router = useRouter();
+  const toast = useToast();
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [loading, setLoading] = useState(true);
   const [lastDoc, setLastDoc] = useState<QueryDocumentSnapshot<DocumentData> | null>(null);
@@ -67,6 +69,46 @@ export default function TransactionsPage() {
     }
   };
 
+  const [exporting, setExporting] = useState(false);
+
+  const exportToCSV = () => {
+    if (transactions.length === 0) return;
+
+    try {
+      setExporting(true);
+      const headers = ["Date", "Description", "Type", "Amount", "Status", "Reference"];
+      const sanitize = (str: any) => {
+        if (!str && str !== 0) return '""';
+        return `"${String(str).replace(/"/g, '""').replace(/^([=+\-@\t\r])/, "'$1")}"`;
+      };
+
+      const rows = transactions.map(tx => [
+        sanitize(new Date(tx.date).toLocaleDateString()),
+        sanitize(tx.description),
+        sanitize(tx.type),
+        tx.amount.toFixed(2),
+        sanitize(tx.status),
+        sanitize(tx.id)
+      ]);
+
+      const csvContent = "data:text/csv;charset=utf-8," 
+        + [headers.join(","), ...rows.map(e => e.join(","))].join("\n");
+
+      const encodedUri = encodeURI(csvContent);
+      const link = document.createElement("a");
+      link.setAttribute("href", encodedUri);
+      link.setAttribute("download", "transactions.csv");
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    } catch (error) {
+      console.error("Export failed:", error);
+      toast.error("Export failed. Please try again.");
+    } finally {
+      setExporting(false);
+    }
+  };
+
   const loadMore = () => {
     const user = auth.currentUser;
     if (user) {
@@ -82,31 +124,46 @@ export default function TransactionsPage() {
           <p className="text-sm text-gray-500">View and filter your transaction history.</p>
         </div>
         
-        <div className="flex items-center gap-2 bg-white border border-gray-200 rounded-lg p-1">
-          <button
-            onClick={() => setFilter("all")}
-            className={`px-3 py-1.5 text-sm font-medium rounded-md transition-colors ${
-              filter === "all" ? "bg-blue-50 text-blue-700" : "text-gray-600 hover:bg-gray-50"
-            }`}
+        <div className="flex flex-col sm:flex-row gap-3">
+          <button 
+            onClick={exportToCSV}
+            disabled={transactions.length === 0 || exporting}
+            className="flex items-center justify-center gap-2 px-3 py-1.5 bg-white border border-gray-200 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            All
+            {exporting ? (
+              <span className="inline-block h-4 w-4 border-b-2 border-gray-600 rounded-full animate-spin" />
+            ) : (
+              <ArrowDownTrayIcon className="w-4 h-4" />
+            )}
+            {exporting ? "Exporting..." : "Export CSV"}
           </button>
-          <button
-            onClick={() => setFilter("deposit")}
-            className={`px-3 py-1.5 text-sm font-medium rounded-md transition-colors ${
-              filter === "deposit" ? "bg-green-50 text-green-700" : "text-gray-600 hover:bg-gray-50"
-            }`}
-          >
-            Deposits
-          </button>
-          <button
-            onClick={() => setFilter("withdrawal")}
-            className={`px-3 py-1.5 text-sm font-medium rounded-md transition-colors ${
-              filter === "withdrawal" ? "bg-red-50 text-red-700" : "text-gray-600 hover:bg-gray-50"
-            }`}
-          >
-            Withdrawals
-          </button>
+
+          <div className="flex items-center gap-2 bg-white border border-gray-200 rounded-lg p-1">
+            <button
+              onClick={() => setFilter("all")}
+              className={`px-3 py-1.5 text-sm font-medium rounded-md transition-colors ${
+                filter === "all" ? "bg-blue-50 text-blue-700" : "text-gray-600 hover:bg-gray-50"
+              }`}
+            >
+              All
+            </button>
+            <button
+              onClick={() => setFilter("deposit")}
+              className={`px-3 py-1.5 text-sm font-medium rounded-md transition-colors ${
+                filter === "deposit" ? "bg-green-50 text-green-700" : "text-gray-600 hover:bg-gray-50"
+              }`}
+            >
+              Deposits
+            </button>
+            <button
+              onClick={() => setFilter("withdrawal")}
+              className={`px-3 py-1.5 text-sm font-medium rounded-md transition-colors ${
+                filter === "withdrawal" ? "bg-red-50 text-red-700" : "text-gray-600 hover:bg-gray-50"
+              }`}
+            >
+              Withdrawals
+            </button>
+          </div>
         </div>
       </div>
 

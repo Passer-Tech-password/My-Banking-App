@@ -8,9 +8,11 @@ import Footer from "@/components/Footer";
 import { createUserWithEmailAndPassword } from "firebase/auth";
 import { auth, db } from "@/lib/firebase";
 import { doc, setDoc, serverTimestamp } from "firebase/firestore";
+import { useToast } from "@/components/ToastProvider";
 
 export default function RegisterPage() {
   const router = useRouter();
+  const toast = useToast();
   const [formData, setFormData] = useState({
     firstName: "",
     middleName: "",
@@ -91,12 +93,12 @@ export default function RegisterPage() {
       });
 
       console.log("User created successfully:", newUser);
-      alert("Account created successfully!");
+      toast.success("Account created successfully!");
       router.push("/dashboard");
 
     } catch (error) {
       console.error("Error creating user:", error);
-      alert(error instanceof Error ? error.message : "An error occurred");
+      toast.error(error instanceof Error ? error.message : "An error occurred");
     } finally {
       setLoading(false);
     }

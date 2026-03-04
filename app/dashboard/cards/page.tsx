@@ -5,7 +5,8 @@ import { collection, addDoc, getDocs, deleteDoc, doc, query, where } from "fireb
 import { auth, db } from "@/lib/firebase";
 import { onAuthStateChanged } from "firebase/auth";
 import { useRouter } from "next/navigation";
-import { CreditCardIcon, PlusIcon, TrashIcon } from "@heroicons/react/24/outline";
+import { CreditCardIcon, PlusIcon, TrashIcon, ClipboardDocumentIcon } from "@heroicons/react/24/outline";
+import { useToast } from "@/components/ToastProvider";
 
 interface Card {
   id: string;
@@ -18,6 +19,7 @@ interface Card {
 
 export default function CardsPage() {
   const router = useRouter();
+  const toast = useToast();
   const [loading, setLoading] = useState(true);
   const [cards, setCards] = useState<Card[]>([]);
   const [showAddForm, setShowAddForm] = useState(false);
@@ -72,9 +74,10 @@ export default function CardsPage() {
         cvv: "",
       });
       fetchCards(user.uid);
+      toast.success("Card added");
     } catch (error) {
       console.error("Error adding card:", error);
-      alert("Failed to add card.");
+      toast.error("Failed to add card.");
     }
   };
 
@@ -87,9 +90,10 @@ export default function CardsPage() {
     try {
       await deleteDoc(doc(db, `users/${user.uid}/cards`, cardId));
       fetchCards(user.uid);
+      toast.success("Card deleted");
     } catch (error) {
       console.error("Error deleting card:", error);
-      alert("Failed to delete card.");
+      toast.error("Failed to delete card.");
     }
   };
 
@@ -239,7 +243,14 @@ export default function CardsPage() {
                   <div className="w-8 h-5 bg-yellow-400/80 rounded-sm" />
                 </div>
                 <div className="space-y-4 relative z-10">
-                  <p className="font-mono text-xl tracking-widest">{card.number}</p>
+                  <div 
+                    className="flex items-center gap-3 group/number cursor-pointer" 
+                    onClick={() => navigator.clipboard.writeText(card.number)}
+                    title="Click to copy"
+                  >
+                    <p className="font-mono text-xl tracking-widest">{card.number}</p>
+                    <ClipboardDocumentIcon className="w-5 h-5 text-white/50 opacity-0 group-hover/number:opacity-100 transition-all" />
+                  </div>
                   <div className="flex justify-between items-end">
                     <div>
                       <p className="text-xs opacity-70 mb-1">Card Holder</p>

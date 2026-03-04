@@ -14,6 +14,7 @@ export type UserData = {
   balance?: number;
   accountType?: string;
   blocked?: boolean;
+  createdAt?: { seconds: number; nanoseconds: number };
 };
 
 interface UserTableProps {

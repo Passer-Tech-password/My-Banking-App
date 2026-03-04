@@ -3,24 +3,30 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { onAuthStateChanged } from "firebase/auth";
-import { collection, getDocs, query, doc, updateDoc, deleteDoc, getDoc } from "firebase/firestore";
+import { collection, getDocs, query, doc, updateDoc, deleteDoc, getDoc, onSnapshot, orderBy, limit } from "firebase/firestore";
 import { auth, db } from "@/lib/firebase";
 import UserTable, { UserData } from "@/components/UserTable";
 import FundUserModal from "@/components/FundUserModal";
+import { useToast } from "@/components/ToastProvider";
+import { Transaction } from "@/lib/Transaction";
 import { 
   UserGroupIcon, 
   MagnifyingGlassIcon, 
   NoSymbolIcon, 
-  CheckCircleIcon
+  CheckCircleIcon,
+  BanknotesIcon
 } from "@heroicons/react/24/outline";
 
 export default function AdminDashboardPage() {
   const router = useRouter();
+  const toast = useToast();
   const [users, setUsers] = useState<UserData[]>([]);
+  const [recentTransactions, setRecentTransactions] = useState<Transaction[]>([]);
   const [authChecking, setAuthChecking] = useState(true);
   const [usersLoading, setUsersLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [error, setError] = useState<string | null>(null);
+  const [greeting, setGreeting] = useState("");
   
   // Fund Modal State
   const [fundModalOpen, setFundModalOpen] = useState(false);
@@ -31,6 +37,28 @@ export default function AdminDashboardPage() {
     process.env.NODE_ENV !== "production";
 
   useEffect(() => {
+    const hour = new Date().getHours();
+    setGreeting(hour < 12 ? "Good morning" : hour < 18 ? "Good afternoon" : "Good evening");
+
+    let txUnsub: null | (() => void) = null;
+    let authUnsub: null | (() => void) = null;
+    const startTxStream = () => {
+      if (txUnsub) txUnsub();
+      const txQ = query(collection(db, "transactions"), orderBy("date", "desc"), limit(10));
+      txUnsub = onSnapshot(
+        txQ,
+        (snap) => {
+          const txs: Transaction[] = [];
+          snap.forEach((d) => txs.push({ id: d.id, ...d.data() } as Transaction));
+          setRecentTransactions(txs);
+        },
+        (err) => {
+          console.error("Admin activity stream error:", err);
+          toast.error("Failed to load live activity");
+        },
+      );
+    };
+
     if (ADMIN_OVERRIDE_ENABLED) {
       console.warn(
         "Admin override is active: skipping Firebase auth checks on dashboard. Do not enable this in production.",
@@ -38,34 +66,38 @@ export default function AdminDashboardPage() {
       setError(null);
       setAuthChecking(false);
       fetchUsers();
-      return;
-    }
-
-    const unsub = onAuthStateChanged(auth, async (user) => {
-      if (!user) {
-        setAuthChecking(false);
-        router.push("/admin/login");
-        return;
-      }
-      try {
-        setError(null);
-        const profileSnap = await getDoc(doc(db, "users", user.uid));
-        if (!profileSnap.exists() || profileSnap.data()?.role !== "admin") {
+      startTxStream();
+    } else {
+      authUnsub = onAuthStateChanged(auth, async (user) => {
+        if (!user) {
           setAuthChecking(false);
           router.push("/admin/login");
           return;
         }
-        setAuthChecking(false);
-        fetchUsers();
-      } catch (error) {
-        console.error("Error verifying admin user:", error);
-        setAuthChecking(false);
-        setError("Authentication failed");
-        router.push("/admin/login");
-      }
-    });
+        try {
+          setError(null);
+          const profileSnap = await getDoc(doc(db, "users", user.uid));
+          if (!profileSnap.exists() || profileSnap.data()?.role !== "admin") {
+            setAuthChecking(false);
+            router.push("/admin/login");
+            return;
+          }
+          setAuthChecking(false);
+          fetchUsers();
+          startTxStream();
+        } catch (error) {
+          console.error("Error verifying admin user:", error);
+          setAuthChecking(false);
+          setError("Authentication failed");
+          router.push("/admin/login");
+        }
+      });
+    };
 
-    return () => unsub();
+    return () => {
+      if (authUnsub) authUnsub();
+      if (txUnsub) txUnsub();
+    };
   }, [router]);
 
   const fetchUsers = async () => {
@@ -94,9 +126,10 @@ export default function AdminDashboardPage() {
             blocked: !currentStatus
         });
         setUsers(users.map(u => u.id === userId ? { ...u, blocked: !currentStatus } : u));
+        toast.success(!currentStatus ? "User blocked" : "User unblocked");
     } catch (error) {
         console.error("Error updating user:", error);
-        alert("Failed to update user status");
+        toast.error("Failed to update user status");
     }
   };
 
@@ -106,9 +139,10 @@ export default function AdminDashboardPage() {
       try {
           await deleteDoc(doc(db, "users", userId));
           setUsers(users.filter(u => u.id !== userId));
+          toast.success("User deleted");
       } catch (error) {
           console.error("Error deleting user:", error);
-          alert("Failed to delete user");
+          toast.error("Failed to delete user");
       }
   }
 
@@ -130,7 +164,8 @@ export default function AdminDashboardPage() {
   const stats = {
     total: users.length,
     active: users.filter(u => !u.blocked).length,
-    blocked: users.filter(u => u.blocked).length
+    blocked: users.filter(u => u.blocked).length,
+    balance: users.reduce((acc, u) => acc + (u.balance || 0), 0)
   };
 
   if (authChecking) {
@@ -149,7 +184,7 @@ export default function AdminDashboardPage() {
         </div>
       )}
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 flex items-center gap-4">
           <div className="p-3 bg-blue-50 text-blue-600 rounded-lg">
             <UserGroupIcon className="w-8 h-8" />
@@ -161,6 +196,15 @@ export default function AdminDashboardPage() {
         </div>
         <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 flex items-center gap-4">
           <div className="p-3 bg-green-50 text-green-600 rounded-lg">
+            <BanknotesIcon className="w-8 h-8" />
+          </div>
+          <div>
+            <p className="text-sm text-gray-500">System Balance</p>
+            <p className="text-2xl font-bold text-gray-900">${stats.balance.toLocaleString()}</p>
+          </div>
+        </div>
+        <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 flex items-center gap-4">
+          <div className="p-3 bg-indigo-50 text-indigo-600 rounded-lg">
             <CheckCircleIcon className="w-8 h-8" />
           </div>
           <div>
@@ -177,6 +221,49 @@ export default function AdminDashboardPage() {
             <p className="text-2xl font-bold text-gray-900">{stats.blocked}</p>
           </div>
         </div>
+      </div>
+
+      <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+        <div className="p-6 border-b border-gray-100 flex items-center justify-between">
+          <h2 className="text-lg font-bold text-gray-900">Recent Activity</h2>
+          <p className="text-sm text-gray-500">Live</p>
+        </div>
+        {recentTransactions.length === 0 ? (
+          <div className="p-6 text-sm text-gray-500">No activity yet.</div>
+        ) : (
+          <div className="divide-y divide-gray-100">
+            {recentTransactions.slice(0, 10).map((tx, idx) => {
+              const isIncome =
+                tx.type === "deposit" ||
+                tx.type === "credit" ||
+                (tx.type === "transfer" && tx.direction === "incoming");
+              return (
+                <div key={tx.id || idx} className="p-5 flex items-start justify-between gap-6">
+                  <div className="flex items-start gap-3 min-w-0">
+                    <div
+                      className={`w-9 h-9 rounded-full flex items-center justify-center ${
+                        isIncome ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"
+                      }`}
+                    >
+                      <BanknotesIcon className="w-4 h-4" />
+                    </div>
+                    <div className="min-w-0">
+                      <p className="text-sm font-medium text-gray-900 truncate">
+                        {tx.description || tx.type}
+                      </p>
+                      <p className="text-xs text-gray-500 truncate">
+                        {tx.userId} • {tx.date ? new Date(tx.date).toLocaleString() : ""}
+                      </p>
+                    </div>
+                  </div>
+                  <div className={`text-sm font-semibold ${isIncome ? "text-green-700" : "text-gray-900"}`}>
+                    {isIncome ? "+" : "-"}${Math.abs(tx.amount || 0).toLocaleString("en-US", { minimumFractionDigits: 2 })}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
       </div>
 
       {/* User Management Section */}

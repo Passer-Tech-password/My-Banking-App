@@ -18,10 +18,12 @@ import {
 import { auth, db } from "@/lib/firebase";
 import UserTable, { UserData } from "@/components/UserTable";
 import FundUserModal from "@/components/FundUserModal";
-import { MagnifyingGlassIcon } from "@heroicons/react/24/outline";
+import { useToast } from "@/components/ToastProvider";
+import { MagnifyingGlassIcon, ArrowDownTrayIcon } from "@heroicons/react/24/outline";
 
 export default function UsersPage() {
   const router = useRouter();
+  const toast = useToast();
   const [users, setUsers] = useState<UserData[]>([]);
   const [authChecking, setAuthChecking] = useState(true);
   const [usersLoading, setUsersLoading] = useState(false);
@@ -129,9 +131,10 @@ export default function UsersPage() {
             blocked: !currentStatus
         });
         setUsers(users.map(u => u.id === userId ? { ...u, blocked: !currentStatus } : u));
+        toast.success(!currentStatus ? "User blocked" : "User unblocked");
     } catch (error) {
         console.error("Error updating user:", error);
-        alert("Failed to update user status");
+        toast.error("Failed to update user status");
     }
   };
 
@@ -141,9 +144,10 @@ export default function UsersPage() {
       try {
           await deleteDoc(doc(db, "users", userId));
           setUsers(users.filter(u => u.id !== userId));
+          toast.success("User deleted");
       } catch (error) {
           console.error("Error deleting user:", error);
-          alert("Failed to delete user");
+          toast.error("Failed to delete user");
       }
   }
 
@@ -161,6 +165,47 @@ export default function UsersPage() {
     user.firstName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
     user.lastName?.toLowerCase().includes(searchTerm.toLowerCase())
   );
+
+  const [exporting, setExporting] = useState(false);
+
+  const exportToCSV = () => {
+    if (users.length === 0) return;
+
+    try {
+      setExporting(true);
+      const headers = ["ID", "Email", "Name", "Role", "Balance", "Blocked", "Created At"];
+      const sanitize = (str: string | null | undefined) => {
+        if (!str) return '""';
+        return `"${String(str).replace(/"/g, '""').replace(/^([=+\-@\t\r])/, "'$1")}"`;
+      };
+
+      const rows = users.map(user => [
+        sanitize(user.id),
+        sanitize(user.email),
+        sanitize(`${user.firstName || ""} ${user.lastName || ""}`),
+        sanitize(user.role),
+        (user.balance || 0).toFixed(2),
+        user.blocked ? "Yes" : "No",
+        sanitize(user.createdAt ? new Date(user.createdAt.seconds * 1000).toLocaleDateString() : "")
+      ]);
+
+      const csvContent = "data:text/csv;charset=utf-8," 
+        + [headers.join(","), ...rows.map(e => e.join(","))].join("\n");
+
+      const encodedUri = encodeURI(csvContent);
+      const link = document.createElement("a");
+      link.setAttribute("href", encodedUri);
+      link.setAttribute("download", "users.csv");
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    } catch (error) {
+      console.error("Export failed:", error);
+      toast.error("Export failed. Please try again.");
+    } finally {
+      setExporting(false);
+    }
+  };
 
   if (authChecking) {
     return (
@@ -182,6 +227,18 @@ export default function UsersPage() {
         <div className="p-6 border-b border-gray-100 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <h2 className="text-lg font-bold text-gray-900">All Users</h2>
           <div className="flex flex-col sm:flex-row sm:items-center gap-3">
+            <button 
+              onClick={exportToCSV}
+              disabled={users.length === 0 || exporting}
+              className="flex items-center justify-center gap-2 px-3 py-2 bg-white border border-gray-200 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {exporting ? (
+                <span className="inline-block h-4 w-4 border-b-2 border-gray-600 rounded-full animate-spin" />
+              ) : (
+                <ArrowDownTrayIcon className="w-4 h-4" />
+              )}
+              {exporting ? "Exporting..." : "Export"}
+            </button>
             <div className="relative">
               <MagnifyingGlassIcon className="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
               <input 

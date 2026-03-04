@@ -6,14 +6,17 @@ import { onAuthStateChanged } from "firebase/auth";
 import { collection, getDocs, query, orderBy, limit, doc, getDoc } from "firebase/firestore";
 import { db, auth } from "@/lib/firebase";
 import { Transaction } from "@/lib/Transaction";
+import { useToast } from "@/components/ToastProvider";
 import { 
   ArrowDownLeftIcon, 
   ArrowUpRightIcon, 
-  BanknotesIcon 
+  BanknotesIcon,
+  ArrowDownTrayIcon
 } from "@heroicons/react/24/outline";
 
 export default function AdminTransactionsPage() {
   const router = useRouter();
+  const toast = useToast();
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [authChecking, setAuthChecking] = useState(true);
   const [txLoading, setTxLoading] = useState(false);
@@ -85,6 +88,47 @@ export default function AdminTransactionsPage() {
     }
   };
 
+  const [exporting, setExporting] = useState(false);
+
+  const exportToCSV = () => {
+    if (transactions.length === 0) return;
+
+    try {
+      setExporting(true);
+      const headers = ["Date", "Description", "Type", "Amount", "Status", "User ID", "Reference"];
+      const sanitize = (str: any) => {
+        if (!str && str !== 0) return '""';
+        return `"${String(str).replace(/"/g, '""').replace(/^([=+\-@\t\r])/, "'$1")}"`;
+      };
+
+      const rows = transactions.map(tx => [
+        sanitize(new Date(tx.date).toLocaleDateString()),
+        sanitize(tx.description),
+        sanitize(tx.type),
+        tx.amount.toFixed(2),
+        sanitize(tx.status),
+        sanitize(tx.userId),
+        sanitize(tx.id)
+      ]);
+
+      const csvContent = "data:text/csv;charset=utf-8," 
+        + [headers.join(","), ...rows.map(e => e.join(","))].join("\n");
+
+      const encodedUri = encodeURI(csvContent);
+      const link = document.createElement("a");
+      link.setAttribute("href", encodedUri);
+      link.setAttribute("download", "admin_transactions.csv");
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    } catch (error) {
+      console.error("Export failed:", error);
+      toast.error("Export failed. Please try again.");
+    } finally {
+      setExporting(false);
+    }
+  };
+
   if (authChecking) {
     return (
       <div className="flex items-center justify-center h-full min-h-[50vh]">
@@ -102,11 +146,25 @@ export default function AdminTransactionsPage() {
       )}
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold text-gray-900">Transaction Logs</h1>
-        <div className="flex items-center gap-2 text-sm text-gray-500">
-          <span>Showing last {transactions.length} transactions</span>
-          {txLoading && (
-            <span className="inline-block h-3 w-3 border-b-2 border-blue-500 rounded-full animate-spin" />
-          )}
+        <div className="flex items-center gap-3">
+          <button 
+            onClick={exportToCSV}
+            disabled={transactions.length === 0 || exporting}
+            className="flex items-center gap-2 px-3 py-1.5 bg-white border border-gray-200 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {exporting ? (
+              <span className="inline-block h-4 w-4 border-b-2 border-gray-600 rounded-full animate-spin" />
+            ) : (
+              <ArrowDownTrayIcon className="w-4 h-4" />
+            )}
+            {exporting ? "Exporting..." : "Export CSV"}
+          </button>
+          <div className="flex items-center gap-2 text-sm text-gray-500">
+            <span>Showing last {transactions.length}</span>
+            {txLoading && (
+              <span className="inline-block h-3 w-3 border-b-2 border-blue-500 rounded-full animate-spin" />
+            )}
+          </div>
         </div>
       </div>
 
