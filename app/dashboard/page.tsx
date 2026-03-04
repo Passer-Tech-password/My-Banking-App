@@ -20,6 +20,7 @@ import {
 import { auth, db } from "@/lib/firebase";
 import { onAuthStateChanged } from "firebase/auth";
 import { Transaction } from "@/lib/Transaction";
+import { Card } from "@/lib/Card";
 import { useToast } from "@/components/ToastProvider";
 import { 
   PlusIcon, 
@@ -27,14 +28,6 @@ import {
   ArrowUpRightIcon, 
   UserCircleIcon 
 } from "@heroicons/react/24/outline";
-
-interface Card {
-  id: string;
-  network: "VISA" | "MasterCard" | "Amex";
-  number: string;
-  holder: string;
-  expires: string;
-}
 
 export default function DashboardPage() {
   const router = useRouter();

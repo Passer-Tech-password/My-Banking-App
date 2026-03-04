@@ -6,16 +6,8 @@ import { auth, db } from "@/lib/firebase";
 import { onAuthStateChanged } from "firebase/auth";
 import { useRouter } from "next/navigation";
 import { CreditCardIcon, PlusIcon, TrashIcon, ClipboardDocumentIcon } from "@heroicons/react/24/outline";
+import { Card, CardNetwork } from "@/lib/Card";
 import { useToast } from "@/components/ToastProvider";
-
-interface Card {
-  id: string;
-  network: "VISA" | "MasterCard" | "Amex";
-  number: string;
-  holder: string;
-  expires: string;
-  cvv: string;
-}
 
 export default function CardsPage() {
   const router = useRouter();
@@ -24,7 +16,7 @@ export default function CardsPage() {
   const [cards, setCards] = useState<Card[]>([]);
   const [showAddForm, setShowAddForm] = useState(false);
   const [newCard, setNewCard] = useState({
-    network: "VISA",
+    network: "VISA" as CardNetwork,
     number: "",
     holder: "",
     expires: "",
@@ -64,10 +56,18 @@ export default function CardsPage() {
     if (!user) return;
 
     try {
-      await addDoc(collection(db, `users/${user.uid}/cards`), newCard);
+      const card = Card.builder()
+        .setNetwork(newCard.network)
+        .setNumber(newCard.number)
+        .setHolder(newCard.holder)
+        .setExpires(newCard.expires)
+        .setCvv(newCard.cvv)
+        .build();
+
+      await addDoc(collection(db, `users/${user.uid}/cards`), card.toFirestore());
       setShowAddForm(false);
       setNewCard({
-        network: "VISA",
+        network: "VISA" as CardNetwork,
         number: "",
         holder: "",
         expires: "",
@@ -77,7 +77,7 @@ export default function CardsPage() {
       toast.success("Card added");
     } catch (error) {
       console.error("Error adding card:", error);
-      toast.error("Failed to add card.");
+      toast.error(error instanceof Error ? error.message : "Failed to add card.");
     }
   };
 
