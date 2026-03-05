@@ -7,13 +7,13 @@ service cloud.firestore {
     }
 
     function isAdmin() {
-      return signedIn()
-        && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == "admin";
+      return signedIn() && request.auth.token.role == "admin";
     }
 
     match /publicUsers/{userId} {
       allow read: if signedIn();
-      allow create, update: if isAdmin() || (signedIn() && request.auth.uid == userId);
+      allow create: if signedIn() && request.auth.uid == userId;
+      allow update: if isAdmin() || (signedIn() && request.auth.uid == userId);
       allow delete: if isAdmin();
     }
 
@@ -35,4 +35,3 @@ service cloud.firestore {
     }
   }
 }
-

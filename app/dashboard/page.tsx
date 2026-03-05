@@ -87,15 +87,19 @@ export default function DashboardPage() {
           (user.displayName ?? "") ||
           (user.email ?? "");
         const publicRef = doc(db, "publicUsers", user.uid);
-        await setDoc(
-          publicRef,
-          {
-            email: user.email ?? "",
-            name: computedName,
-            updatedAt: serverTimestamp(),
-          },
-          { merge: true },
-        );
+        try {
+          await setDoc(
+            publicRef,
+            {
+              email: user.email ?? "",
+              name: computedName,
+              updatedAt: serverTimestamp(),
+            },
+            { merge: true },
+          );
+        } catch (e) {
+          console.error("publicUsers sync failed:", e);
+        }
 
         if (txUnsub) txUnsub();
         const txQuery = query(

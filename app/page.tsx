@@ -38,7 +38,7 @@ export default async function HomePage() {
                  <div className="absolute inset-0 bg-gradient-to-tr from-blue-100 to-purple-100 rounded-full blur-3xl transform scale-75"></div>
                  
                  <img 
-                   src="/smart-banking-image.png.png" 
+                   src="/smart-banking-image.png" 
                    alt={t("home.smartBanking.title")} 
                    className="relative z-10 object-contain w-full h-full drop-shadow-2xl transition-transform duration-500 hover:scale-105"
                  />
