@@ -7,7 +7,8 @@ service cloud.firestore {
     }
 
     function isAdmin() {
-      return signedIn() && request.auth.token.role == "admin";
+      return signedIn()
+        && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == "admin";
     }
 
     match /publicUsers/{userId} {
@@ -18,12 +19,24 @@ service cloud.firestore {
     }
 
     match /users/{userId} {
-      allow read: if isAdmin() || (signedIn() && request.auth.uid == userId);
-      allow create: if signedIn() && request.auth.uid == userId;
-      allow update: if isAdmin() || (signedIn() && request.auth.uid == userId);
+      allow read: if (signedIn() && request.auth.uid == userId) || isAdmin();
+      allow create: if signedIn()
+        && request.auth.uid == userId
+        && request.resource.data.role == "user"
+        && request.resource.data.blocked == false;
+      allow update: if isAdmin() || (
+        signedIn()
+        && request.auth.uid == userId
+        && request.resource.data.role == resource.data.role
+        && request.resource.data.blocked == resource.data.blocked
+      );
       allow delete: if isAdmin();
 
       match /cards/{cardId} {
+        allow read, create, update, delete: if isAdmin() || (signedIn() && request.auth.uid == userId);
+      }
+
+      match /contacts/{contactId} {
         allow read, create, update, delete: if isAdmin() || (signedIn() && request.auth.uid == userId);
       }
     }
@@ -32,6 +45,13 @@ service cloud.firestore {
       allow read: if isAdmin() || (signedIn() && resource.data.userId == request.auth.uid);
       allow create: if isAdmin() || (signedIn() && request.resource.data.userId == request.auth.uid);
       allow update, delete: if isAdmin();
+    }
+
+    match /fundingRequests/{requestId} {
+      allow read: if isAdmin() || (signedIn() && resource.data.userId == request.auth.uid);
+      allow create: if signedIn() && request.resource.data.userId == request.auth.uid;
+      allow update: if isAdmin();
+      allow delete: if isAdmin();
     }
   }
 }

@@ -5,7 +5,7 @@ import { doc, getDoc, updateDoc } from "firebase/firestore";
 import { auth, db } from "@/lib/firebase";
 import { onAuthStateChanged } from "firebase/auth";
 import { useRouter } from "next/navigation";
-import { BellIcon, ShieldCheckIcon, MoonIcon } from "@heroicons/react/24/outline";
+import { BellIcon, ShieldCheckIcon, MoonIcon, BanknotesIcon } from "@heroicons/react/24/outline";
 
 export default function SettingsPage() {
   const router = useRouter();
@@ -16,6 +16,8 @@ export default function SettingsPage() {
     darkMode: false,
     emailAlerts: true,
   });
+  const [monthlyBudget, setMonthlyBudget] = useState<string>("");
+  const [dailyTransferLimit, setDailyTransferLimit] = useState<string>("");
 
   useEffect(() => {
     const unsub = onAuthStateChanged(auth, async (user) => {
@@ -30,6 +32,12 @@ export default function SettingsPage() {
       if (snap.exists() && snap.data().settings) {
         setSettings(snap.data().settings);
       }
+      if (snap.exists() && snap.data().monthlyBudget != null) {
+        setMonthlyBudget(String(snap.data().monthlyBudget));
+      }
+      if (snap.exists() && snap.data().dailyTransferLimit != null) {
+        setDailyTransferLimit(String(snap.data().dailyTransferLimit));
+      }
       setLoading(false);
     });
     return () => unsub();
@@ -43,6 +51,26 @@ export default function SettingsPage() {
     if (user) {
       const userRef = doc(db, "users", user.uid);
       await updateDoc(userRef, { settings: newSettings });
+    }
+  };
+
+  const saveBudget = async () => {
+    const val = parseFloat(monthlyBudget);
+    if (isNaN(val) || val < 0) return;
+    const user = auth.currentUser;
+    if (user) {
+      const userRef = doc(db, "users", user.uid);
+      await updateDoc(userRef, { monthlyBudget: val });
+    }
+  };
+
+  const saveDailyTransferLimit = async () => {
+    const val = parseFloat(dailyTransferLimit);
+    if (isNaN(val) || val < 0) return;
+    const user = auth.currentUser;
+    if (user) {
+      const userRef = doc(db, "users", user.uid);
+      await updateDoc(userRef, { dailyTransferLimit: val });
     }
   };
 
@@ -174,6 +202,66 @@ export default function SettingsPage() {
                 />
               </button>
             </div>
+          </div>
+        </div>
+
+        {/* Budget */}
+        <div className="p-6 sm:p-8">
+          <div className="flex items-center gap-4 mb-6">
+            <div className="w-10 h-10 bg-yellow-100 rounded-full flex items-center justify-center text-yellow-600">
+              <BanknotesIcon className="w-6 h-6" />
+            </div>
+            <h2 className="text-lg font-semibold text-gray-900">Monthly Budget</h2>
+          </div>
+          <div className="space-y-4">
+            <label className="block text-sm font-medium text-gray-700">Amount (USD)</label>
+            <div className="flex items-center gap-3">
+              <input
+                type="number"
+                min="0"
+                step="0.01"
+                value={monthlyBudget}
+                onChange={(e) => setMonthlyBudget(e.target.value)}
+                className="w-full max-w-xs px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+              />
+              <button
+                onClick={saveBudget}
+                className="px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg"
+              >
+                Save
+              </button>
+            </div>
+            <p className="text-sm text-gray-500">Used to compute budget progress on your dashboard.</p>
+          </div>
+        </div>
+
+        {/* Limits */}
+        <div className="p-6 sm:p-8">
+          <div className="flex items-center gap-4 mb-6">
+            <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center text-blue-600">
+              <BanknotesIcon className="w-6 h-6" />
+            </div>
+            <h2 className="text-lg font-semibold text-gray-900">Transfer Limits</h2>
+          </div>
+          <div className="space-y-4">
+            <label className="block text-sm font-medium text-gray-700">Daily Transfer Limit (USD)</label>
+            <div className="flex items-center gap-3">
+              <input
+                type="number"
+                min="0"
+                step="0.01"
+                value={dailyTransferLimit}
+                onChange={(e) => setDailyTransferLimit(e.target.value)}
+                className="w-full max-w-xs px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+              />
+              <button
+                onClick={saveDailyTransferLimit}
+                className="px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg"
+              >
+                Save
+              </button>
+            </div>
+            <p className="text-sm text-gray-500">Set to 0 to disable the limit.</p>
           </div>
         </div>
 

@@ -26,7 +26,8 @@ import {
   PlusIcon, 
   MinusIcon, 
   ArrowUpRightIcon, 
-  UserCircleIcon 
+  UserCircleIcon,
+  UserGroupIcon
 } from "@heroicons/react/24/outline";
 
 export default function DashboardPage() {
@@ -44,6 +45,14 @@ export default function DashboardPage() {
   const [transferLoading, setTransferLoading] = useState(false);
   const [greeting, setGreeting] = useState("");
   const [recentContacts, setRecentContacts] = useState<string[]>([]);
+  const [depositOpen, setDepositOpen] = useState(false);
+  const [withdrawOpen, setWithdrawOpen] = useState(false);
+  const [depositValue, setDepositValue] = useState("");
+  const [withdrawValue, setWithdrawValue] = useState("");
+  const [monthlyBudget, setMonthlyBudget] = useState<number>(0);
+  const [monthExpense, setMonthExpense] = useState<number>(0);
+  const [dailyTransferLimit, setDailyTransferLimit] = useState<number>(0);
+  const [savedContacts, setSavedContacts] = useState<Array<{ id: string; email: string; name: string }>>([]);
 
   // Auth check + load user data
   useEffect(() => {
@@ -52,6 +61,7 @@ export default function DashboardPage() {
 
     let isMounted = true;
     let txUnsub: null | (() => void) = null;
+    let contactsUnsub: null | (() => void) = null;
     
     const safetyTimer = setTimeout(() => {
       if (isMounted) setLoading(false);
@@ -78,6 +88,8 @@ export default function DashboardPage() {
           });
         } else {
           setBalance(snap.data()?.balance ?? 0);
+          setMonthlyBudget(Number(snap.data()?.monthlyBudget || 0));
+          setDailyTransferLimit(Number(snap.data()?.dailyTransferLimit || 0));
         }
 
         const userData = snap.exists() ? snap.data() : null;
@@ -109,12 +121,34 @@ export default function DashboardPage() {
           limit(20),
         );
 
+        if (contactsUnsub) contactsUnsub();
+        const contactsQuery = query(
+          collection(db, `users/${user.uid}/contacts`),
+          orderBy("updatedAt", "desc"),
+          limit(5),
+        );
+        contactsUnsub = onSnapshot(
+          contactsQuery,
+          (snap) => {
+            const rows: Array<{ id: string; email: string; name: string }> = [];
+            snap.forEach((d) => {
+              const data = d.data() as any;
+              rows.push({ id: d.id, email: data.email || "", name: data.name || data.email || "" });
+            });
+            if (isMounted) setSavedContacts(rows);
+          },
+          (e) => {
+            console.error("Contacts stream error:", e);
+          },
+        );
+
         txUnsub = onSnapshot(
           txQuery,
           (querySnap) => {
             const txs: Transaction[] = [];
             let inc = 0;
             let exp = 0;
+            let expMonth = 0;
             const contactsSet = new Set<string>();
 
             querySnap.forEach((docSnap) => {
@@ -122,14 +156,28 @@ export default function DashboardPage() {
               const tx = { id: docSnap.id, ...data } as Transaction;
               txs.push(tx);
 
-              if (tx.type === "deposit" || (tx.type === "transfer" && tx.direction === "incoming")) {
+              if (
+                tx.status === "completed" &&
+                (tx.type === "deposit" || (tx.type === "transfer" && tx.direction === "incoming"))
+              ) {
                 inc += tx.amount;
               } else if (
-                tx.type === "withdrawal" ||
-                (tx.type === "transfer" && tx.direction === "outgoing")
+                tx.status === "completed" &&
+                (tx.type === "withdrawal" || (tx.type === "transfer" && tx.direction === "outgoing"))
               ) {
                 exp += tx.amount;
                 if (tx.receiverName) contactsSet.add(tx.receiverName);
+              }
+
+              // Monthly expense (current month)
+              if (tx.status === "completed") {
+                const d = new Date(tx.date);
+                const now = new Date();
+                if (d.getFullYear() === now.getFullYear() && d.getMonth() === now.getMonth()) {
+                  if (tx.type === "withdrawal" || (tx.type === "transfer" && tx.direction === "outgoing")) {
+                    expMonth += tx.amount;
+                  }
+                }
               }
             });
 
@@ -137,6 +185,7 @@ export default function DashboardPage() {
               setTransactions(txs);
               setIncome(inc);
               setExpense(exp);
+              setMonthExpense(expMonth);
               setRecentContacts(Array.from(contactsSet).slice(0, 5));
             }
           },
@@ -167,6 +216,7 @@ export default function DashboardPage() {
     return () => {
       isMounted = false;
       if (txUnsub) txUnsub();
+      if (contactsUnsub) contactsUnsub();
       clearTimeout(safetyTimer);
       unsub();
     };
@@ -245,6 +295,32 @@ export default function DashboardPage() {
       if (isNaN(amount) || amount <= 0) throw new Error("Invalid amount");
       if (amount > balance) throw new Error("Insufficient funds");
 
+      if (dailyTransferLimit > 0) {
+        const start = new Date();
+        start.setHours(0, 0, 0, 0);
+        const end = new Date(start);
+        end.setDate(end.getDate() + 1);
+        const dayQuery = query(
+          collection(db, "transactions"),
+          where("userId", "==", userId),
+          where("type", "==", "transfer"),
+          where("direction", "==", "outgoing"),
+          where("status", "==", "completed"),
+          where("date", ">=", start.toISOString()),
+          where("date", "<", end.toISOString()),
+          orderBy("date", "desc"),
+          limit(200),
+        );
+        const daySnap = await getDocs(dayQuery);
+        let spent = 0;
+        daySnap.forEach((d) => {
+          spent += Number(d.data()?.amount || 0);
+        });
+        if (spent + amount > dailyTransferLimit) {
+          throw new Error(`Daily transfer limit exceeded ($${dailyTransferLimit.toFixed(2)})`);
+        }
+      }
+
       // Find recipient
       const usersQ = query(collection(db, "publicUsers"), where("email", "==", recipientEmail), limit(1));
       const usersSnap = await getDocs(usersQ);
@@ -256,6 +332,7 @@ export default function DashboardPage() {
 
       const recipientDoc = usersSnap.docs[0];
       const recipientId = recipientDoc.id;
+      const recipientName = (recipientDoc.data() as any)?.name || recipientEmail;
 
       if (recipientId === userId) {
         toast.error("Cannot transfer to yourself");
@@ -325,6 +402,23 @@ export default function DashboardPage() {
       setTransferAmount("");
       toast.success("Transfer successful!");
 
+      try {
+        await setDoc(
+          doc(db, `users/${userId}/contacts/${recipientId}`),
+          {
+            userId,
+            recipientId,
+            email: recipientEmail.toLowerCase(),
+            name: recipientName,
+            updatedAt: serverTimestamp(),
+            createdAt: serverTimestamp(),
+          },
+          { merge: true },
+        );
+      } catch (e) {
+        console.error("Contact upsert failed:", e);
+      }
+
     } catch (error) {
       console.error("Transfer error:", error);
       toast.error(error instanceof Error ? error.message : "Transfer failed");
@@ -334,17 +428,110 @@ export default function DashboardPage() {
   };
 
   const deposit = async () => {
-    const amount = 1000;
-    await saveTransaction("deposit", amount);
+    const amount = parseFloat(depositValue);
+    if (isNaN(amount) || amount <= 0) {
+      toast.error("Enter a valid deposit amount");
+      return;
+    }
+    if (!userId) return;
+    try {
+      const reqRef = doc(collection(db, "fundingRequests"));
+      await setDoc(reqRef, {
+        userId,
+        type: "deposit",
+        amount,
+        status: "pending",
+        method: "manual",
+        createdAt: serverTimestamp(),
+        updatedAt: serverTimestamp(),
+      });
+      setDepositOpen(false);
+      setDepositValue("");
+      toast.info("Deposit request submitted. Await admin approval.");
+    } catch (e) {
+      console.error("Deposit request failed:", e);
+      toast.error("Deposit request failed");
+    }
   };
 
   const withdraw = async () => {
-    const amount = 500;
-    if (balance < amount) {
-      toast.error("Insufficient funds");
+    const amount = parseFloat(withdrawValue);
+    if (isNaN(amount) || amount <= 0) {
+      toast.error("Enter a valid withdrawal amount");
       return;
     }
-    await saveTransaction("withdrawal", amount);
+    if (!userId) return;
+    try {
+      await runTransaction(db, async (transaction) => {
+        const userRef = doc(db, "users", userId);
+        const userDoc = await transaction.get(userRef);
+        if (!userDoc.exists()) throw new Error("User does not exist!");
+
+        const currentBalance = userDoc.data().balance || 0;
+        if (currentBalance < amount) throw new Error("Insufficient funds");
+
+        transaction.update(userRef, { balance: currentBalance - amount });
+
+        const txRef = doc(collection(db, "transactions"));
+        transaction.set(txRef, {
+          userId,
+          type: "withdrawal",
+          amount,
+          date: new Date().toISOString(),
+          status: "pending",
+          description: "Withdrawal request",
+        });
+
+        const reqRef = doc(collection(db, "fundingRequests"));
+        transaction.set(reqRef, {
+          userId,
+          type: "withdrawal",
+          amount,
+          status: "pending",
+          txId: txRef.id,
+          method: "manual",
+          createdAt: serverTimestamp(),
+          updatedAt: serverTimestamp(),
+        });
+      });
+
+      setBalance((prev) => prev - amount);
+      setWithdrawOpen(false);
+      setWithdrawValue("");
+      toast.info("Withdrawal request submitted. Await admin approval.");
+    } catch (e) {
+      console.error("Withdrawal request failed:", e);
+      toast.error(e instanceof Error ? e.message : "Withdrawal request failed");
+    }
+  };
+
+  const exportStatement = () => {
+    if (transactions.length === 0) {
+      toast.info("No transactions to export");
+      return;
+    }
+    const headers = ["Date", "Description", "Type", "Amount", "Status", "Reference"];
+    const sanitize = (str: any) => {
+      if (!str && str !== 0) return '""';
+      return `"${String(str).replace(/"/g, '""').replace(/^([=+\-@\t\r])/, "'$1")}"`;
+    };
+    const rows = transactions.map((tx) => [
+      sanitize(new Date(tx.date).toLocaleDateString()),
+      sanitize(tx.description),
+      sanitize(tx.type),
+      tx.amount.toFixed(2),
+      sanitize(tx.status),
+      sanitize(tx.id),
+    ]);
+    const csvContent =
+      "data:text/csv;charset=utf-8," + [headers.join(","), ...rows.map((e) => e.join(","))].join("\n");
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", "statement.csv");
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   };
 
   if (loading) {
@@ -364,7 +551,7 @@ export default function DashboardPage() {
           <p className="text-sm text-gray-500">{greeting || "Welcome back"}, User</p>
         </div>
         <div className="flex items-center gap-3">
-          <button className="bg-white border border-gray-300 text-gray-700 px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-50 transition-colors">
+          <button onClick={exportStatement} className="bg-white border border-gray-300 text-gray-700 px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-50 transition-colors">
             Download Statement
           </button>
           <button className="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors shadow-sm flex items-center gap-2">
@@ -409,12 +596,18 @@ export default function DashboardPage() {
               <div className="mt-6 pt-4 border-t border-blue-500/30">
                 <div className="flex justify-between items-center text-xs text-blue-200 mb-2">
                   <span>Monthly Budget</span>
-                  <span>{Math.round((expense / (income || 1)) * 100)}%</span>
+                  <span>
+                    {monthlyBudget > 0 ? Math.min(Math.round((monthExpense / monthlyBudget) * 100), 100) : 0}%
+                  </span>
                 </div>
                 <div className="h-1.5 bg-blue-900/50 rounded-full overflow-hidden">
                   <div 
                     className="h-full bg-blue-300 rounded-full transition-all duration-1000 ease-out"
-                    style={{ width: `${Math.min((expense / (income || 1)) * 100, 100)}%` }}
+                    style={{
+                      width: `${
+                        monthlyBudget > 0 ? Math.min((monthExpense / monthlyBudget) * 100, 100) : 0
+                      }%`,
+                    }}
                   />
                 </div>
               </div>
@@ -424,7 +617,7 @@ export default function DashboardPage() {
           {/* Quick Actions */}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
             <button 
-              onClick={deposit}
+              onClick={() => setDepositOpen(true)}
               className="bg-white p-4 rounded-xl border border-gray-100 shadow-sm hover:shadow-md transition-all flex flex-col items-center justify-center gap-2 group"
             >
               <div className="w-10 h-10 bg-green-50 rounded-full flex items-center justify-center text-green-600 group-hover:bg-green-100 transition-colors">
@@ -434,7 +627,7 @@ export default function DashboardPage() {
             </button>
             
             <button 
-              onClick={withdraw}
+              onClick={() => setWithdrawOpen(true)}
               className="bg-white p-4 rounded-xl border border-gray-100 shadow-sm hover:shadow-md transition-all flex flex-col items-center justify-center gap-2 group"
             >
               <div className="w-10 h-10 bg-red-50 rounded-full flex items-center justify-center text-red-600 group-hover:bg-red-100 transition-colors">
@@ -452,14 +645,65 @@ export default function DashboardPage() {
               </div>
               <span className="text-sm font-medium text-gray-700">Transfer</span>
             </button>
-             <button className="bg-white p-4 rounded-xl border border-gray-100 shadow-sm hover:shadow-md transition-all flex flex-col items-center justify-center gap-2 group opacity-60 cursor-not-allowed">
+             <Link href="/dashboard/requests" className="bg-white p-4 rounded-xl border border-gray-100 shadow-sm hover:shadow-md transition-all flex flex-col items-center justify-center gap-2 group">
               <div className="w-10 h-10 bg-purple-50 rounded-full flex items-center justify-center text-purple-600">
                 <span className="font-bold text-lg">...</span>
               </div>
               <span className="text-sm font-medium text-gray-700">More</span>
-            </button>
+            </Link>
           </div>
 
+          {depositOpen && (
+            <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50">
+              <div className="bg-white rounded-xl shadow-xl w-full max-w-md overflow-hidden">
+                <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between bg-gray-50">
+                  <h3 className="text-lg font-semibold text-gray-900">Make a Deposit</h3>
+                  <button onClick={() => setDepositOpen(false)} className="text-gray-400 hover:text-gray-600">×</button>
+                </div>
+                <div className="p-6 space-y-4">
+                  <label className="block text-sm font-medium text-gray-700">Amount</label>
+                  <input
+                    type="number"
+                    min="1"
+                    step="0.01"
+                    value={depositValue}
+                    onChange={(e) => setDepositValue(e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                  />
+                  <div className="flex justify-end gap-2">
+                    <button onClick={() => setDepositOpen(false)} className="px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 rounded-lg">Cancel</button>
+                    <button onClick={deposit} className="px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg">Deposit</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {withdrawOpen && (
+            <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50">
+              <div className="bg-white rounded-xl shadow-xl w-full max-w-md overflow-hidden">
+                <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between bg-gray-50">
+                  <h3 className="text-lg font-semibold text-gray-900">Withdraw Funds</h3>
+                  <button onClick={() => setWithdrawOpen(false)} className="text-gray-400 hover:text-gray-600">×</button>
+                </div>
+                <div className="p-6 space-y-4">
+                  <label className="block text-sm font-medium text-gray-700">Amount</label>
+                  <input
+                    type="number"
+                    min="1"
+                    step="0.01"
+                    value={withdrawValue}
+                    onChange={(e) => setWithdrawValue(e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                  />
+                  <div className="flex justify-end gap-2">
+                    <button onClick={() => setWithdrawOpen(false)} className="px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 rounded-lg">Cancel</button>
+                    <button onClick={withdraw} className="px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg">Withdraw</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
           {/* Recent Transactions Table */}
           <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
             <div className="p-6 border-b border-gray-100 flex items-center justify-between">
@@ -623,6 +867,40 @@ export default function DashboardPage() {
            <div id="transfer-widget" className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
              <h3 className="font-semibold text-gray-900 mb-4">Quick Transfer</h3>
              
+             {savedContacts.length > 0 && (
+               <div className="mb-4">
+                 <div className="flex items-center justify-between mb-2">
+                   <p className="text-xs font-medium text-gray-500">Saved</p>
+                   <Link href="/dashboard/contacts" className="text-xs font-medium text-blue-600 hover:text-blue-700">
+                     Manage
+                   </Link>
+                 </div>
+                 <div className="flex items-center gap-3 overflow-x-auto pb-2 scrollbar-none">
+                   {savedContacts.map((c) => (
+                     <button
+                       key={c.id}
+                       onClick={() => setRecipientEmail(c.email)}
+                       type="button"
+                       className="flex flex-col items-center gap-1 min-w-[50px] group"
+                     >
+                       <div
+                         className={`w-10 h-10 rounded-full flex items-center justify-center text-white text-xs font-bold transition-transform group-hover:scale-110 ${
+                           recipientEmail === c.email
+                             ? "bg-blue-600 ring-2 ring-blue-200"
+                             : "bg-gradient-to-br from-indigo-400 to-indigo-600"
+                         }`}
+                       >
+                         <UserGroupIcon className="w-5 h-5" />
+                       </div>
+                       <span className="text-[10px] text-gray-600 truncate w-12 text-center">
+                         {(c.name || c.email).split("@")[0]}
+                       </span>
+                     </button>
+                   ))}
+                 </div>
+               </div>
+             )}
+
              {/* Recent Contacts */}
              {recentContacts.length > 0 && (
                <div className="mb-4">

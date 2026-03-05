@@ -10,6 +10,7 @@ import {
   BanknotesIcon,
   CreditCardIcon,
   UserCircleIcon,
+  UserGroupIcon,
   Cog6ToothIcon,
   ArrowRightOnRectangleIcon,
 } from "@heroicons/react/24/outline";
@@ -18,6 +19,7 @@ const navigation = [
   { name: "Dashboard", href: "/dashboard", icon: HomeIcon },
   { name: "Transactions", href: "/dashboard/transactions", icon: BanknotesIcon },
   { name: "My Cards", href: "/dashboard/cards", icon: CreditCardIcon },
+  { name: "Contacts", href: "/dashboard/contacts", icon: UserGroupIcon },
   { name: "Profile", href: "/dashboard/profile", icon: UserCircleIcon },
   { name: "Settings", href: "/dashboard/settings", icon: Cog6ToothIcon },
 ];

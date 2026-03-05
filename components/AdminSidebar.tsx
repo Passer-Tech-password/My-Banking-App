@@ -18,6 +18,7 @@ const navigation = [
   { name: "Dashboard", href: "/admin/dashboard", icon: HomeIcon },
   { name: "Users", href: "/admin/users", icon: UsersIcon },
   { name: "Transactions", href: "/admin/transactions", icon: BanknotesIcon },
+  { name: "Requests", href: "/admin/requests", icon: Cog6ToothIcon },
 ];
 
 interface AdminSidebarProps {
