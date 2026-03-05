@@ -226,7 +226,7 @@ export default function CardsPage() {
               className="group relative bg-white rounded-xl shadow-sm border border-gray-100 p-6 transition-all hover:shadow-md"
             >
               <button
-                onClick={() => handleDeleteCard(card.id)}
+                onClick={() => handleDeleteCard(card.id!)}
                 className="absolute top-4 right-4 text-gray-400 hover:text-red-600 opacity-0 group-hover:opacity-100 transition-opacity"
               >
                 <TrashIcon className="w-5 h-5" />

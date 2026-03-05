@@ -80,6 +80,23 @@ export default function DashboardPage() {
           setBalance(snap.data()?.balance ?? 0);
         }
 
+        const userData = snap.exists() ? snap.data() : null;
+        const computedName =
+          (userData?.displayName as string | undefined) ||
+          `${(userData?.firstName as string | undefined) || ""} ${(userData?.lastName as string | undefined) || ""}`.trim() ||
+          (user.displayName ?? "") ||
+          (user.email ?? "");
+        const publicRef = doc(db, "publicUsers", user.uid);
+        await setDoc(
+          publicRef,
+          {
+            email: user.email ?? "",
+            name: computedName,
+            updatedAt: serverTimestamp(),
+          },
+          { merge: true },
+        );
+
         if (txUnsub) txUnsub();
         const txQuery = query(
           collection(db, "transactions"),
@@ -225,7 +242,7 @@ export default function DashboardPage() {
       if (amount > balance) throw new Error("Insufficient funds");
 
       // Find recipient
-      const usersQ = query(collection(db, "users"), where("email", "==", recipientEmail));
+      const usersQ = query(collection(db, "publicUsers"), where("email", "==", recipientEmail), limit(1));
       const usersSnap = await getDocs(usersQ);
       
       if (usersSnap.empty) {

@@ -5,6 +5,7 @@ import { CONTACT_PHONE_PRIMARY } from "@/lib/config";
 import { cookies } from "next/headers";
 import { getLocaleFromCookies } from "@/lib/i18n/server";
 import { createTranslator } from "@/lib/i18n/messages";
+import Image from "next/image";
 
 export default async function ContactPage() {
   const cookieStore = await cookies();
@@ -33,7 +34,7 @@ export default async function ContactPage() {
             <div className="flex-1 relative w-full max-w-md hidden md:block">
                <div className="relative w-full aspect-[4/3] flex items-center justify-center animate-float">
                  <div className="absolute inset-0 bg-gradient-to-tr from-blue-400/20 to-purple-400/20 rounded-full blur-3xl transform scale-75"></div>
-                 <img 
+                 <Image 
                    src="/contact-hero-image.png" 
                    alt={t("contact.heroAlt") || "Contact Aurora Bank"} 
                    className="relative z-10 object-contain w-full h-full drop-shadow-2xl transition-transform duration-500 hover:scale-105"

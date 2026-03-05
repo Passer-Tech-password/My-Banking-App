@@ -92,6 +92,17 @@ export default function RegisterPage() {
           blocked: false
       });
 
+      await setDoc(
+        doc(db, "publicUsers", uid),
+        {
+          email: formData.email,
+          name: `${formData.firstName} ${formData.lastName}`.trim(),
+          createdAt: serverTimestamp(),
+          updatedAt: serverTimestamp(),
+        },
+        { merge: true },
+      );
+
       console.log("User created successfully:", newUser);
       toast.success("Account created successfully!");
       router.push("/dashboard");
