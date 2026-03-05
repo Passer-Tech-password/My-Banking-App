@@ -150,6 +150,10 @@ export default function AdminRequestsPage() {
         }
 
         if (data.type === "withdrawal") {
+          const currentBalance = userSnap.data().balance || 0;
+          if (currentBalance < data.amount) {
+            throw new Error("Insufficient funds");
+          }
           if (data.txId) {
             tx.update(doc(db, "transactions", data.txId), {
               status: "completed",
@@ -297,4 +301,3 @@ export default function AdminRequestsPage() {
     </div>
   );
 }
-
