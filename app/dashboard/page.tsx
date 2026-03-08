@@ -53,6 +53,7 @@ export default function DashboardPage() {
   const [monthExpense, setMonthExpense] = useState<number>(0);
   const [dailyTransferLimit, setDailyTransferLimit] = useState<number>(0);
   const [savedContacts, setSavedContacts] = useState<Array<{ id: string; email: string; name: string }>>([]);
+  const [userName, setUserName] = useState("");
 
   // Auth check + load user data
   useEffect(() => {
@@ -98,6 +99,9 @@ export default function DashboardPage() {
           `${(userData?.firstName as string | undefined) || ""} ${(userData?.lastName as string | undefined) || ""}`.trim() ||
           (user.displayName ?? "") ||
           (user.email ?? "");
+        
+        setUserName((userData?.firstName as string) || (user.displayName?.split(" ")[0]) || "User");
+
         const publicRef = doc(db, "publicUsers", user.uid);
         try {
           await setDoc(
@@ -546,9 +550,14 @@ export default function DashboardPage() {
     <div className="space-y-6">
       {/* Welcome Section */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
-          <p className="text-sm text-gray-500">{greeting || "Welcome back"}, User</p>
+        <div className="flex items-center gap-4">
+          <div className="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-bold text-xl">
+            {userName ? userName.charAt(0).toUpperCase() : <UserCircleIcon className="w-8 h-8" />}
+          </div>
+          <div>
+            <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
+            <p className="text-sm text-gray-500">{greeting || "Welcome back"}, {userName || "User"}</p>
+          </div>
         </div>
         <div className="flex items-center gap-3">
           <button onClick={exportStatement} className="bg-white border border-gray-300 text-gray-700 px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-50 transition-colors">
