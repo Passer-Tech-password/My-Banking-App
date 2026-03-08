@@ -18,10 +18,16 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
     onChange(result.info.secure_url);
   };
 
+  const uploadPreset = process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET;
+  if (!uploadPreset) {
+    console.error("Cloudinary upload preset is missing. Check .env.local");
+    return null;
+  }
+
   return (
     <CldUploadWidget 
       onUpload={onUpload} 
-      uploadPreset={process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET}
+      uploadPreset={uploadPreset}
       options={{
         maxFiles: 1
       }}
