@@ -7,6 +7,7 @@ import { onAuthStateChanged, updateProfile } from "firebase/auth";
 import { useRouter } from "next/navigation";
 import { UserCircleIcon, PencilIcon, CheckIcon } from "@heroicons/react/24/outline";
 import { useToast } from "@/components/ToastProvider";
+import ImageUpload from "@/components/ImageUpload";
 
 export default function ProfilePage() {
   const router = useRouter();
@@ -18,6 +19,7 @@ export default function ProfilePage() {
     email: "",
     phone: "",
     address: "",
+    image: "",
   });
 
   useEffect(() => {
@@ -39,9 +41,10 @@ export default function ProfilePage() {
           displayName: data.displayName || user.displayName || "",
           phone: data.phone || "",
           address: data.address || "",
+          image: data.image || user.photoURL || "",
         }));
       } else {
-        setFormData((prev) => ({ ...prev, displayName: user.displayName || "" }));
+        setFormData((prev) => ({ ...prev, displayName: user.displayName || "", image: user.photoURL || "" }));
       }
       setLoading(false);
     });
@@ -59,10 +62,14 @@ export default function ProfilePage() {
         displayName: formData.displayName,
         phone: formData.phone,
         address: formData.address,
+        image: formData.image,
       });
 
-      if (user.displayName !== formData.displayName) {
-        await updateProfile(user, { displayName: formData.displayName });
+      if (user.displayName !== formData.displayName || user.photoURL !== formData.image) {
+        await updateProfile(user, { 
+          displayName: formData.displayName,
+          photoURL: formData.image 
+        });
       }
 
       setEditing(false);
@@ -120,8 +127,21 @@ export default function ProfilePage() {
       <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
         <div className="p-6 sm:p-8">
           <div className="flex items-center gap-6 mb-8">
-            <div className="w-20 h-20 bg-blue-100 rounded-full flex items-center justify-center text-blue-600">
-              <UserCircleIcon className="w-10 h-10" />
+            <div className="flex-shrink-0">
+              {editing ? (
+                <ImageUpload
+                  value={formData.image}
+                  onChange={(src) => setFormData({ ...formData, image: src })}
+                />
+              ) : (
+                <div className="w-24 h-24 rounded-full overflow-hidden bg-blue-100 flex items-center justify-center text-blue-600 border-2 border-gray-100">
+                  {formData.image ? (
+                    <img src={formData.image} alt="Profile" className="w-full h-full object-cover" />
+                  ) : (
+                    <UserCircleIcon className="w-12 h-12" />
+                  )}
+                </div>
+              )}
             </div>
             <div>
               <h2 className="text-xl font-bold text-gray-900">{formData.displayName || "User"}</h2>

@@ -54,6 +54,7 @@ export default function DashboardPage() {
   const [dailyTransferLimit, setDailyTransferLimit] = useState<number>(0);
   const [savedContacts, setSavedContacts] = useState<Array<{ id: string; email: string; name: string }>>([]);
   const [userName, setUserName] = useState("");
+  const [userImage, setUserImage] = useState("");
 
   // Auth check + load user data
   useEffect(() => {
@@ -95,12 +96,14 @@ export default function DashboardPage() {
 
         const userData = snap.exists() ? snap.data() : null;
         const computedName =
-          (userData?.displayName as string | undefined) ||
-          `${(userData?.firstName as string | undefined) || ""} ${(userData?.lastName as string | undefined) || ""}`.trim() ||
-          (user.displayName ?? "") ||
-          (user.email ?? "");
+          (userData?.firstName && userData?.lastName ? `${userData.firstName} ${userData.lastName}` : "") ||
+          (userData?.displayName as string) ||
+          (user.displayName) ||
+          (user.email?.split("@")[0]) ||
+          "User";
         
-        setUserName((userData?.firstName as string) || (user.displayName?.split(" ")[0]) || "User");
+        setUserName(computedName.split(" ")[0]);
+        setUserImage((userData?.image as string) || (user.photoURL as string) || "");
 
         const publicRef = doc(db, "publicUsers", user.uid);
         try {
@@ -551,9 +554,15 @@ export default function DashboardPage() {
       {/* Welcome Section */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="flex items-center gap-4">
-          <div className="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-bold text-xl">
-            {userName ? userName.charAt(0).toUpperCase() : <UserCircleIcon className="w-8 h-8" />}
-          </div>
+          {userImage ? (
+            <div className="w-12 h-12 rounded-full overflow-hidden border-2 border-blue-100">
+              <img src={userImage} alt="Profile" className="w-full h-full object-cover" />
+            </div>
+          ) : (
+            <div className="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-bold text-xl">
+              {userName ? userName.charAt(0).toUpperCase() : <UserCircleIcon className="w-8 h-8" />}
+            </div>
+          )}
           <div>
             <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
             <p className="text-sm text-gray-500">{greeting || "Welcome back"}, {userName || "User"}</p>

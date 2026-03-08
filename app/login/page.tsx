@@ -7,9 +7,11 @@ import { signInWithEmailAndPassword } from "firebase/auth";
 import { auth } from "@/lib/firebase";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import { useToast } from "@/components/ToastProvider";
 
 export default function LoginPage() {
   const router = useRouter();
+  const toast = useToast();
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -29,10 +31,23 @@ export default function LoginPage() {
 
     try {
       await signInWithEmailAndPassword(auth, formData.email, formData.password);
+      toast.success("Signed in successfully");
       router.push("/dashboard");
     } catch (err: any) {
       console.error(err);
-      setError("Invalid credentials. Please try again.");
+      let message = "Invalid credentials. Please try again.";
+      if (err.code === 'auth/invalid-credential') {
+        message = "Invalid email or password.";
+      } else if (err.code === 'auth/user-not-found') {
+        message = "No user found with this email.";
+      } else if (err.code === 'auth/wrong-password') {
+        message = "Incorrect password.";
+      } else if (err.code === 'auth/too-many-requests') {
+        message = "Too many failed attempts. Please try again later.";
+      }
+      
+      setError(message);
+      toast.error(message);
     } finally {
       setLoading(false);
     }
