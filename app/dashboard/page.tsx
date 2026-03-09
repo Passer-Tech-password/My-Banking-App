@@ -56,6 +56,45 @@ export default function DashboardPage() {
   const [userName, setUserName] = useState("");
   const [userImage, setUserImage] = useState("");
 
+  // Fetch cards
+  useEffect(() => {
+    if (!userId) return;
+    const q = query(collection(db, `users/${userId}/cards`));
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      const cards: Card[] = [];
+      snapshot.forEach((doc) => {
+        cards.push({ id: doc.id, ...doc.data() } as Card);
+      });
+      if (cards.length > 0) {
+        setMainCard(cards[0]);
+      } else {
+        setMainCard(null);
+      }
+    });
+    return () => unsubscribe();
+  }, [userId]);
+
+  const sendEmail = async (type: string, amount: number, status: string, referenceId: string) => {
+    if (!auth.currentUser?.email) return;
+    try {
+      await fetch("/api/send", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email: auth.currentUser?.email,
+          userName: userName || "User",
+          type,
+          amount,
+          date: new Date().toISOString(),
+          status,
+          referenceId,
+        }),
+      });
+    } catch (error) {
+      console.error("Failed to send email:", error);
+    }
+  };
+
   // Auth check + load user data
   useEffect(() => {
     const hour = new Date().getHours();
@@ -286,6 +325,17 @@ export default function DashboardPage() {
         setExpense(prev => prev + amount);
       }
 
+      // Send email notification (only for successful atomic transactions here, mainly instant ones if any)
+      // Note: Deposit is usually a request, so we might want to email on request creation instead?
+      // But this function saveTransaction is for "completed" transactions mainly? 
+      // Actually saveTransaction sets status to "completed" immediately for deposit/withdraw in the original code,
+      // but we changed deposit/withdraw to be requests.
+      // So this function might only be used for legacy or instant ops.
+      // Let's add email here just in case.
+      if (type === "deposit" || type === "withdrawal") {
+         sendEmail(type, amount, "completed", newTxRef.id);
+      }
+
     } catch (e) {
       console.error("Transaction failed:", e);
       toast.error("Transaction failed: " + (e instanceof Error ? e.message : "Unknown error"));
@@ -408,6 +458,9 @@ export default function DashboardPage() {
       setRecipientEmail("");
       setTransferAmount("");
       toast.success("Transfer successful!");
+      
+      // Send email notification
+      sendEmail("transfer (outgoing)", amount, "completed", senderTxRef.id);
 
       try {
         await setDoc(
@@ -444,18 +497,21 @@ export default function DashboardPage() {
     try {
       const reqRef = doc(collection(db, "fundingRequests"));
       await setDoc(reqRef, {
-        userId,
-        type: "deposit",
-        amount,
-        status: "pending",
-        method: "manual",
-        createdAt: serverTimestamp(),
-        updatedAt: serverTimestamp(),
-      });
-      setDepositOpen(false);
-      setDepositValue("");
-      toast.info("Deposit request submitted. Await admin approval.");
-    } catch (e) {
+      userId,
+      type: "deposit",
+      amount,
+      status: "pending",
+      method: "manual",
+      createdAt: serverTimestamp(),
+      updatedAt: serverTimestamp(),
+    });
+    setDepositOpen(false);
+    setDepositValue("");
+    toast.info("Deposit request submitted. Await admin approval.");
+    
+    // Email for deposit request
+    sendEmail("deposit", amount, "pending", reqRef.id);
+  } catch (e) {
       console.error("Deposit request failed:", e);
       toast.error("Deposit request failed");
     }
@@ -506,6 +562,9 @@ export default function DashboardPage() {
       setWithdrawOpen(false);
       setWithdrawValue("");
       toast.info("Withdrawal request submitted. Await admin approval.");
+
+      // Send email for pending request
+      sendEmail("withdrawal", amount, "pending", txRef.id);
     } catch (e) {
       console.error("Withdrawal request failed:", e);
       toast.error(e instanceof Error ? e.message : "Withdrawal request failed");
@@ -588,6 +647,19 @@ export default function DashboardPage() {
           {/* Balance Card */}
           <div className="bg-gradient-to-r from-blue-600 to-blue-800 rounded-2xl p-6 text-white shadow-lg relative overflow-hidden">
             <div className="absolute top-0 right-0 w-64 h-64 bg-white opacity-5 rounded-full -mr-16 -mt-16 blur-3xl"></div>
+            
+            {/* User Image Overlay in Top Right */}
+            {userImage && (
+              <div className="absolute top-4 right-4 w-32 h-32 opacity-20 pointer-events-none">
+                <img 
+                  src={userImage} 
+                  alt="" 
+                  className="w-full h-full object-cover rounded-xl mask-image-gradient"
+                  style={{ maskImage: 'linear-gradient(to bottom left, black, transparent)' }}
+                />
+              </div>
+            )}
+
             <div className="relative z-10">
               <p className="text-blue-100 text-sm font-medium mb-1">Total Balance</p>
               <h2 className="text-4xl font-bold mb-6">

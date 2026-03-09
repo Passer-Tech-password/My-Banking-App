@@ -112,6 +112,36 @@ export default function AdminRequestsPage() {
     }
   };
 
+  const sendEmail = async (userId: string, type: string, amount: number, status: string, referenceId: string) => {
+    try {
+      const userRef = doc(db, "users", userId);
+      const userSnap = await getDoc(userRef);
+      if (!userSnap.exists()) return;
+
+      const userData = userSnap.data();
+      const email = userData.email;
+      const userName = userData.firstName || userData.displayName || "User";
+
+      if (!email) return;
+
+      await fetch("/api/send", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email,
+          userName,
+          type,
+          amount,
+          date: new Date().toISOString(),
+          status,
+          referenceId,
+        }),
+      });
+    } catch (error) {
+      console.error("Failed to send email:", error);
+    }
+  };
+
   const approve = async (req: FundingRequest) => {
     try {
       setActingId(req.id);
@@ -166,6 +196,10 @@ export default function AdminRequestsPage() {
           });
         }
       });
+      
+      // Send email
+      await sendEmail(req.userId, req.type, req.amount, "approved", req.id);
+      
       toast.success("Request approved");
       setRequests((prev) => prev.filter((r) => r.id !== req.id));
     } catch (e) {
@@ -204,6 +238,10 @@ export default function AdminRequestsPage() {
           updatedAt: serverTimestamp(),
         });
       });
+      
+      // Send email
+      await sendEmail(req.userId, req.type, req.amount, "rejected", req.id);
+
       toast.success("Request rejected");
       setRequests((prev) => prev.filter((r) => r.id !== req.id));
     } catch (e) {

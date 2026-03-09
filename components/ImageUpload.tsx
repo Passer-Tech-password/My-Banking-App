@@ -22,7 +22,11 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
   if (!uploadPreset) {
     console.error("Cloudinary upload preset is missing. Check .env.local");
     return (
-      <div className="w-24 h-24 rounded-full overflow-hidden bg-gray-100 border-2 border-dashed border-red-300 flex flex-col items-center justify-center p-2 text-center">
+      <div 
+        className="w-24 h-24 rounded-full overflow-hidden bg-gray-100 border-2 border-dashed border-red-300 flex flex-col items-center justify-center p-2 text-center"
+        role="alert"
+        aria-live="assertive"
+      >
         <span className="text-[10px] text-red-500 font-medium">Config Error</span>
       </div>
     );
