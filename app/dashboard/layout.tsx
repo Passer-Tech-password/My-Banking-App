@@ -46,7 +46,16 @@ export default function DashboardLayout({
           return;
         }
       } catch (error) {
-        console.error(error);
+        console.error("Blocked check failed:", error);
+        try {
+          await signOut(auth);
+        } catch (signOutError) {
+          console.error("Sign out failed:", signOutError);
+        }
+        toast.error("Authentication error. Please try again.");
+        setGuardLoading(false);
+        router.replace("/login");
+        return;
       }
 
       setAuthorized(true);

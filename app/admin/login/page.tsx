@@ -2,12 +2,15 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { signInWithEmailAndPassword } from "firebase/auth";
+import Link from "next/link";
+import { signInWithEmailAndPassword, signOut } from "firebase/auth";
 import { auth, db } from "@/lib/firebase";
 import { doc, getDoc } from "firebase/firestore";
+import { useToast } from "@/components/ToastProvider";
 
 export default function AdminLoginPage() {
   const router = useRouter();
+  const toast = useToast();
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -32,13 +35,13 @@ export default function AdminLoginPage() {
     setLoading(true);
 
     try {
-      const email = formData.email.trim();
+      const email = formData.email.trim().toLowerCase();
       const password = formData.password;
 
       const overrideEmailNormalized = ADMIN_OVERRIDE_EMAIL
         ? ADMIN_OVERRIDE_EMAIL.trim().toLowerCase()
         : "";
-      const inputEmailNormalized = email.toLowerCase();
+      const inputEmailNormalized = email;
       const overridePasswordNormalized = ADMIN_OVERRIDE_PASSWORD
         ? ADMIN_OVERRIDE_PASSWORD.trim()
         : "";
@@ -64,19 +67,32 @@ export default function AdminLoginPage() {
       );
       const user = userCredential.user;
 
+      if (!user.emailVerified) {
+        toast.info("Please verify your email to access the admin portal.");
+        await signOut(auth);
+        router.push("/verify-email");
+        return;
+      }
+
       const userDoc = await getDoc(doc(db, "users", user.uid));
 
       if (userDoc.exists()) {
-        const userData = userDoc.data() as { role?: string; [key: string]: any };
+        const userData = userDoc.data() as { role?: string; blocked?: boolean; [key: string]: any };
+        if (userData.blocked) {
+          toast.error("Your account is restricted. Please contact support.");
+          await signOut(auth);
+          router.replace("/blocked");
+          return;
+        }
         if (userData.role === "admin") {
           router.push("/admin/dashboard");
         } else {
           setError("Access denied. Not an admin account.");
-          await auth.signOut();
+          await signOut(auth);
         }
       } else {
         setError("Access denied. No user profile found.");
-        await auth.signOut();
+        await signOut(auth);
       }
 
     } catch (err: any) {
@@ -109,7 +125,11 @@ export default function AdminLoginPage() {
 
         <div className="px-6 py-8">
           {error && (
-            <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-lg mb-6 text-sm flex items-center gap-2">
+            <div
+              className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-lg mb-6 text-sm flex items-center gap-2"
+              role="alert"
+              aria-live="assertive"
+            >
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-5 h-5 flex-shrink-0">
                 <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.28 7.22a.75.75 0 00-1.06 1.06L8.94 10l-1.72 1.72a.75.75 0 101.06 1.06L10 11.06l1.72 1.72a.75.75 0 101.06-1.06L11.06 10l1.72-1.72a.75.75 0 00-1.06-1.06L10 8.94 8.28 7.22z" clipRule="evenodd" />
               </svg>
@@ -129,6 +149,8 @@ export default function AdminLoginPage() {
                 className="w-full px-4 py-3 bg-white border border-gray-200 rounded-lg text-gray-900 placeholder-gray-400 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all"
                 placeholder="admin@example.com"
                 onChange={handleChange}
+                value={formData.email}
+                autoComplete="email"
               />
             </div>
 
@@ -143,6 +165,8 @@ export default function AdminLoginPage() {
                 className="w-full px-4 py-3 bg-white border border-gray-200 rounded-lg text-gray-900 placeholder-gray-400 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all"
                 placeholder="••••••••"
                 onChange={handleChange}
+                value={formData.password}
+                autoComplete="current-password"
               />
             </div>
 
@@ -163,6 +187,15 @@ export default function AdminLoginPage() {
                 "Sign In"
               )}
             </button>
+
+            <div className="flex items-center justify-between text-sm">
+              <Link href="/forgot-password" className="text-blue-700 hover:underline">
+                Forgot password?
+              </Link>
+              <Link href="/" className="text-gray-600 hover:underline">
+                Back to site
+              </Link>
+            </div>
           </form>
         </div>
         <div className="px-6 py-4 bg-gray-50 border-t border-gray-100 text-center">
