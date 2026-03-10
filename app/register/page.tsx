@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { User } from "@/lib/User";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import { createUserWithEmailAndPassword } from "firebase/auth";
+import { createUserWithEmailAndPassword, sendEmailVerification } from "firebase/auth";
 import { auth, db } from "@/lib/firebase";
 import { doc, setDoc, serverTimestamp } from "firebase/firestore";
 import { useToast } from "@/components/ToastProvider";
@@ -114,9 +114,9 @@ export default function RegisterPage() {
         { merge: true },
       );
 
-      console.log("User created successfully:", newUser);
-      toast.success("Account created successfully!");
-      router.push("/dashboard");
+      await sendEmailVerification(userCredential.user);
+      toast.success("Account created. Please verify your email to continue.");
+      router.push("/verify-email");
 
     } catch (error) {
       console.error("Error creating user:", error);

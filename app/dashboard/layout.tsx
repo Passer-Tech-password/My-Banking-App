@@ -1,15 +1,70 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { onAuthStateChanged, signOut } from "firebase/auth";
+import { doc, getDoc } from "firebase/firestore";
 import DashboardSidebar from "@/components/DashboardSidebar";
 import DashboardHeader from "@/components/DashboardHeader";
+import { auth, db } from "@/lib/firebase";
+import { useToast } from "@/components/ToastProvider";
 
 export default function DashboardLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const router = useRouter();
+  const toast = useToast();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [guardLoading, setGuardLoading] = useState(true);
+  const [authorized, setAuthorized] = useState(false);
+
+  useEffect(() => {
+    const unsub = onAuthStateChanged(auth, async (user) => {
+      setAuthorized(false);
+
+      if (!user) {
+        setGuardLoading(false);
+        router.replace("/login");
+        return;
+      }
+
+      if (!user.emailVerified) {
+        setGuardLoading(false);
+        router.replace("/verify-email");
+        return;
+      }
+
+      try {
+        const snap = await getDoc(doc(db, "users", user.uid));
+        if (snap.exists() && snap.data()?.blocked) {
+          await signOut(auth);
+          toast.error("Your account is restricted. Please contact support.");
+          setGuardLoading(false);
+          router.replace("/blocked");
+          return;
+        }
+      } catch (error) {
+        console.error(error);
+      }
+
+      setAuthorized(true);
+      setGuardLoading(false);
+    });
+
+    return () => unsub();
+  }, [router, toast]);
+
+  if (guardLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+      </div>
+    );
+  }
+
+  if (!authorized) return null;
 
   return (
     <div className="flex min-h-screen bg-gray-50 overflow-x-hidden">

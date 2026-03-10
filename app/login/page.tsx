@@ -31,7 +31,12 @@ export default function LoginPage() {
 
     try {
       const email = formData.email.trim().toLowerCase();
-      await signInWithEmailAndPassword(auth, email, formData.password);
+      const cred = await signInWithEmailAndPassword(auth, email, formData.password);
+      if (!cred.user.emailVerified) {
+        toast.info("Please verify your email to continue.");
+        router.push("/verify-email");
+        return;
+      }
       toast.success("Signed in successfully");
       router.push("/dashboard");
     } catch (err: any) {
@@ -103,10 +108,10 @@ export default function LoginPage() {
               <div className="flex justify-between items-center">
                 <label className="text-sm font-medium">Password</label>
                 <Link
-                  href="/contact-us"
+                  href="/forgot-password"
                   className="text-xs text-blue-600 hover:underline"
                 >
-                  Forgot Code?
+                  Forgot password?
                 </Link>
               </div>
               <input
