@@ -13,7 +13,7 @@ import { useToast } from "@/components/ToastProvider";
 export default function RegisterPage() {
   const router = useRouter();
   const toast = useToast();
-  const [formData, setFormData] = useState({
+  const initialFormData = {
     firstName: "",
     middleName: "",
     lastName: "",
@@ -31,7 +31,9 @@ export default function RegisterPage() {
     password: "",
     confirmPassword: "",
     passport: null as File | null,
-  });
+  };
+  const [formData, setFormData] = useState(initialFormData);
+  const [fileInputKey, setFileInputKey] = useState(0);
   const [loading, setLoading] = useState(false);
 
   const handleChange = (
@@ -47,17 +49,26 @@ export default function RegisterPage() {
     }
   };
 
+  const handleReset = () => {
+    setFormData(initialFormData);
+    setFileInputKey((k) => k + 1);
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
 
     try {
+      const email = formData.email.trim().toLowerCase();
+      if (!formData.firstName || !formData.lastName || !email || !formData.password) {
+        throw new Error("Please fill in all required fields");
+      }
       if (formData.password !== formData.confirmPassword) {
           throw new Error("Passwords do not match");
       }
 
       // 1. Create User in Firebase Auth
-      const userCredential = await createUserWithEmailAndPassword(auth, formData.email, formData.password);
+      const userCredential = await createUserWithEmailAndPassword(auth, email, formData.password);
       const uid = userCredential.user.uid;
 
       // 2. Create user object using the Builder pattern
@@ -72,7 +83,7 @@ export default function RegisterPage() {
         .setDob(formData.dob)
         .setMobile(formData.mobile)
         .setPhone(formData.phone)
-        .setEmail(formData.email)
+        .setEmail(email)
         .setAccountType(formData.accountType)
         .setCurrency(formData.currency)
         .setSsnPin(formData.ssnPin)
@@ -95,7 +106,7 @@ export default function RegisterPage() {
       await setDoc(
         doc(db, "publicUsers", uid),
         {
-          email: formData.email,
+          email,
           name: `${formData.firstName} ${formData.lastName}`.trim(),
           createdAt: serverTimestamp(),
           updatedAt: serverTimestamp(),
@@ -138,18 +149,23 @@ export default function RegisterPage() {
               placeholder="First Name"
               className="input"
               onChange={handleChange}
+              value={formData.firstName}
+              required
             />
             <input
               name="middleName"
               placeholder="Middle Name"
               className="input"
               onChange={handleChange}
+              value={formData.middleName}
             />
             <input
               name="lastName"
               placeholder="Last Name"
               className="input"
               onChange={handleChange}
+              value={formData.lastName}
+              required
             />
           </div>
 
@@ -159,18 +175,21 @@ export default function RegisterPage() {
               placeholder="Address"
               className="input"
               onChange={handleChange}
+              value={formData.address}
             />
             <input
               name="state"
               placeholder="State / Region"
               className="input"
               onChange={handleChange}
+              value={formData.state}
             />
             <input
               name="city"
               placeholder="City"
               className="input"
               onChange={handleChange}
+              value={formData.city}
             />
           </div>
 
@@ -180,18 +199,21 @@ export default function RegisterPage() {
               placeholder="Zip Code"
               className="input"
               onChange={handleChange}
+              value={formData.zipCode}
             />
             <input
               type="date"
               name="dob"
               className="input"
               onChange={handleChange}
+              value={formData.dob}
             />
             <input
               name="mobile"
               placeholder="Mobile Number"
               className="input"
               onChange={handleChange}
+              value={formData.mobile}
             />
           </div>
 
@@ -201,12 +223,16 @@ export default function RegisterPage() {
               placeholder="Phone Number"
               className="input"
               onChange={handleChange}
+              value={formData.phone}
             />
             <input
+              type="email"
               name="email"
               placeholder="Email Address"
               className="input"
               onChange={handleChange}
+              value={formData.email}
+              required
             />
           </div>
 
@@ -218,13 +244,21 @@ export default function RegisterPage() {
               name="accountType"
               className="input"
               onChange={handleChange}
+              value={formData.accountType}
+              required
             >
               <option value="">Choose account type</option>
               <option>Savings</option>
               <option>Current</option>
             </select>
 
-            <select name="currency" className="input" onChange={handleChange}>
+            <select
+              name="currency"
+              className="input"
+              onChange={handleChange}
+              value={formData.currency}
+              required
+            >
               <option value="">Choose account currency</option>
               <option>NGN</option>
               <option>USD</option>
@@ -236,6 +270,7 @@ export default function RegisterPage() {
               placeholder="SSN PIN"
               className="input"
               onChange={handleChange}
+              value={formData.ssnPin}
             />
           </div>
 
@@ -246,6 +281,8 @@ export default function RegisterPage() {
               placeholder="Password"
               className="input"
               onChange={handleChange}
+              value={formData.password}
+              required
             />
             <input
               type="password"
@@ -253,13 +290,20 @@ export default function RegisterPage() {
               placeholder="Confirm Password"
               className="input"
               onChange={handleChange}
+              value={formData.confirmPassword}
+              required
             />
 
             <div className="flex items-center gap-3">
               <div className="w-16 h-16 bg-gray-200 rounded-full flex items-center justify-center">
                 <span className="text-xs text-gray-500">Photo</span>
               </div>
-              <input type="file" onChange={handleFileChange} />
+              <input
+                key={fileInputKey}
+                type="file"
+                accept="image/*"
+                onChange={handleFileChange}
+              />
             </div>
           </div>
 
@@ -267,12 +311,14 @@ export default function RegisterPage() {
           <div className="flex gap-3 mt-6">
             <button
               type="submit"
-              className="bg-blue-600 text-white px-4 py-2 rounded"
+              disabled={loading}
+              className="bg-blue-600 text-white px-4 py-2 rounded disabled:opacity-70"
             >
-              Submit
+              {loading ? "Submitting..." : "Submit"}
             </button>
             <button
-              type="reset"
+              type="button"
+              onClick={handleReset}
               className="bg-red-500 text-white px-4 py-2 rounded"
             >
               Reset
@@ -280,7 +326,7 @@ export default function RegisterPage() {
             <button
               type="button"
               className="text-blue-600 underline"
-              onClick={() => history.back()}
+              onClick={() => router.back()}
             >
               ← Back
             </button>

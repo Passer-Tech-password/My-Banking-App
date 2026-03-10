@@ -215,18 +215,34 @@ export default function CardsPage() {
         ))}
         
         {cards.length === 0 && (
-          <div className="col-span-full py-12 flex flex-col items-center justify-center text-gray-400 bg-gray-50 rounded-xl border border-dashed border-gray-200">
-            <CreditCardIcon className="w-12 h-12 mb-3 opacity-50" />
-            <p className="text-sm">No cards linked to your account.</p>
-            <button 
-              onClick={handleGenerateVirtualCard}
-              className="mt-4 text-blue-600 font-medium hover:underline text-sm"
-            >
-              Generate your first card
-            </button>
+          <div className="col-span-full bg-white rounded-xl shadow-sm border border-gray-100 p-8 text-center">
+            <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4 text-gray-400">
+              <CreditCardIcon className="w-8 h-8" />
+            </div>
+            <h3 className="text-lg font-medium text-gray-900 mb-1">No cards added</h3>
+            <p className="text-gray-500 mb-6">
+              Add a virtual or existing card to manage your payments and track activity.
+            </p>
+            <div className="flex flex-col sm:flex-row gap-3 justify-center">
+              <button
+                type="button"
+                onClick={handleGenerateVirtualCard}
+                className="px-4 py-2 bg-indigo-600 text-white rounded-lg text-sm font-medium hover:bg-indigo-700 transition-colors shadow-sm"
+              >
+                Get Virtual Card
+              </button>
+              <button
+                type="button"
+                onClick={() => setShowAddForm(true)}
+                className="px-4 py-2 bg-white border border-gray-200 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-50 transition-colors shadow-sm"
+              >
+                Add your first card
+              </button>
+            </div>
           </div>
         )}
       </div>
+      {showAddForm && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4">
           <div className="bg-white rounded-xl shadow-xl max-w-md w-full p-6">
             <h2 className="text-lg font-bold text-gray-900 mb-4">Add New Card</h2>
@@ -306,75 +322,6 @@ export default function CardsPage() {
               </div>
             </form>
           </div>
-        </div>
-      )}
-
-      {cards.length === 0 ? (
-        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-8 text-center">
-          <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4 text-gray-400">
-            <CreditCardIcon className="w-8 h-8" />
-          </div>
-          <h3 className="text-lg font-medium text-gray-900 mb-1">No cards added</h3>
-          <p className="text-gray-500 mb-6">Add a credit or debit card to manage your payments.</p>
-          <button
-            onClick={() => setShowAddForm(true)}
-            className="text-blue-600 hover:text-blue-700 font-medium"
-          >
-            Add your first card
-          </button>
-        </div>
-      ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {cards.map((card) => (
-            <div
-              key={card.id}
-              className="group relative bg-white rounded-xl shadow-sm border border-gray-100 p-6 transition-all hover:shadow-md"
-            >
-              <button
-                onClick={() => handleDeleteCard(card.id!)}
-                className="absolute top-4 right-4 text-gray-400 hover:text-red-600 opacity-0 group-hover:opacity-100 transition-opacity"
-              >
-                <TrashIcon className="w-5 h-5" />
-              </button>
-
-              <div className={`rounded-2xl p-6 text-white shadow-lg relative overflow-hidden mb-4 ${
-                card.network === 'VISA' ? 'bg-blue-900' : card.network === 'MasterCard' ? 'bg-slate-800' : 'bg-indigo-900'
-              }`}>
-                <div className="absolute top-0 right-0 w-32 h-32 bg-white opacity-10 rounded-full -mr-10 -mt-10 blur-2xl" />
-                <div className="flex justify-between items-start mb-8 relative z-10">
-                  <span className="font-bold text-lg tracking-widest uppercase">
-                    {card.network}
-                  </span>
-                  <div className="w-8 h-5 bg-yellow-400/80 rounded-sm" />
-                </div>
-                <div className="space-y-4 relative z-10">
-                  <div 
-                    className="flex items-center gap-3 group/number cursor-pointer" 
-                    onClick={() => navigator.clipboard.writeText(card.number)}
-                    title="Click to copy"
-                  >
-                    <p className="font-mono text-xl tracking-widest">{card.number}</p>
-                    <ClipboardDocumentIcon className="w-5 h-5 text-white/50 opacity-0 group-hover/number:opacity-100 transition-all" />
-                  </div>
-                  <div className="flex justify-between items-end">
-                    <div>
-                      <p className="text-xs opacity-70 mb-1">Card Holder</p>
-                      <p className="font-medium tracking-wide uppercase">{card.holder}</p>
-                    </div>
-                    <div>
-                      <p className="text-xs opacity-70 mb-1">Expires</p>
-                      <p className="font-medium">{card.expires}</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              
-              <div className="flex justify-between items-center text-sm">
-                <span className="text-gray-500">Status</span>
-                <span className="bg-green-100 text-green-700 px-2 py-1 rounded-full text-xs font-medium">Active</span>
-              </div>
-            </div>
-          ))}
         </div>
       )}
     </div>

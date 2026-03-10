@@ -30,7 +30,8 @@ export default function LoginPage() {
     setLoading(true);
 
     try {
-      await signInWithEmailAndPassword(auth, formData.email, formData.password);
+      const email = formData.email.trim().toLowerCase();
+      await signInWithEmailAndPassword(auth, email, formData.password);
       toast.success("Signed in successfully");
       router.push("/dashboard");
     } catch (err: any) {
@@ -72,7 +73,11 @@ export default function LoginPage() {
           </p>
 
           {error && (
-            <div className="bg-red-50 text-red-600 p-3 rounded mb-4 text-sm border border-red-200">
+            <div
+              className="bg-red-50 text-red-600 p-3 rounded mb-4 text-sm border border-red-200"
+              role="alert"
+              aria-live="assertive"
+            >
               {error}
             </div>
           )}
@@ -87,6 +92,8 @@ export default function LoginPage() {
                 placeholder="Enter your Email Address"
                 className="input mt-1 w-full px-4 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:outline-none"
                 onChange={handleChange}
+                value={formData.email}
+                autoComplete="email"
                 required
               />
             </div>
@@ -108,6 +115,8 @@ export default function LoginPage() {
                 placeholder="Enter your password"
                 className="input mt-1 w-full px-4 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:outline-none"
                 onChange={handleChange}
+                value={formData.password}
+                autoComplete="current-password"
                 required
               />
             </div>
