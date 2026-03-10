@@ -56,7 +56,7 @@ export default function AdminLoginPage() {
           "Admin override is active: bypassing Firebase login. Do not enable this in production.",
         );
         setLoading(false);
-        router.push("/admin/dashboard");
+        router.replace("/admin/dashboard");
         return;
       }
 
@@ -70,7 +70,7 @@ export default function AdminLoginPage() {
       if (!user.emailVerified) {
         toast.info("Please verify your email to access the admin portal.");
         await signOut(auth);
-        router.push("/verify-email");
+        router.replace("/verify-email");
         return;
       }
 
@@ -85,7 +85,7 @@ export default function AdminLoginPage() {
           return;
         }
         if (userData.role === "admin") {
-          router.push("/admin/dashboard");
+          router.replace("/admin/dashboard");
         } else {
           setError("Access denied. Not an admin account.");
           await signOut(auth);
