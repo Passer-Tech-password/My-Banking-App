@@ -14,6 +14,7 @@ import {
 import { getLocaleFromCookies } from "@/lib/i18n/server";
 import { createTranslator } from "@/lib/i18n/messages";
 import { cookies } from "next/headers";
+import Image from "next/image";
 
 export default async function HomePage() {
   const cookieStore = await cookies();
@@ -37,11 +38,14 @@ export default async function HomePage() {
                  {/* Decorative background glow */}
                  <div className="absolute inset-0 bg-gradient-to-tr from-blue-100 to-purple-100 rounded-full blur-3xl transform scale-75"></div>
                  
-                 <img 
-                   src="/smart-banking-image.png.png" 
-                   alt={t("home.smartBanking.title")} 
-                   className="relative z-10 object-contain w-full h-full drop-shadow-2xl transition-transform duration-500 hover:scale-105"
-                 />
+                <Image
+                  src="/smart-banking-image.png"
+                  alt={t("home.smartBanking.title")}
+                  fill
+                  sizes="(max-width: 1024px) 80vw, 600px"
+                  className="relative z-10 object-contain drop-shadow-2xl transition-transform duration-500 hover:scale-105"
+                  priority
+                />
                </div>
             </div>
 
