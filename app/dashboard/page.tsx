@@ -284,6 +284,7 @@ export default function DashboardPage() {
         .setDescription(`${type.charAt(0).toUpperCase() + type.slice(1)} via Dashboard`)
         .build();
 
+      let createdTxId = "";
       await runTransaction(db, async (transaction) => {
         const userRef = doc(db, "users", userId);
         const userDoc = await transaction.get(userRef);
@@ -306,6 +307,7 @@ export default function DashboardPage() {
 
         // Add transaction
         const newTxRef = doc(collection(db, "transactions"));
+        createdTxId = newTxRef.id;
         transaction.set(newTxRef, newTx.toFirestore());
 
         // Update user balance
@@ -317,7 +319,7 @@ export default function DashboardPage() {
         if (type === "deposit") return prev + amount;
         return prev - amount;
       });
-      setTransactions(prev => [newTx, ...prev]);
+      setTransactions(prev => [{ ...(newTx as any), id: createdTxId } as Transaction, ...prev]);
 
       if (type === "deposit") {
         setIncome(prev => prev + amount);
@@ -333,7 +335,9 @@ export default function DashboardPage() {
       // So this function might only be used for legacy or instant ops.
       // Let's add email here just in case.
       if (type === "deposit" || type === "withdrawal") {
-         sendEmail(type, amount, "completed", newTxRef.id);
+        if (createdTxId) {
+          sendEmail(type, amount, "completed", createdTxId);
+        }
       }
 
     } catch (e) {
@@ -396,6 +400,7 @@ export default function DashboardPage() {
         return;
       }
 
+      let senderTxId = "";
       await runTransaction(db, async (transaction) => {
         const senderRef = doc(db, "users", userId);
         const receiverRef = doc(db, "users", recipientId);
@@ -415,6 +420,7 @@ export default function DashboardPage() {
 
         // Create sender transaction
         const senderTxRef = doc(collection(db, "transactions"));
+        senderTxId = senderTxRef.id;
         transaction.set(senderTxRef, {
           userId: userId,
           type: "transfer",
@@ -445,7 +451,7 @@ export default function DashboardPage() {
       setExpense(prev => prev + amount);
       // Add to transactions list
       setTransactions(prev => [{
-          id: "temp-" + Date.now(),
+          id: senderTxId || ("temp-" + Date.now()),
           userId,
           type: "transfer",
           direction: "outgoing",
@@ -460,7 +466,9 @@ export default function DashboardPage() {
       toast.success("Transfer successful!");
       
       // Send email notification
-      sendEmail("transfer (outgoing)", amount, "completed", senderTxRef.id);
+      if (senderTxId) {
+        sendEmail("transfer (outgoing)", amount, "completed", senderTxId);
+      }
 
       try {
         await setDoc(
@@ -525,6 +533,7 @@ export default function DashboardPage() {
     }
     if (!userId) return;
     try {
+      let withdrawalTxId = "";
       await runTransaction(db, async (transaction) => {
         const userRef = doc(db, "users", userId);
         const userDoc = await transaction.get(userRef);
@@ -536,6 +545,7 @@ export default function DashboardPage() {
         transaction.update(userRef, { balance: currentBalance - amount });
 
         const txRef = doc(collection(db, "transactions"));
+        withdrawalTxId = txRef.id;
         transaction.set(txRef, {
           userId,
           type: "withdrawal",
@@ -564,7 +574,9 @@ export default function DashboardPage() {
       toast.info("Withdrawal request submitted. Await admin approval.");
 
       // Send email for pending request
-      sendEmail("withdrawal", amount, "pending", txRef.id);
+      if (withdrawalTxId) {
+        sendEmail("withdrawal", amount, "pending", withdrawalTxId);
+      }
     } catch (e) {
       console.error("Withdrawal request failed:", e);
       toast.error(e instanceof Error ? e.message : "Withdrawal request failed");
