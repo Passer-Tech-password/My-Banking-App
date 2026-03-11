@@ -11,10 +11,6 @@ import { useToast } from "@/components/ToastProvider";
 export default function AdminLoginPage() {
   const router = useRouter();
   const toast = useToast();
-  const [formData, setFormData] = useState({
-    email: "",
-    password: "",
-  });
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -23,6 +19,17 @@ export default function AdminLoginPage() {
     process.env.NODE_ENV !== "production";
   const ADMIN_OVERRIDE_EMAIL = process.env.NEXT_PUBLIC_ADMIN_EMAIL;
   const ADMIN_OVERRIDE_PASSWORD = process.env.NEXT_PUBLIC_ADMIN_PASSWORD;
+
+  const [formData, setFormData] = useState(() => ({
+    email:
+      ADMIN_OVERRIDE_ENABLED && ADMIN_OVERRIDE_EMAIL
+        ? ADMIN_OVERRIDE_EMAIL.trim().toLowerCase()
+        : "",
+    password:
+      ADMIN_OVERRIDE_ENABLED && ADMIN_OVERRIDE_PASSWORD
+        ? ADMIN_OVERRIDE_PASSWORD.trim()
+        : "",
+  }));
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;

@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { onAuthStateChanged } from "firebase/auth";
 import { auth, db } from "@/lib/firebase";
-import { collection, getDocs, query, where, orderBy, limit } from "firebase/firestore";
+import { collection, getDocs, query, where, limit } from "firebase/firestore";
 import { ClockIcon, CheckCircleIcon, XCircleIcon } from "@heroicons/react/24/outline";
 
 type FundingRequestStatus = "pending" | "approved" | "rejected";
@@ -47,12 +47,19 @@ export default function UserRequestsPage() {
       const q = query(
         collection(db, "fundingRequests"),
         where("userId", "==", uid),
-        orderBy("createdAt", "desc"),
         limit(50),
       );
       const snap = await getDocs(q);
       const rows: FundingRequest[] = [];
       snap.forEach((d) => rows.push({ id: d.id, ...d.data() } as FundingRequest));
+      const getCreatedAtMs = (value: any): number => {
+        if (!value) return 0;
+        if (typeof value?.toMillis === "function") return value.toMillis();
+        if (typeof value?.seconds === "number") return value.seconds * 1000;
+        if (typeof value === "string") return new Date(value).getTime() || 0;
+        return 0;
+      };
+      rows.sort((a, b) => getCreatedAtMs(b.createdAt) - getCreatedAtMs(a.createdAt));
       setRequests(rows);
     } catch (e) {
       console.error("Failed to load requests:", e);
@@ -139,4 +146,3 @@ export default function UserRequestsPage() {
     </div>
   );
 }
-

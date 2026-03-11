@@ -9,7 +9,6 @@ import {
   getDoc,
   getDocs,
   limit,
-  orderBy,
   query,
   runTransaction,
   serverTimestamp,
@@ -97,12 +96,19 @@ export default function AdminRequestsPage() {
       const q = query(
         collection(db, "fundingRequests"),
         where("status", "==", "pending"),
-        orderBy("createdAt", "desc"),
         limit(50),
       );
       const snap = await getDocs(q);
       const rows: FundingRequest[] = [];
       snap.forEach((d) => rows.push({ id: d.id, ...d.data() } as FundingRequest));
+      const getCreatedAtMs = (value: any): number => {
+        if (!value) return 0;
+        if (typeof value?.toMillis === "function") return value.toMillis();
+        if (typeof value?.seconds === "number") return value.seconds * 1000;
+        if (typeof value === "string") return new Date(value).getTime() || 0;
+        return 0;
+      };
+      rows.sort((a, b) => getCreatedAtMs(b.createdAt) - getCreatedAtMs(a.createdAt));
       setRequests(rows);
     } catch (e) {
       console.error("Failed to load requests:", e);
