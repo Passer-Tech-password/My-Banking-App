@@ -45,28 +45,6 @@ export default function AdminLoginPage() {
       const email = formData.email.trim().toLowerCase();
       const password = formData.password;
 
-      const overrideEmailNormalized = ADMIN_OVERRIDE_EMAIL
-        ? ADMIN_OVERRIDE_EMAIL.trim().toLowerCase()
-        : "";
-      const inputEmailNormalized = email;
-      const overridePasswordNormalized = ADMIN_OVERRIDE_PASSWORD
-        ? ADMIN_OVERRIDE_PASSWORD.trim()
-        : "";
-
-      if (
-        ADMIN_OVERRIDE_ENABLED &&
-        overrideEmailNormalized &&
-        inputEmailNormalized === overrideEmailNormalized &&
-        password === overridePasswordNormalized
-      ) {
-        console.warn(
-          "Admin override is active: bypassing Firebase login. Do not enable this in production.",
-        );
-        setLoading(false);
-        router.replace("/admin/dashboard");
-        return;
-      }
-
       const userCredential = await signInWithEmailAndPassword(
         auth,
         email,
@@ -110,11 +88,13 @@ export default function AdminLoginPage() {
       console.error("Login error:", err);
 
       if (err.code === "auth/invalid-credential") {
-        setError("Invalid email or password.");
+        setError("Invalid email or password. (auth/invalid-credential)");
       } else if (err.code === "auth/network-request-failed") {
         setError(
           "Network error while contacting Firebase. Please check your internet connection, VPN, or ad blockers and try again.",
         );
+      } else if (err.code) {
+        setError(`Login failed (${err.code}).`);
       } else {
         setError("Login failed. Please try again.");
       }

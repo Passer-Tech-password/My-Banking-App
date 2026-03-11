@@ -32,10 +32,6 @@ export default function AdminDashboardPage() {
   const [fundModalOpen, setFundModalOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState<UserData | null>(null);
 
-  const ADMIN_OVERRIDE_ENABLED =
-    (process.env.NEXT_PUBLIC_ADMIN_OVERRIDE || "").toLowerCase() === "true" &&
-    process.env.NODE_ENV !== "production";
-
   useEffect(() => {
     const hour = new Date().getHours();
     setGreeting(hour < 12 ? "Good morning" : hour < 18 ? "Good afternoon" : "Good evening");
@@ -59,40 +55,30 @@ export default function AdminDashboardPage() {
       );
     };
 
-    if (ADMIN_OVERRIDE_ENABLED) {
-      console.warn(
-        "Admin override is active: skipping Firebase auth checks on dashboard. Do not enable this in production.",
-      );
-      setError(null);
-      setAuthChecking(false);
-      fetchUsers();
-      startTxStream();
-    } else {
-      authUnsub = onAuthStateChanged(auth, async (user) => {
-        if (!user) {
+    authUnsub = onAuthStateChanged(auth, async (user) => {
+      if (!user) {
+        setAuthChecking(false);
+        router.push("/admin/login");
+        return;
+      }
+      try {
+        setError(null);
+        const profileSnap = await getDoc(doc(db, "users", user.uid));
+        if (!profileSnap.exists() || profileSnap.data()?.role !== "admin") {
           setAuthChecking(false);
           router.push("/admin/login");
           return;
         }
-        try {
-          setError(null);
-          const profileSnap = await getDoc(doc(db, "users", user.uid));
-          if (!profileSnap.exists() || profileSnap.data()?.role !== "admin") {
-            setAuthChecking(false);
-            router.push("/admin/login");
-            return;
-          }
-          setAuthChecking(false);
-          fetchUsers();
-          startTxStream();
-        } catch (error) {
-          console.error("Error verifying admin user:", error);
-          setAuthChecking(false);
-          setError("Authentication failed");
-          router.push("/admin/login");
-        }
-      });
-    };
+        setAuthChecking(false);
+        fetchUsers();
+        startTxStream();
+      } catch (error) {
+        console.error("Error verifying admin user:", error);
+        setAuthChecking(false);
+        setError("Authentication failed");
+        router.push("/admin/login");
+      }
+    });
 
     return () => {
       if (authUnsub) authUnsub();
@@ -112,8 +98,15 @@ export default function AdminDashboardPage() {
       });
       setUsers(fetchedUsers);
     } catch (error) {
-      console.error("Error fetching users:", error);
-      setError("Failed to load users. Please try again later.");
+      const code = (error as any)?.code;
+      console.error("Error fetching users:", { code, error });
+      if (code === "permission-denied") {
+        setError("Failed to load users (permission-denied). Check Firestore rules and admin role.");
+      } else if (code) {
+        setError(`Failed to load users (${code}). Please try again later.`);
+      } else {
+        setError("Failed to load users. Please try again later.");
+      }
     } finally {
       setUsersLoading(false);
     }

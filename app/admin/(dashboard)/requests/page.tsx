@@ -42,21 +42,7 @@ export default function AdminRequestsPage() {
   const [requests, setRequests] = useState<FundingRequest[]>([]);
   const [actingId, setActingId] = useState<string | null>(null);
 
-  const ADMIN_OVERRIDE_ENABLED =
-    (process.env.NEXT_PUBLIC_ADMIN_OVERRIDE || "").toLowerCase() === "true" &&
-    process.env.NODE_ENV !== "production";
-
   useEffect(() => {
-    if (ADMIN_OVERRIDE_ENABLED) {
-      console.warn(
-        "Admin override is active: skipping Firebase auth checks on requests page. Do not enable this in production.",
-      );
-      setError(null);
-      setAuthChecking(false);
-      fetchRequests();
-      return;
-    }
-
     const unsub = onAuthStateChanged(auth, async (user) => {
       if (!user) {
         setAuthChecking(false);
@@ -111,8 +97,15 @@ export default function AdminRequestsPage() {
       rows.sort((a, b) => getCreatedAtMs(b.createdAt) - getCreatedAtMs(a.createdAt));
       setRequests(rows);
     } catch (e) {
-      console.error("Failed to load requests:", e);
-      setError("Failed to load requests");
+      const code = (e as any)?.code;
+      console.error("Failed to load requests:", { code, error: e });
+      if (code === "permission-denied") {
+        setError("Failed to load requests (permission-denied). Check Firestore rules and admin role.");
+      } else if (code) {
+        setError(`Failed to load requests (${code}).`);
+      } else {
+        setError("Failed to load requests");
+      }
     } finally {
       setLoading(false);
     }

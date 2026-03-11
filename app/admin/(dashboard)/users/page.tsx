@@ -39,21 +39,7 @@ export default function UsersPage() {
 
   const PAGE_SIZE = 20;
 
-  const ADMIN_OVERRIDE_ENABLED =
-    (process.env.NEXT_PUBLIC_ADMIN_OVERRIDE || "").toLowerCase() === "true" &&
-    process.env.NODE_ENV !== "production";
-
   useEffect(() => {
-    if (ADMIN_OVERRIDE_ENABLED) {
-      console.warn(
-        "Admin override is active: skipping Firebase auth checks on users management page. Do not enable this in production.",
-      );
-      setError(null);
-      setAuthChecking(false);
-      fetchUsers(true);
-      return;
-    }
-
     const unsub = onAuthStateChanged(auth, async (user) => {
       if (!user) {
         setAuthChecking(false);
@@ -117,8 +103,15 @@ export default function UsersPage() {
       setLastUserDoc(lastDocSnap);
       setHasMore(querySnapshot.docs.length === PAGE_SIZE);
     } catch (error) {
-      console.error("Error fetching users:", error);
-      setError("Failed to load users. Please try again later.");
+      const code = (error as any)?.code;
+      console.error("Error fetching users:", { code, error });
+      if (code === "permission-denied") {
+        setError("Failed to load users (permission-denied). Check Firestore rules and admin role.");
+      } else if (code) {
+        setError(`Failed to load users (${code}). Please try again later.`);
+      } else {
+        setError("Failed to load users. Please try again later.");
+      }
     } finally {
       setUsersLoading(false);
     }
