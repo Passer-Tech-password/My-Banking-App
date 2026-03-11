@@ -76,7 +76,6 @@ export default function AdminLoginPage() {
 
       if (!user.emailVerified) {
         toast.info("Please verify your email to access the admin portal.");
-        await signOut(auth);
         router.replace("/verify-email");
         return;
       }
@@ -84,8 +83,13 @@ export default function AdminLoginPage() {
       const userDoc = await getDoc(doc(db, "users", user.uid));
 
       if (userDoc.exists()) {
-        const userData = userDoc.data() as { role?: string; blocked?: boolean; [key: string]: any };
-        if (userData.blocked) {
+        const userData = userDoc.data() as {
+          role?: string;
+          blocked?: boolean | string;
+          [key: string]: any;
+        };
+        const isBlocked = userData.blocked === true || userData.blocked === "true";
+        if (isBlocked) {
           toast.error("Your account is restricted. Please contact support.");
           await signOut(auth);
           router.replace("/blocked");

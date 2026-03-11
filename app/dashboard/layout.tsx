@@ -38,7 +38,9 @@ export default function DashboardLayout({
 
       try {
         const snap = await getDoc(doc(db, "users", user.uid));
-        if (snap.exists() && snap.data()?.blocked) {
+        const blockedValue = snap.exists() ? (snap.data() as any)?.blocked : undefined;
+        const isBlocked = blockedValue === true || blockedValue === "true";
+        if (isBlocked) {
           await signOut(auth);
           toast.error("Your account is restricted. Please contact support.");
           setGuardLoading(false);
