@@ -6,9 +6,13 @@ service cloud.firestore {
       return request.auth != null;
     }
 
+    function bootstrapAdminEmail() {
+      return get(/databases/$(database)/documents/config/security).data.bootstrapAdminEmail;
+    }
+
     function isBootstrapAdmin() {
       return signedIn()
-        && request.auth.token.email == "passertech@gmail.com"
+        && request.auth.token.email == bootstrapAdminEmail()
         && request.auth.token.email_verified == true;
     }
 

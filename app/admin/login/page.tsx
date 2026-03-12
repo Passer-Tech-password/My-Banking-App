@@ -60,9 +60,7 @@ export default function AdminLoginPage() {
 
       const userDoc = await getDoc(doc(db, "users", user.uid));
 
-      const bootstrapEmail = (process.env.NEXT_PUBLIC_ADMIN_EMAIL || "passertech@gmail.com")
-        .trim()
-        .toLowerCase();
+      const bootstrapEmail = (process.env.NEXT_PUBLIC_ADMIN_EMAIL || "").trim().toLowerCase();
       const currentEmail = (user.email || "").trim().toLowerCase();
 
       if (userDoc.exists()) {
