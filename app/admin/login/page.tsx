@@ -60,6 +60,11 @@ export default function AdminLoginPage() {
 
       const userDoc = await getDoc(doc(db, "users", user.uid));
 
+      const bootstrapEmail = (process.env.NEXT_PUBLIC_ADMIN_EMAIL || "passertech@gmail.com")
+        .trim()
+        .toLowerCase();
+      const currentEmail = (user.email || "").trim().toLowerCase();
+
       if (userDoc.exists()) {
         const userData = userDoc.data() as {
           role?: string;
@@ -75,15 +80,34 @@ export default function AdminLoginPage() {
         }
         if (userData.role === "admin") {
           router.replace("/admin/dashboard");
+          return;
         } else {
-          setError("Access denied. Not an admin account.");
+          if (bootstrapEmail && currentEmail && currentEmail === bootstrapEmail) {
+            try {
+              await setDoc(
+                doc(db, "users", user.uid),
+                {
+                  role: "admin",
+                  updatedAt: serverTimestamp(),
+                },
+                { merge: true },
+              );
+              router.replace("/admin/dashboard");
+              return;
+            } catch (promoteError: any) {
+              console.error("Admin promotion failed:", promoteError);
+              setError(
+                `Access denied (role=${String(userData.role || "unknown")}). Promotion failed (${promoteError?.code || "unknown"}).`,
+              );
+              await signOut(auth);
+              return;
+            }
+          }
+          setError(`Access denied. Not an admin account. (role=${String(userData.role || "unknown")})`);
           await signOut(auth);
         }
       } else {
-        const allowedBootstrapEmail =
-          (process.env.NEXT_PUBLIC_ADMIN_EMAIL || "").trim().toLowerCase();
-        const currentEmail = (user.email || "").trim().toLowerCase();
-        if (allowedBootstrapEmail && currentEmail === allowedBootstrapEmail) {
+        if (bootstrapEmail && currentEmail === bootstrapEmail) {
           await setDoc(doc(db, "users", user.uid), {
             email: currentEmail,
             role: "admin",
@@ -94,7 +118,7 @@ export default function AdminLoginPage() {
           router.replace("/admin/dashboard");
           return;
         }
-        setError("Access denied. No user profile found.");
+        setError(`Access denied. No user profile found. (uid=${user.uid})`);
         await signOut(auth);
       }
 
