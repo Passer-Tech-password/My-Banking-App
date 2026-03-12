@@ -58,10 +58,36 @@ export default function AdminLoginPage() {
         return;
       }
 
-      const userDoc = await getDoc(doc(db, "users", user.uid));
-
       const bootstrapEmail = (process.env.NEXT_PUBLIC_ADMIN_EMAIL || "").trim().toLowerCase();
       const currentEmail = (user.email || "").trim().toLowerCase();
+      if (!bootstrapEmail) {
+        setError("Admin bootstrap is not configured. Set NEXT_PUBLIC_ADMIN_EMAIL.");
+        await signOut(auth);
+        return;
+      }
+
+      if (currentEmail && currentEmail === bootstrapEmail) {
+        const securityRef = doc(db, "config", "security");
+        const securitySnap = await getDoc(securityRef);
+        if (!securitySnap.exists()) {
+          try {
+            await setDoc(securityRef, {
+              bootstrapAdminEmail: currentEmail,
+              createdAt: serverTimestamp(),
+              updatedAt: serverTimestamp(),
+            });
+          } catch (configError: any) {
+            console.error("Bootstrap config init failed:", configError);
+            setError(
+              `Admin bootstrap config is missing and could not be initialized (${configError?.code || "unknown"}).`,
+            );
+            await signOut(auth);
+            return;
+          }
+        }
+      }
+
+      const userDoc = await getDoc(doc(db, "users", user.uid));
 
       if (userDoc.exists()) {
         const userData = userDoc.data() as {

@@ -7,11 +7,14 @@ service cloud.firestore {
     }
 
     function bootstrapAdminEmail() {
-      return get(/databases/$(database)/documents/config/security).data.bootstrapAdminEmail;
+      return exists(/databases/$(database)/documents/config/security)
+        ? get(/databases/$(database)/documents/config/security).data.bootstrapAdminEmail
+        : null;
     }
 
     function isBootstrapAdmin() {
       return signedIn()
+        && bootstrapAdminEmail() != null
         && request.auth.token.email == bootstrapAdminEmail()
         && request.auth.token.email_verified == true;
     }
@@ -30,6 +33,18 @@ service cloud.firestore {
       allow create: if signedIn() && request.auth.uid == userId;
       allow update: if isAdmin() || (signedIn() && request.auth.uid == userId);
       allow delete: if isAdmin();
+    }
+
+    match /config/security {
+      allow read: if signedIn();
+      allow create: if signedIn()
+        && request.auth.token.email_verified == true
+        && !exists(/databases/$(database)/documents/config/security)
+        && request.resource.data.bootstrapAdminEmail == request.auth.token.email
+        && request.resource.data.blocked == null
+        && request.resource.data.keys().hasOnly(["bootstrapAdminEmail", "createdAt", "updatedAt"]);
+      allow update: if isAdmin();
+      allow delete: if false;
     }
 
     match /users/{userId} {
