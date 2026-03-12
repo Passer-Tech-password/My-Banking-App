@@ -18,6 +18,33 @@ export default function VerifyEmailPage() {
   const [checking, setChecking] = useState(false);
   const [email, setEmail] = useState<string>("");
   const nextTarget = searchParams.get("next") || "/dashboard";
+  const [resendAvailableAt, setResendAvailableAt] = useState<number>(0);
+  const [nowMs, setNowMs] = useState<number>(() => Date.now());
+
+  const cooldownKey = email ? `verifyEmailResendAvailableAt:${email.toLowerCase()}` : "verifyEmailResendAvailableAt";
+
+  useEffect(() => {
+    if (!email) return;
+    const raw = typeof window !== "undefined" ? window.localStorage.getItem(cooldownKey) : null;
+    const parsed = raw ? Number(raw) : 0;
+    if (Number.isFinite(parsed) && parsed > 0) {
+      setResendAvailableAt(parsed);
+    }
+  }, [cooldownKey, email]);
+
+  useEffect(() => {
+    const id = window.setInterval(() => setNowMs(Date.now()), 1000);
+    return () => window.clearInterval(id);
+  }, []);
+
+  const remainingMs = Math.max(0, resendAvailableAt - nowMs);
+  const canResend = remainingMs === 0;
+  const formatRemaining = (ms: number) => {
+    const totalSeconds = Math.ceil(ms / 1000);
+    const minutes = Math.floor(totalSeconds / 60);
+    const seconds = totalSeconds % 60;
+    return `${minutes}:${String(seconds).padStart(2, "0")}`;
+  };
 
   useEffect(() => {
     const unsub = onAuthStateChanged(auth, async (user) => {
@@ -38,13 +65,30 @@ export default function VerifyEmailPage() {
   const handleResend = async () => {
     const user = auth.currentUser;
     if (!user) return;
+    if (!canResend) {
+      toast.info(`Please wait ${formatRemaining(remainingMs)} before resending.`);
+      return;
+    }
     try {
       setSending(true);
       await sendEmailVerification(user);
+      const nextAt = Date.now() + 60_000;
+      setResendAvailableAt(nextAt);
+      window.localStorage.setItem(cooldownKey, String(nextAt));
       toast.success("Verification email sent. Check your inbox.");
     } catch (error) {
       console.error(error);
-      toast.error("Failed to send verification email.");
+      const code = (error as any)?.code;
+      if (code === "auth/too-many-requests") {
+        const nextAt = Date.now() + 10 * 60_000;
+        setResendAvailableAt(nextAt);
+        window.localStorage.setItem(cooldownKey, String(nextAt));
+        toast.error("Too many requests. Please wait a few minutes and try again.");
+      } else if (code) {
+        toast.error(`Failed to send verification email (${code}).`);
+      } else {
+        toast.error("Failed to send verification email.");
+      }
     } finally {
       setSending(false);
     }
@@ -103,10 +147,14 @@ export default function VerifyEmailPage() {
             <button
               type="button"
               onClick={handleResend}
-              disabled={sending}
+              disabled={sending || !canResend}
               className="w-full bg-blue-700 text-white py-2 rounded font-medium hover:bg-blue-800 transition-colors disabled:opacity-70"
             >
-              {sending ? "Sending..." : "Resend verification email"}
+              {sending
+                ? "Sending..."
+                : canResend
+                  ? "Resend verification email"
+                  : `Resend available in ${formatRemaining(remainingMs)}`}
             </button>
             <button
               type="button"
