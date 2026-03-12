@@ -8,6 +8,7 @@ import DashboardSidebar from "@/components/DashboardSidebar";
 import DashboardHeader from "@/components/DashboardHeader";
 import { auth, db } from "@/lib/firebase";
 import { useToast } from "@/components/ToastProvider";
+import { parseUserRole } from "@/lib/roles";
 
 export default function DashboardLayout({
   children,
@@ -38,7 +39,8 @@ export default function DashboardLayout({
 
       try {
         const snap = await getDoc(doc(db, "users", user.uid));
-        const role = snap.exists() ? (snap.data() as any)?.role : undefined;
+        const data = snap.exists() ? (snap.data() as unknown) : null;
+        const role = parseUserRole((data as { role?: unknown } | null)?.role);
         if (role === "admin") {
           setGuardLoading(false);
           router.replace("/admin/dashboard");

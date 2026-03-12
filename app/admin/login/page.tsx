@@ -7,6 +7,7 @@ import { signInWithEmailAndPassword, signOut } from "firebase/auth";
 import { auth, db } from "@/lib/firebase";
 import { doc, getDoc, serverTimestamp, setDoc } from "firebase/firestore";
 import { useToast } from "@/components/ToastProvider";
+import { parseUserRole } from "@/lib/roles";
 
 export default function AdminLoginPage() {
   const router = useRouter();
@@ -102,7 +103,8 @@ export default function AdminLoginPage() {
           router.replace("/blocked");
           return;
         }
-        if (userData.role === "admin") {
+        const role = parseUserRole(userData.role);
+        if (role === "admin") {
           router.replace("/admin/dashboard");
           return;
         } else {

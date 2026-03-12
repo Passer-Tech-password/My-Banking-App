@@ -17,6 +17,7 @@ import {
 import { auth, db } from "@/lib/firebase";
 import { useToast } from "@/components/ToastProvider";
 import { CheckCircleIcon, XCircleIcon, ClockIcon } from "@heroicons/react/24/outline";
+import { parseUserRole } from "@/lib/roles";
 
 type FundingRequestStatus = "pending" | "approved" | "rejected";
 type FundingRequestType = "deposit" | "withdrawal";
@@ -52,7 +53,10 @@ export default function AdminRequestsPage() {
       try {
         setError(null);
         const profileSnap = await getDoc(doc(db, "users", user.uid));
-        if (!profileSnap.exists() || profileSnap.data()?.role !== "admin") {
+        const role = profileSnap.exists()
+          ? parseUserRole(((profileSnap.data() as unknown) as { role?: unknown })?.role)
+          : null;
+        if (!profileSnap.exists() || role !== "admin") {
           setAuthChecking(false);
           router.push("/admin/login");
           return;

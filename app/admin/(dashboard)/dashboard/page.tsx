@@ -9,6 +9,7 @@ import UserTable, { UserData } from "@/components/UserTable";
 import FundUserModal from "@/components/FundUserModal";
 import { useToast } from "@/components/ToastProvider";
 import { Transaction } from "@/lib/Transaction";
+import { parseUserRole } from "@/lib/roles";
 import { 
   UserGroupIcon, 
   MagnifyingGlassIcon, 
@@ -64,7 +65,10 @@ export default function AdminDashboardPage() {
       try {
         setError(null);
         const profileSnap = await getDoc(doc(db, "users", user.uid));
-        if (!profileSnap.exists() || profileSnap.data()?.role !== "admin") {
+        const role = profileSnap.exists()
+          ? parseUserRole(((profileSnap.data() as unknown) as { role?: unknown })?.role)
+          : null;
+        if (!profileSnap.exists() || role !== "admin") {
           setAuthChecking(false);
           router.push("/admin/login");
           return;

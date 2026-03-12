@@ -7,6 +7,7 @@ import { collection, getDocs, query, orderBy, limit, doc, getDoc } from "firebas
 import { db, auth } from "@/lib/firebase";
 import { Transaction } from "@/lib/Transaction";
 import { useToast } from "@/components/ToastProvider";
+import { parseUserRole } from "@/lib/roles";
 import { 
   ArrowDownLeftIcon, 
   ArrowUpRightIcon, 
@@ -46,7 +47,10 @@ export default function AdminTransactionsPage() {
       try {
         setError(null);
         const profileSnap = await getDoc(doc(db, "users", user.uid));
-        if (!profileSnap.exists() || profileSnap.data()?.role !== "admin") {
+        const role = profileSnap.exists()
+          ? parseUserRole(((profileSnap.data() as unknown) as { role?: unknown })?.role)
+          : null;
+        if (!profileSnap.exists() || role !== "admin") {
           setAuthChecking(false);
           router.push("/admin/login");
           return;
