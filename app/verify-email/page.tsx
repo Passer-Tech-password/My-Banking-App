@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { onAuthStateChanged, sendEmailVerification, signOut } from "firebase/auth";
 import { auth } from "@/lib/firebase";
 import Navbar from "@/components/Navbar";
@@ -11,11 +11,13 @@ import { useToast } from "@/components/ToastProvider";
 
 export default function VerifyEmailPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const toast = useToast();
   const [loading, setLoading] = useState(true);
   const [sending, setSending] = useState(false);
   const [checking, setChecking] = useState(false);
   const [email, setEmail] = useState<string>("");
+  const nextTarget = searchParams.get("next") || "/dashboard";
 
   useEffect(() => {
     const unsub = onAuthStateChanged(auth, async (user) => {
@@ -25,13 +27,13 @@ export default function VerifyEmailPage() {
       }
       setEmail(user.email || "");
       if (user.emailVerified) {
-        router.push("/dashboard");
+        router.replace(nextTarget);
         return;
       }
       setLoading(false);
     });
     return () => unsub();
-  }, [router]);
+  }, [router, nextTarget]);
 
   const handleResend = async () => {
     const user = auth.currentUser;
@@ -56,7 +58,7 @@ export default function VerifyEmailPage() {
       await user.reload();
       if (user.emailVerified) {
         toast.success("Email verified. Welcome!");
-        router.push("/dashboard");
+        router.replace(nextTarget);
         return;
       }
       toast.info("Email not verified yet. Please check your inbox.");
@@ -130,4 +132,3 @@ export default function VerifyEmailPage() {
     </>
   );
 }
-

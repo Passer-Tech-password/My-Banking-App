@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { signInWithEmailAndPassword, signOut } from "firebase/auth";
 import { auth, db } from "@/lib/firebase";
-import { doc, getDoc } from "firebase/firestore";
+import { doc, getDoc, serverTimestamp, setDoc } from "firebase/firestore";
 import { useToast } from "@/components/ToastProvider";
 
 export default function AdminLoginPage() {
@@ -54,7 +54,7 @@ export default function AdminLoginPage() {
 
       if (!user.emailVerified) {
         toast.info("Please verify your email to access the admin portal.");
-        router.replace("/verify-email");
+        router.replace(`/verify-email?next=${encodeURIComponent("/admin/dashboard")}`);
         return;
       }
 
@@ -80,6 +80,20 @@ export default function AdminLoginPage() {
           await signOut(auth);
         }
       } else {
+        const allowedBootstrapEmail =
+          (process.env.NEXT_PUBLIC_ADMIN_EMAIL || "").trim().toLowerCase();
+        const currentEmail = (user.email || "").trim().toLowerCase();
+        if (allowedBootstrapEmail && currentEmail === allowedBootstrapEmail) {
+          await setDoc(doc(db, "users", user.uid), {
+            email: currentEmail,
+            role: "admin",
+            blocked: false,
+            createdAt: serverTimestamp(),
+            updatedAt: serverTimestamp(),
+          });
+          router.replace("/admin/dashboard");
+          return;
+        }
         setError("Access denied. No user profile found.");
         await signOut(auth);
       }

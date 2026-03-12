@@ -74,7 +74,7 @@ export default function AdminDashboardPage() {
         startTxStream();
       } catch (error) {
         console.error("Error verifying admin user:", error);
-        if (authUnsub) authUnsub();
+        authUnsub?.();
         setAuthChecking(false);
         setError("Authentication failed");
         router.push("/admin/login");
@@ -82,8 +82,8 @@ export default function AdminDashboardPage() {
     });
 
     return () => {
-      if (authUnsub) authUnsub();
-      if (txUnsub) txUnsub();
+      authUnsub?.();
+      txUnsub?.();
     };
   }, [router]);
 
