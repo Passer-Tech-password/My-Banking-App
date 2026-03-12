@@ -38,6 +38,12 @@ export default function DashboardLayout({
 
       try {
         const snap = await getDoc(doc(db, "users", user.uid));
+        const role = snap.exists() ? (snap.data() as any)?.role : undefined;
+        if (role === "admin") {
+          setGuardLoading(false);
+          router.replace("/admin/dashboard");
+          return;
+        }
         const blockedValue = snap.exists() ? (snap.data() as any)?.blocked : undefined;
         const isBlocked = blockedValue === true || blockedValue === "true";
         if (isBlocked) {

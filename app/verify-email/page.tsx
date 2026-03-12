@@ -25,7 +25,7 @@ export default function VerifyEmailPage() {
 
   useEffect(() => {
     if (!email) return;
-    const raw = typeof window !== "undefined" ? window.localStorage.getItem(cooldownKey) : null;
+    const raw = window.localStorage.getItem(cooldownKey);
     const parsed = raw ? Number(raw) : 0;
     if (Number.isFinite(parsed) && parsed > 0) {
       setResendAvailableAt(parsed);
