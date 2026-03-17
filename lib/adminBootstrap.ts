@@ -55,7 +55,7 @@ export async function resolveBootstrapAdminEmail(params: {
   if (!currentEmail || currentEmail !== envBootstrapEmail) {
     throw new BootstrapAdminError(
       "email_mismatch",
-      "Admin bootstrap config is missing. Sign in with the bootstrap admin email or create config/security.",
+      "Email does not match bootstrap admin configuration. Sign in with NEXT_PUBLIC_ADMIN_EMAIL or create config/security.",
     );
   }
 
