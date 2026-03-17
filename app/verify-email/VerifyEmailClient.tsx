@@ -39,6 +39,8 @@ export default function VerifyEmailClient() {
 
   const remainingMs = Math.max(0, resendAvailableAt - nowMs);
   const canResend = remainingMs === 0;
+  const RESEND_COOLDOWN_MS = 60_000;
+  const TOO_MANY_REQUESTS_COOLDOWN_MS = 600_000;
   const formatRemaining = (ms: number) => {
     const totalSeconds = Math.ceil(ms / 1000);
     const minutes = Math.floor(totalSeconds / 60);
@@ -72,7 +74,7 @@ export default function VerifyEmailClient() {
     try {
       setSending(true);
       await sendEmailVerification(user);
-      const nextAt = Date.now() + 60_000;
+      const nextAt = Date.now() + RESEND_COOLDOWN_MS;
       setResendAvailableAt(nextAt);
       window.localStorage.setItem(cooldownKey, String(nextAt));
       toast.success("Verification email sent. Check your inbox.");
@@ -80,7 +82,7 @@ export default function VerifyEmailClient() {
       console.error(error);
       const code = (error as any)?.code;
       if (code === "auth/too-many-requests") {
-        const nextAt = Date.now() + 10 * 60_000;
+        const nextAt = Date.now() + TOO_MANY_REQUESTS_COOLDOWN_MS;
         setResendAvailableAt(nextAt);
         window.localStorage.setItem(cooldownKey, String(nextAt));
         toast.error("Too many requests. Please wait a few minutes and try again.");

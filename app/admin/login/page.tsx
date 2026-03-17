@@ -8,6 +8,7 @@ import { auth, db } from "@/lib/firebase";
 import { doc, getDoc, serverTimestamp, setDoc } from "firebase/firestore";
 import { useToast } from "@/components/ToastProvider";
 import { parseUserRole } from "@/lib/roles";
+import { BootstrapAdminError, resolveBootstrapAdminEmail } from "@/lib/adminBootstrap";
 
 export default function AdminLoginPage() {
   const router = useRouter();
@@ -59,52 +60,26 @@ export default function AdminLoginPage() {
         return;
       }
 
-      const bootstrapEmailEnv = (process.env.NEXT_PUBLIC_ADMIN_EMAIL || "").trim().toLowerCase();
       const currentEmail = (user.email || "").trim().toLowerCase();
-
-      const securityRef = doc(db, "config", "security");
-      let bootstrapEmail: string | null = null;
-      const securitySnap = await getDoc(securityRef);
-      if (securitySnap.exists()) {
-        const value = (securitySnap.data() as unknown as { bootstrapAdminEmail?: unknown })
-          ?.bootstrapAdminEmail;
-        if (typeof value === "string" && value.trim()) {
-          bootstrapEmail = value.trim().toLowerCase();
+      let bootstrapEmail = "";
+      try {
+        bootstrapEmail = await resolveBootstrapAdminEmail({
+          db,
+          currentEmail,
+          envBootstrapEmail: (process.env.NEXT_PUBLIC_ADMIN_EMAIL || "").trim().toLowerCase(),
+        });
+      } catch (e: any) {
+        console.error("Bootstrap config error:", e);
+        if (e instanceof BootstrapAdminError) {
+          setError(e.message);
         } else {
-          setError("Admin bootstrap config is invalid. Set config/security.bootstrapAdminEmail.");
-          await signOut(auth);
-          return;
+          setError("Admin bootstrap config error.");
         }
-      } else {
-        if (!bootstrapEmailEnv) {
-          setError("Admin bootstrap is not configured. Set NEXT_PUBLIC_ADMIN_EMAIL or create config/security.");
-          await signOut(auth);
-          return;
-        }
-        if (currentEmail && currentEmail === bootstrapEmailEnv) {
-          try {
-            await setDoc(securityRef, {
-              bootstrapAdminEmail: currentEmail,
-              createdAt: serverTimestamp(),
-              updatedAt: serverTimestamp(),
-            });
-            bootstrapEmail = currentEmail;
-          } catch (configError: any) {
-            console.error("Bootstrap config init failed:", configError);
-            setError(
-              `Admin bootstrap config is missing and could not be initialized (${configError?.code || "unknown"}).`,
-            );
-            await signOut(auth);
-            return;
-          }
-        } else {
-          setError("Admin bootstrap config is missing. Sign in with the bootstrap admin email or create config/security.");
-          await signOut(auth);
-          return;
-        }
+        await signOut(auth);
+        return;
       }
 
-      const isBootstrapAdmin = !!bootstrapEmail && !!currentEmail && currentEmail === bootstrapEmail;
+      const isBootstrapAdmin = currentEmail === bootstrapEmail;
 
       const userDoc = await getDoc(doc(db, "users", user.uid));
 
