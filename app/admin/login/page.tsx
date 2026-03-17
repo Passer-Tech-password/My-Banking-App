@@ -148,7 +148,15 @@ export default function AdminLoginPage() {
         setError("Invalid email or password. (auth/invalid-credential)");
       } else if (err.code === "auth/network-request-failed") {
         setError(
-          "Network error while contacting Firebase. Please check your internet connection, VPN, or ad blockers and try again.",
+          "Network error while contacting Firebase. Disable VPN/ad blockers, try another network, and ensure your domain is added in Firebase Auth → Settings → Authorized domains. (auth/network-request-failed)",
+        );
+      } else if (err.code === "auth/unauthorized-domain") {
+        setError(
+          "This domain is not authorized for Firebase Auth. Add your Vercel domain in Firebase Auth → Settings → Authorized domains. (auth/unauthorized-domain)",
+        );
+      } else if (err.code === "auth/invalid-api-key") {
+        setError(
+          "Firebase API key is invalid. Check NEXT_PUBLIC_FIREBASE_API_KEY on Vercel and locally. (auth/invalid-api-key)",
         );
       } else if (err.code) {
         setError(`Login failed (${err.code}).`);
