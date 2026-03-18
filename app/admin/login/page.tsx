@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { signInWithEmailAndPassword, signOut } from "firebase/auth";
+import { fetchSignInMethodsForEmail, signInWithEmailAndPassword, signOut } from "firebase/auth";
 import { auth, db } from "@/lib/firebase";
 import { doc, getDoc, serverTimestamp, setDoc } from "firebase/firestore";
 import { useToast } from "@/components/ToastProvider";
@@ -43,10 +43,10 @@ export default function AdminLoginPage() {
     setError("");
     setLoading(true);
 
-    try {
-      const email = formData.email.trim().toLowerCase();
-      const password = formData.password;
+    const email = formData.email.trim().toLowerCase();
+    const password = formData.password;
 
+    try {
       const userCredential = await signInWithEmailAndPassword(
         auth,
         email,
@@ -145,7 +145,24 @@ export default function AdminLoginPage() {
       console.error("Login error:", err);
 
       if (err.code === "auth/invalid-credential") {
-        setError("Invalid email or password. (auth/invalid-credential)");
+        try {
+          const methods = await fetchSignInMethodsForEmail(auth, email);
+          const projectId = (auth.app.options as any)?.projectId;
+          if (!methods || methods.length === 0) {
+            setError(
+              `No account found for this email in this Firebase project${projectId ? ` (${projectId})` : ""}.`,
+            );
+          } else if (methods.includes("password")) {
+            setError("Invalid email or password. Try 'Forgot password?' to reset. (auth/invalid-credential)");
+          } else {
+            setError(
+              `This email uses a different sign-in method (${methods.join(", ")}). (auth/invalid-credential)`,
+            );
+          }
+        } catch (methodsError) {
+          console.error("fetchSignInMethodsForEmail failed:", methodsError);
+          setError("Invalid email or password. (auth/invalid-credential)");
+        }
       } else if (err.code === "auth/network-request-failed") {
         setError(
           "Network error while contacting Firebase. Disable VPN/ad blockers, try another network, and ensure your domain is added in Firebase Auth → Settings → Authorized domains. (auth/network-request-failed)",
