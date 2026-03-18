@@ -22,6 +22,7 @@ import { onAuthStateChanged } from "firebase/auth";
 import { Transaction } from "@/lib/Transaction";
 import { Card } from "@/lib/Card";
 import { useToast } from "@/components/ToastProvider";
+import { toErrorInfo } from "@/lib/errorInfo";
 import { 
   PlusIcon, 
   MinusIcon, 
@@ -239,8 +240,39 @@ export default function DashboardPage() {
             }
           },
           (error) => {
-            console.error("Dashboard transactions stream error:", error);
-            toast.error("Failed to load live transactions");
+            const info = toErrorInfo(error);
+            console.error("Dashboard transactions stream error:", info);
+
+            const code = info.code || "unknown";
+            if (code === "failed-precondition" || info.message.toLowerCase().includes("requires an index")) {
+              if (txUnsub) txUnsub();
+              const fallbackQuery = query(
+                collection(db, "transactions"),
+                where("userId", "==", user.uid),
+                limit(20),
+              );
+              txUnsub = onSnapshot(
+                fallbackQuery,
+                (fallbackSnap) => {
+                  const txs: Transaction[] = [];
+                  fallbackSnap.forEach((docSnap) => {
+                    const data = docSnap.data();
+                    txs.push({ id: docSnap.id, ...data } as Transaction);
+                  });
+                  txs.sort((a: any, b: any) => String(b?.date || "").localeCompare(String(a?.date || "")));
+                  if (isMounted) setTransactions(txs);
+                },
+                (fallbackError) => {
+                  const fallbackInfo = toErrorInfo(fallbackError);
+                  console.error("Dashboard transactions fallback stream error:", fallbackInfo);
+                  toast.error(`Failed to load live transactions (${fallbackInfo.code || "unknown"}).`);
+                },
+              );
+              toast.error("Missing Firestore index for transactions. Deploy Firestore indexes.");
+              return;
+            }
+
+            toast.error(`Failed to load live transactions (${code}).`);
           },
         );
 

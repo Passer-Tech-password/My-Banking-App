@@ -71,15 +71,7 @@ export default function ProfilePage() {
         patch.email = user.email ?? "";
         patch.role = "user";
         patch.blocked = false;
-        patch.balance = 0;
         patch.createdAt = serverTimestamp();
-      } else {
-        const data = snap.data() as Record<string, unknown>;
-        if (!("email" in data)) patch.email = user.email ?? "";
-        if (!("role" in data)) patch.role = "user";
-        if (!("blocked" in data)) patch.blocked = false;
-        if (!("balance" in data)) patch.balance = 0;
-        if (!("createdAt" in data)) patch.createdAt = serverTimestamp();
       }
 
       await setDoc(userRef, patch, { merge: true });
