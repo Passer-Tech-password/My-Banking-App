@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { doc, getDoc, updateDoc } from "firebase/firestore";
+import { doc, getDoc, serverTimestamp, setDoc } from "firebase/firestore";
 import { auth, db } from "@/lib/firebase";
 import { onAuthStateChanged, updateProfile } from "firebase/auth";
 import { useRouter } from "next/navigation";
@@ -58,12 +58,33 @@ export default function ProfilePage() {
     try {
       setLoading(true);
       const userRef = doc(db, "users", user.uid);
-      await updateDoc(userRef, {
-        displayName: formData.displayName,
-        phone: formData.phone,
-        address: formData.address,
-        image: formData.image,
-      });
+      const snap = await getDoc(userRef);
+      if (!snap.exists()) {
+        await setDoc(userRef, {
+          email: user.email ?? "",
+          role: "user",
+          blocked: false,
+          balance: 0,
+          createdAt: serverTimestamp(),
+          updatedAt: serverTimestamp(),
+          displayName: formData.displayName,
+          phone: formData.phone,
+          address: formData.address,
+          image: formData.image,
+        });
+      } else {
+        await setDoc(
+          userRef,
+          {
+            displayName: formData.displayName,
+            phone: formData.phone,
+            address: formData.address,
+            image: formData.image,
+            updatedAt: serverTimestamp(),
+          },
+          { merge: true },
+        );
+      }
 
       if (user.displayName !== formData.displayName || user.photoURL !== formData.image) {
         await updateProfile(user, { 
