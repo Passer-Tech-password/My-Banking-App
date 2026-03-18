@@ -2,6 +2,7 @@ import { doc, getDoc, serverTimestamp, setDoc, type Firestore } from "firebase/f
 
 export class BootstrapAdminError extends Error {
   code:
+    | "missing_config"
     | "invalid_config"
     | "missing_env"
     | "email_mismatch"
@@ -10,6 +11,7 @@ export class BootstrapAdminError extends Error {
 
   constructor(
     code:
+      | "missing_config"
       | "invalid_config"
       | "missing_env"
       | "email_mismatch"
@@ -26,7 +28,8 @@ export function isBootstrapAdminError(value: unknown): value is BootstrapAdminEr
   const code = (value as any)?.code;
   return (
     typeof (value as any)?.message === "string" &&
-    (code === "invalid_config" ||
+    (code === "missing_config" ||
+      code === "invalid_config" ||
       code === "missing_env" ||
       code === "email_mismatch" ||
       code === "read_failed" ||

@@ -60,6 +60,8 @@ export default function AdminLoginPage() {
         return;
       }
 
+      await user.getIdToken(true);
+
       const currentEmail = (user.email || "").trim().toLowerCase();
       let bootstrapEmail = "";
       try {
