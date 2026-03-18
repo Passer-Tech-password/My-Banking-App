@@ -66,7 +66,6 @@ export default function LoginPage() {
       toast.success("Signed in successfully");
       router.push("/dashboard");
     } catch (err: any) {
-      console.error(err);
       let message = "Invalid credentials. Please try again.";
       if (err.code === "auth/invalid-credential") {
         try {
@@ -80,7 +79,6 @@ export default function LoginPage() {
             message = `This email uses a different sign-in method (${methods.join(", ")}).`;
           }
         } catch (methodsError) {
-          console.error(methodsError);
           message = "Invalid email or password.";
         }
       } else if (err.code === "auth/user-not-found") {
@@ -89,6 +87,8 @@ export default function LoginPage() {
         message = "Incorrect password.";
       } else if (err.code === "auth/too-many-requests") {
         message = "Too many failed attempts. Please try again later.";
+      } else {
+        console.error(err);
       }
 
       setError(message);

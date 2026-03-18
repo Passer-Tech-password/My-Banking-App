@@ -1,9 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { signOut } from "firebase/auth";
-import { auth } from "@/lib/firebase";
+import { onAuthStateChanged, signOut } from "firebase/auth";
+import { doc, getDoc } from "firebase/firestore";
+import { auth, db } from "@/lib/firebase";
 import {
   Bars3Icon,
   BellIcon,
@@ -15,6 +16,8 @@ import {
 export default function AdminHeader({ onMobileMenuClick }: { onMobileMenuClick?: () => void }) {
   const router = useRouter();
   const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const [displayName, setDisplayName] = useState<string>("Administrator");
+  const [avatarUrl, setAvatarUrl] = useState<string>("");
 
   const handleLogout = async () => {
     try {
@@ -24,6 +27,40 @@ export default function AdminHeader({ onMobileMenuClick }: { onMobileMenuClick?:
       console.error("Logout failed", error);
     }
   };
+
+  useEffect(() => {
+    const unsub = onAuthStateChanged(auth, async (user) => {
+      if (!user) {
+        setDisplayName("Administrator");
+        setAvatarUrl("");
+        return;
+      }
+      try {
+        const snap = await getDoc(doc(db, "users", user.uid));
+        const data = snap.exists() ? (snap.data() as any) : null;
+        const name =
+          String(data?.displayName || "").trim() ||
+          String(user.displayName || "").trim() ||
+          String(user.email || "").trim() ||
+          "Administrator";
+        const image = String(data?.image || "").trim() || String(user.photoURL || "").trim();
+        setDisplayName(name);
+        setAvatarUrl(image);
+      } catch (e) {
+        setDisplayName(String(user.displayName || user.email || "Administrator").trim());
+        setAvatarUrl(String(user.photoURL || "").trim());
+      }
+    });
+
+    return () => unsub();
+  }, []);
+
+  const initials = (displayName || "A")
+    .split(" ")
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((p) => p[0]?.toUpperCase())
+    .join("");
   
   return (
     <header className="sticky top-0 z-10 flex h-20 w-full bg-white shadow-sm border-b border-gray-100 items-center justify-between px-6 lg:px-12">
@@ -55,11 +92,17 @@ export default function AdminHeader({ onMobileMenuClick }: { onMobileMenuClick?:
             className="flex items-center gap-3 pl-6 border-l border-gray-100 focus:outline-none group"
           >
             <div className="text-right hidden md:block">
-              <p className="text-sm font-medium text-gray-700 group-hover:text-blue-600 transition-colors">Administrator</p>
+              <p className="text-sm font-medium text-gray-700 group-hover:text-blue-600 transition-colors">{displayName}</p>
               <p className="text-xs text-gray-500">Super User</p>
             </div>
-            <div className="h-10 w-10 bg-blue-50 rounded-full flex items-center justify-center text-blue-600 group-hover:bg-blue-100 transition-colors">
-              <UserCircleIcon className="w-6 h-6" />
+            <div className="h-10 w-10 bg-blue-50 rounded-full flex items-center justify-center text-blue-600 group-hover:bg-blue-100 transition-colors overflow-hidden">
+              {avatarUrl ? (
+                <img src={avatarUrl} alt="Profile" className="w-full h-full object-cover" />
+              ) : initials ? (
+                <span className="text-sm font-bold">{initials}</span>
+              ) : (
+                <UserCircleIcon className="w-6 h-6" />
+              )}
             </div>
             <ChevronDownIcon className={`w-4 h-4 text-gray-400 transition-transform duration-200 ${isProfileOpen ? 'rotate-180' : ''}`} />
           </button>
@@ -73,7 +116,7 @@ export default function AdminHeader({ onMobileMenuClick }: { onMobileMenuClick?:
               ></div>
               <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg py-1 border border-gray-100 ring-1 ring-black ring-opacity-5 z-20">
                 <div className="px-4 py-3 border-b border-gray-50 md:hidden">
-                  <p className="text-sm font-medium text-gray-900">Administrator</p>
+                  <p className="text-sm font-medium text-gray-900">{displayName}</p>
                   <p className="text-xs text-gray-500">Super User</p>
                 </div>
                 <button

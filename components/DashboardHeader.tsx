@@ -1,9 +1,9 @@
 "use client";
 
-import { useState } from "react";
-import Link from "next/link";
-import { signOut } from "firebase/auth";
-import { auth } from "@/lib/firebase";
+import { useEffect, useState } from "react";
+import { onAuthStateChanged } from "firebase/auth";
+import { doc, getDoc } from "firebase/firestore";
+import { auth, db } from "@/lib/firebase";
 import { useRouter } from "next/navigation";
 import {
   Bars3Icon,
@@ -13,6 +13,41 @@ import {
 
 export default function DashboardHeader({ onMobileMenuClick }: { onMobileMenuClick?: () => void }) {
   const router = useRouter();
+  const [displayName, setDisplayName] = useState<string>("");
+  const [avatarUrl, setAvatarUrl] = useState<string>("");
+
+  useEffect(() => {
+    const unsub = onAuthStateChanged(auth, async (user) => {
+      if (!user) {
+        setDisplayName("");
+        setAvatarUrl("");
+        return;
+      }
+      try {
+        const snap = await getDoc(doc(db, "users", user.uid));
+        const data = snap.exists() ? (snap.data() as any) : null;
+        const name =
+          String(data?.displayName || "").trim() ||
+          String(user.displayName || "").trim() ||
+          String(user.email || "").trim();
+        const image = String(data?.image || "").trim() || String(user.photoURL || "").trim();
+        setDisplayName(name);
+        setAvatarUrl(image);
+      } catch (e) {
+        setDisplayName(String(user.displayName || user.email || "").trim());
+        setAvatarUrl(String(user.photoURL || "").trim());
+      }
+    });
+
+    return () => unsub();
+  }, []);
+
+  const initials = (displayName || "User")
+    .split(" ")
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((p) => p[0]?.toUpperCase())
+    .join("");
   
   return (
     <header className="sticky top-0 z-10 flex h-20 w-full bg-white shadow-sm border-b border-gray-100 items-center justify-between px-6 lg:px-12">
@@ -40,11 +75,17 @@ export default function DashboardHeader({ onMobileMenuClick }: { onMobileMenuCli
         {/* User Profile */}
         <div className="flex items-center gap-3 pl-6 border-l border-gray-100">
           <div className="text-right hidden md:block">
-            <p className="text-sm font-medium text-gray-700">My Account</p>
+            <p className="text-sm font-medium text-gray-700">{displayName ? displayName.split(" ")[0] : "My Account"}</p>
             <p className="text-xs text-gray-500">Member</p>
           </div>
-          <div className="h-10 w-10 bg-blue-100 rounded-full flex items-center justify-center text-blue-600">
-            <UserCircleIcon className="w-6 h-6" />
+          <div className="h-10 w-10 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 overflow-hidden">
+            {avatarUrl ? (
+              <img src={avatarUrl} alt="Profile" className="w-full h-full object-cover" />
+            ) : initials ? (
+              <span className="text-sm font-bold">{initials}</span>
+            ) : (
+              <UserCircleIcon className="w-6 h-6" />
+            )}
           </div>
         </div>
       </div>

@@ -176,8 +176,6 @@ export default function AdminLoginPage() {
       }
 
     } catch (err: any) {
-      console.error("Login error:", err);
-
       if (err.code === "auth/invalid-credential") {
         setLastErrorCode("auth/invalid-credential");
         try {
@@ -218,6 +216,7 @@ export default function AdminLoginPage() {
         setError(`Login failed (${err.code}).`);
       } else {
         setError("Login failed. Please try again.");
+        console.error("Login error:", err);
       }
     } finally {
       setLoading(false);
