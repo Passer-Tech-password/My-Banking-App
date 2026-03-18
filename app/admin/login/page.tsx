@@ -147,7 +147,7 @@ export default function AdminLoginPage() {
       if (err.code === "auth/invalid-credential") {
         try {
           const methods = await fetchSignInMethodsForEmail(auth, email);
-          const projectId = auth.app.options.projectId;
+          const projectId = auth.app.options.projectId || "unknown-project";
           if (!methods || methods.length === 0) {
             setError(
               `No account found for this email in this Firebase project${projectId ? ` (${projectId})` : ""}.`,
