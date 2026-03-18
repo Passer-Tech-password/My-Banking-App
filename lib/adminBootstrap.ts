@@ -45,7 +45,8 @@ export async function resolveBootstrapAdminEmail(params: {
   currentEmail: string;
   envBootstrapEmail: string;
 }): Promise<string> {
-  const currentEmail = (params.currentEmail || "").trim().toLowerCase();
+  const currentEmailRaw = (params.currentEmail || "").trim();
+  const currentEmail = currentEmailRaw.toLowerCase();
   const envBootstrapEmail = (params.envBootstrapEmail || "").trim().toLowerCase();
 
   const securityRef = doc(params.db, "config", "security");
@@ -89,7 +90,7 @@ export async function resolveBootstrapAdminEmail(params: {
 
   try {
     await setDoc(securityRef, {
-      bootstrapAdminEmail: currentEmail,
+      bootstrapAdminEmail: currentEmailRaw,
       createdAt: serverTimestamp(),
       updatedAt: serverTimestamp(),
     });

@@ -59,6 +59,8 @@ export default function AdminLoginPage() {
       );
       const user = userCredential.user;
 
+      await user.reload();
+
       if (!user.emailVerified) {
         toast.info("Please verify your email to access the admin portal.");
         router.replace(`/verify-email?next=${encodeURIComponent("/admin/dashboard")}`);
@@ -67,12 +69,13 @@ export default function AdminLoginPage() {
 
       await user.getIdToken(true);
 
-      const currentEmail = (user.email || "").trim().toLowerCase();
+      const currentEmailRaw = (user.email || "").trim();
+      const currentEmail = currentEmailRaw.toLowerCase();
       let bootstrapEmail = "";
       try {
         bootstrapEmail = await resolveBootstrapAdminEmail({
           db,
-          currentEmail,
+          currentEmail: currentEmailRaw,
           envBootstrapEmail: (process.env.NEXT_PUBLIC_ADMIN_EMAIL || "").trim().toLowerCase(),
         });
       } catch (e: any) {
@@ -82,7 +85,7 @@ export default function AdminLoginPage() {
             await new Promise((r) => setTimeout(r, 750));
             bootstrapEmail = await resolveBootstrapAdminEmail({
               db,
-              currentEmail,
+              currentEmail: currentEmailRaw,
               envBootstrapEmail: (process.env.NEXT_PUBLIC_ADMIN_EMAIL || "").trim().toLowerCase(),
             });
           } catch (retryError) {
