@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { onAuthStateChanged, signOut } from "firebase/auth";
-import { doc, getDoc } from "firebase/firestore";
+import { doc, onSnapshot } from "firebase/firestore";
 import { auth, db } from "@/lib/firebase";
 import {
   Bars3Icon,
@@ -29,30 +29,50 @@ export default function AdminHeader({ onMobileMenuClick }: { onMobileMenuClick?:
   };
 
   useEffect(() => {
+    let profileUnsub: null | (() => void) = null;
     const unsub = onAuthStateChanged(auth, async (user) => {
+      if (profileUnsub) {
+        profileUnsub();
+        profileUnsub = null;
+      }
       if (!user) {
         setDisplayName("Administrator");
         setAvatarUrl("");
         return;
       }
-      try {
-        const snap = await getDoc(doc(db, "users", user.uid));
-        const data = snap.exists() ? (snap.data() as any) : null;
-        const name =
-          String(data?.displayName || "").trim() ||
-          String(user.displayName || "").trim() ||
-          String(user.email || "").trim() ||
-          "Administrator";
-        const image = String(data?.image || "").trim() || String(user.photoURL || "").trim();
-        setDisplayName(name);
-        setAvatarUrl(image);
-      } catch (e) {
-        setDisplayName(String(user.displayName || user.email || "Administrator").trim());
-        setAvatarUrl(String(user.photoURL || "").trim());
-      }
+
+      const authName =
+        String(user.displayName || "").trim() ||
+        String(user.email || "").trim() ||
+        "Administrator";
+      const authImage = String(user.photoURL || "").trim();
+      setDisplayName(authName);
+      setAvatarUrl(authImage);
+
+      profileUnsub = onSnapshot(
+        doc(db, "users", user.uid),
+        (snap) => {
+          const data = snap.exists() ? (snap.data() as any) : null;
+          const name =
+            String(data?.displayName || "").trim() ||
+            authName;
+          const image =
+            String(data?.image || "").trim() ||
+            authImage;
+          setDisplayName(name);
+          setAvatarUrl(image);
+        },
+        () => {
+          setDisplayName(authName);
+          setAvatarUrl(authImage);
+        },
+      );
     });
 
-    return () => unsub();
+    return () => {
+      if (profileUnsub) profileUnsub();
+      unsub();
+    };
   }, []);
 
   const initials = (displayName || "A")
