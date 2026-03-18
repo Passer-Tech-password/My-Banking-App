@@ -6,6 +6,7 @@ export class BootstrapAdminError extends Error {
     | "invalid_config"
     | "missing_env"
     | "email_mismatch"
+    | "read_failed"
     | "init_failed";
 
   constructor(
@@ -14,12 +15,26 @@ export class BootstrapAdminError extends Error {
       | "invalid_config"
       | "missing_env"
       | "email_mismatch"
+      | "read_failed"
       | "init_failed",
     message: string,
   ) {
     super(message);
     this.code = code;
   }
+}
+
+export function isBootstrapAdminError(value: unknown): value is BootstrapAdminError {
+  const code = (value as any)?.code;
+  return (
+    typeof (value as any)?.message === "string" &&
+    (code === "missing_config" ||
+      code === "invalid_config" ||
+      code === "missing_env" ||
+      code === "email_mismatch" ||
+      code === "read_failed" ||
+      code === "init_failed")
+  );
 }
 
 export async function resolveBootstrapAdminEmail(params: {
@@ -31,7 +46,16 @@ export async function resolveBootstrapAdminEmail(params: {
   const envBootstrapEmail = (params.envBootstrapEmail || "").trim().toLowerCase();
 
   const securityRef = doc(params.db, "config", "security");
-  const securitySnap = await getDoc(securityRef);
+  let securitySnap;
+  try {
+    securitySnap = await getDoc(securityRef);
+  } catch (e: any) {
+    const code = e?.code ? String(e.code) : "unknown";
+    throw new BootstrapAdminError(
+      "read_failed",
+      `Failed to read admin bootstrap config (${code}). Check Firestore rules and network.`,
+    );
+  }
 
   if (securitySnap.exists()) {
     const value = (securitySnap.data() as unknown as { bootstrapAdminEmail?: unknown })

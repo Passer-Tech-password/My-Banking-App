@@ -8,7 +8,7 @@ import { auth, db } from "@/lib/firebase";
 import { doc, getDoc, serverTimestamp, setDoc } from "firebase/firestore";
 import { useToast } from "@/components/ToastProvider";
 import { parseUserRole } from "@/lib/roles";
-import { BootstrapAdminError, resolveBootstrapAdminEmail } from "@/lib/adminBootstrap";
+import { isBootstrapAdminError, resolveBootstrapAdminEmail } from "@/lib/adminBootstrap";
 
 export default function AdminLoginPage() {
   const router = useRouter();
@@ -70,11 +70,10 @@ export default function AdminLoginPage() {
         });
       } catch (e: any) {
         console.error("Bootstrap config error:", e);
-        if (e instanceof BootstrapAdminError) {
-          setError(e.message);
-        } else {
-          setError("Admin bootstrap config error.");
-        }
+        const code = e?.code ? String(e.code) : undefined;
+        if (isBootstrapAdminError(e)) setError(e.message);
+        else if (e?.code) setError(`Admin bootstrap config error (${code}).`);
+        else setError("Admin bootstrap config error.");
         await signOut(auth);
         return;
       }
