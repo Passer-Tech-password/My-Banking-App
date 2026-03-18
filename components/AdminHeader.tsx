@@ -62,7 +62,11 @@ export default function AdminHeader({ onMobileMenuClick }: { onMobileMenuClick?:
           setDisplayName(name);
           setAvatarUrl(image);
         },
-        () => {
+        (error) => {
+          console.error("Firestore access error:", {
+            code: (error as any)?.code,
+            message: (error as any)?.message,
+          });
           setDisplayName(authName);
           setAvatarUrl(authImage);
         },
