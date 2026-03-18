@@ -3,11 +3,14 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { signInWithEmailAndPassword } from "firebase/auth";
+import { fetchSignInMethodsForEmail, signInWithEmailAndPassword } from "firebase/auth";
 import { auth } from "@/lib/firebase";
+import { db } from "@/lib/firebase";
+import { doc, getDoc, serverTimestamp, setDoc } from "firebase/firestore";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { useToast } from "@/components/ToastProvider";
+import { parseUserRole } from "@/lib/roles";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -29,29 +32,65 @@ export default function LoginPage() {
     setError("");
     setLoading(true);
 
+    const email = formData.email.trim().toLowerCase();
+
     try {
-      const email = formData.email.trim().toLowerCase();
       const cred = await signInWithEmailAndPassword(auth, email, formData.password);
       if (!cred.user.emailVerified) {
         toast.info("Please verify your email to continue.");
         router.push("/verify-email");
         return;
       }
+      try {
+        const userRef = doc(db, "users", cred.user.uid);
+        const snap = await getDoc(userRef);
+        if (!snap.exists()) {
+          await setDoc(userRef, {
+            email: cred.user.email ?? email,
+            role: "user",
+            blocked: false,
+            createdAt: serverTimestamp(),
+            updatedAt: serverTimestamp(),
+            balance: 0,
+          });
+        } else {
+          const role = parseUserRole(((snap.data() as unknown) as { role?: unknown })?.role);
+          if (role === "admin") {
+            router.push("/admin/dashboard");
+            return;
+          }
+        }
+      } catch (profileError) {
+        console.error(profileError);
+      }
       toast.success("Signed in successfully");
       router.push("/dashboard");
     } catch (err: any) {
       console.error(err);
       let message = "Invalid credentials. Please try again.";
-      if (err.code === 'auth/invalid-credential') {
-        message = "Invalid email or password.";
-      } else if (err.code === 'auth/user-not-found') {
+      if (err.code === "auth/invalid-credential") {
+        try {
+          const methods = await fetchSignInMethodsForEmail(auth, email);
+          const projectId = auth.app.options.projectId || "unknown-project";
+          if (!methods || methods.length === 0) {
+            message = `No account found for this email in this Firebase project (${projectId}).`;
+          } else if (methods.includes("password")) {
+            message = "Invalid email or password. Use 'Forgot password?' to reset.";
+          } else {
+            message = `This email uses a different sign-in method (${methods.join(", ")}).`;
+          }
+        } catch (methodsError) {
+          console.error(methodsError);
+          message = "Invalid email or password.";
+        }
+      } else if (err.code === "auth/user-not-found") {
         message = "No user found with this email.";
-      } else if (err.code === 'auth/wrong-password') {
+      } else if (err.code === "auth/wrong-password") {
         message = "Incorrect password.";
-      } else if (err.code === 'auth/too-many-requests') {
+      } else if (err.code === "auth/too-many-requests") {
         message = "Too many failed attempts. Please try again later.";
       }
-      
+
       setError(message);
       toast.error(message);
     } finally {

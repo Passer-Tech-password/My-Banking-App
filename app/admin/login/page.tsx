@@ -59,7 +59,19 @@ export default function AdminLoginPage() {
       );
       const user = userCredential.user;
 
-      await user.reload();
+      try {
+        await user.reload();
+      } catch (reloadError: any) {
+        console.error("Failed to reload user:", reloadError);
+        const code = reloadError?.code ? String(reloadError.code) : undefined;
+        if (code) setLastErrorCode(code);
+        else setLastErrorCode("auth/network-request-failed");
+        setError(
+          "Network error while contacting Firebase. Disable VPN/ad blockers, try another network, and ensure your domain is added in Firebase Auth → Settings → Authorized domains. (auth/network-request-failed)",
+        );
+        await signOut(auth);
+        return;
+      }
 
       if (!user.emailVerified) {
         toast.info("Please verify your email to access the admin portal.");

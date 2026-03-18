@@ -124,7 +124,10 @@ export default function DashboardPage() {
 
         if (!snap.exists()) {
           await setDoc(userRef, {
+            email: user.email ?? "",
             balance: 0,
+            role: "user",
+            blocked: false,
             createdAt: serverTimestamp(),
           });
         } else {

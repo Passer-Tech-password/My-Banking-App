@@ -1,15 +1,73 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { onAuthStateChanged } from "firebase/auth";
+import { doc, getDoc } from "firebase/firestore";
 import AdminSidebar from "@/components/AdminSidebar";
 import AdminHeader from "@/components/AdminHeader";
+import { auth, db } from "@/lib/firebase";
+import { parseUserRole } from "@/lib/roles";
 
 export default function AdminLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const router = useRouter();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [guardLoading, setGuardLoading] = useState(true);
+  const [authorized, setAuthorized] = useState(false);
+
+  useEffect(() => {
+    const unsub = onAuthStateChanged(auth, async (user) => {
+      setAuthorized(false);
+
+      if (!user) {
+        setGuardLoading(false);
+        router.replace("/admin/login");
+        return;
+      }
+
+      if (!user.emailVerified) {
+        setGuardLoading(false);
+        router.replace(`/verify-email?next=${encodeURIComponent("/admin/dashboard")}`);
+        return;
+      }
+
+      try {
+        const profileSnap = await getDoc(doc(db, "users", user.uid));
+        const role = profileSnap.exists()
+          ? parseUserRole(((profileSnap.data() as unknown) as { role?: unknown })?.role)
+          : null;
+        if (!profileSnap.exists() || role !== "admin") {
+          setGuardLoading(false);
+          router.replace("/admin/login");
+          return;
+        }
+      } catch (error) {
+        console.error("Error verifying admin user:", error);
+        setGuardLoading(false);
+        router.replace("/admin/login");
+        return;
+      }
+
+      setAuthorized(true);
+      setGuardLoading(false);
+    });
+
+    return () => unsub();
+  }, [router]);
+
+  if (guardLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+      </div>
+    );
+  }
+
+  if (!authorized) return null;
 
   return (
     <div className="flex min-h-screen bg-gray-50 overflow-x-hidden">
