@@ -8,6 +8,7 @@ export class BootstrapAdminError extends Error {
     | "email_mismatch"
     | "read_failed"
     | "init_failed";
+  causeCode?: string;
 
   constructor(
     code:
@@ -18,9 +19,11 @@ export class BootstrapAdminError extends Error {
       | "read_failed"
       | "init_failed",
     message: string,
+    causeCode?: string,
   ) {
     super(message);
     this.code = code;
+    this.causeCode = causeCode;
   }
 }
 
@@ -54,6 +57,7 @@ export async function resolveBootstrapAdminEmail(params: {
     throw new BootstrapAdminError(
       "read_failed",
       `Failed to read admin bootstrap config (${code}). Check Firestore rules and network.`,
+      code,
     );
   }
 
@@ -95,6 +99,7 @@ export async function resolveBootstrapAdminEmail(params: {
     throw new BootstrapAdminError(
       "init_failed",
       `Admin bootstrap config is missing and could not be initialized (${code}).`,
+      code,
     );
   }
 }

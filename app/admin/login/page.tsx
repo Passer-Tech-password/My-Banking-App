@@ -76,6 +76,19 @@ export default function AdminLoginPage() {
           envBootstrapEmail: (process.env.NEXT_PUBLIC_ADMIN_EMAIL || "").trim().toLowerCase(),
         });
       } catch (e: any) {
+        if (isBootstrapAdminError(e) && e.code === "read_failed" && e.causeCode === "permission-denied") {
+          try {
+            await user.getIdToken(true);
+            await new Promise((r) => setTimeout(r, 750));
+            bootstrapEmail = await resolveBootstrapAdminEmail({
+              db,
+              currentEmail,
+              envBootstrapEmail: (process.env.NEXT_PUBLIC_ADMIN_EMAIL || "").trim().toLowerCase(),
+            });
+          } catch (retryError) {
+            e = retryError;
+          }
+        }
         console.error("Bootstrap config error:", e);
         const code = e?.code ? String(e.code) : undefined;
         if (isBootstrapAdminError(e)) setError(e.message);
