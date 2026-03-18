@@ -59,32 +59,30 @@ export default function ProfilePage() {
       setLoading(true);
       const userRef = doc(db, "users", user.uid);
       const snap = await getDoc(userRef);
+      const patch: Record<string, unknown> = {
+        displayName: formData.displayName,
+        phone: formData.phone,
+        address: formData.address,
+        image: formData.image,
+        updatedAt: serverTimestamp(),
+      };
+
       if (!snap.exists()) {
-        await setDoc(userRef, {
-          email: user.email ?? "",
-          role: "user",
-          blocked: false,
-          balance: 0,
-          createdAt: serverTimestamp(),
-          updatedAt: serverTimestamp(),
-          displayName: formData.displayName,
-          phone: formData.phone,
-          address: formData.address,
-          image: formData.image,
-        });
+        patch.email = user.email ?? "";
+        patch.role = "user";
+        patch.blocked = false;
+        patch.balance = 0;
+        patch.createdAt = serverTimestamp();
       } else {
-        await setDoc(
-          userRef,
-          {
-            displayName: formData.displayName,
-            phone: formData.phone,
-            address: formData.address,
-            image: formData.image,
-            updatedAt: serverTimestamp(),
-          },
-          { merge: true },
-        );
+        const data = snap.data() as Record<string, unknown>;
+        if (!("email" in data)) patch.email = user.email ?? "";
+        if (!("role" in data)) patch.role = "user";
+        if (!("blocked" in data)) patch.blocked = false;
+        if (!("balance" in data)) patch.balance = 0;
+        if (!("createdAt" in data)) patch.createdAt = serverTimestamp();
       }
+
+      await setDoc(userRef, patch, { merge: true });
 
       if (user.displayName !== formData.displayName || user.photoURL !== formData.image) {
         await updateProfile(user, { 
