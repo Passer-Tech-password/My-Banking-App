@@ -7,7 +7,7 @@ import { fetchSignInMethodsForEmail, signInWithEmailAndPassword, signOut } from 
 import { auth, db } from "@/lib/firebase";
 import { doc, getDoc } from "firebase/firestore";
 import { useToast } from "@/components/ToastProvider";
-import { parseUserRole } from "@/lib/roles";
+import { isAdminUserData, parseUserRole } from "@/lib/roles";
 import { isBootstrapAdminError, resolveBootstrapAdminEmail } from "@/lib/adminBootstrap";
 
 export default function AdminLoginPage() {
@@ -85,12 +85,14 @@ export default function AdminLoginPage() {
       const currentEmailRaw = (user.email || "").trim();
       const currentEmail = currentEmailRaw.toLowerCase();
       let bootstrapEmail = "";
+      let bootstrapIsAdmin = false;
       try {
         const result = await resolveBootstrapAdminEmail({
           idToken,
           currentEmail: currentEmailRaw,
         });
         bootstrapEmail = result.bootstrapAdminEmail;
+        bootstrapIsAdmin = result.isBootstrapAdmin;
       } catch (e: any) {
         console.error("Bootstrap config error:", e);
         const code = e?.code ? String(e.code) : undefined;
@@ -101,13 +103,14 @@ export default function AdminLoginPage() {
         return;
       }
 
-      const isBootstrapAdmin = currentEmail === bootstrapEmail;
+      const isBootstrapAdmin = bootstrapIsAdmin || currentEmail === bootstrapEmail;
 
       const userDoc = await getDoc(doc(db, "users", user.uid));
 
       if (userDoc.exists()) {
         const userData = userDoc.data() as {
           role?: string;
+          isAdmin?: boolean;
           blocked?: boolean | string;
           [key: string]: any;
         };
@@ -119,13 +122,12 @@ export default function AdminLoginPage() {
           return;
         }
         const role = parseUserRole(userData.role);
-        if (role === "admin") {
+        if (role === "admin" || isAdminUserData(userData)) {
           router.replace("/admin/dashboard");
           return;
         } else {
           if (isBootstrapAdmin) {
-            setError("Admin role not initialized yet. Please try signing in again.");
-            await signOut(auth);
+            router.replace("/admin/dashboard");
             return;
           }
           setError(`Access denied. Not an admin account. (role=${String(userData.role || "unknown")})`);
@@ -133,8 +135,7 @@ export default function AdminLoginPage() {
         }
       } else {
         if (isBootstrapAdmin) {
-          setError("Admin profile is initializing. Please sign in again.");
-          await signOut(auth);
+          router.replace("/admin/dashboard");
           return;
         }
         setError(`Access denied. No user profile found. (uid=${user.uid})`);

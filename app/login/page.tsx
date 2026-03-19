@@ -10,7 +10,7 @@ import { doc, getDoc, serverTimestamp, setDoc } from "firebase/firestore";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { useToast } from "@/components/ToastProvider";
-import { parseUserRole } from "@/lib/roles";
+import { isAdminUserData, parseUserRole } from "@/lib/roles";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -54,8 +54,9 @@ export default function LoginPage() {
             balance: 0,
           });
         } else {
-          const role = parseUserRole(((snap.data() as unknown) as { role?: unknown })?.role);
-          if (role === "admin") {
+          const data = snap.data() as unknown;
+          const role = parseUserRole((data as { role?: unknown } | null)?.role);
+          if (role === "admin" || isAdminUserData(data)) {
             router.push("/admin/dashboard");
             return;
           }

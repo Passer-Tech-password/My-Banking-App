@@ -23,7 +23,7 @@ import {
 import { db, auth } from "@/lib/firebase";
 import { Transaction } from "@/lib/Transaction";
 import { useToast } from "@/components/ToastProvider";
-import { parseUserRole } from "@/lib/roles";
+import { isAdminUserData } from "@/lib/roles";
 import { 
   ArrowDownLeftIcon, 
   ArrowUpRightIcon, 
@@ -65,10 +65,8 @@ export default function AdminTransactionsPage() {
       try {
         setError(null);
         const profileSnap = await getDoc(doc(db, "users", user.uid));
-        const role = profileSnap.exists()
-          ? parseUserRole(((profileSnap.data() as unknown) as { role?: unknown })?.role)
-          : null;
-        if (!profileSnap.exists() || role !== "admin") {
+        const data = profileSnap.exists() ? (profileSnap.data() as unknown) : null;
+        if (!profileSnap.exists() || !isAdminUserData(data)) {
           setAuthChecking(false);
           router.push("/admin/login");
           return;

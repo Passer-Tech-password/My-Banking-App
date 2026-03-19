@@ -27,6 +27,12 @@ function jsonError(status: number, code: ApiErrorCode, message: string, causeCod
 
 export async function POST(req: Request) {
   try {
+    let requestEmail: string | null = null;
+    try {
+      const body = (await req.json().catch(() => null)) as null | { email?: unknown };
+      if (body && typeof body.email === "string") requestEmail = body.email.trim().toLowerCase();
+    } catch {}
+
     const authHeader = req.headers.get("authorization") || req.headers.get("Authorization") || "";
     const match = authHeader.match(/^Bearer\s+(.+)$/i);
     const idToken = match?.[1];
@@ -42,6 +48,9 @@ export async function POST(req: Request) {
     }
     if (!emailVerified) {
       return jsonError(403, "unauthorized", "Email must be verified to access admin bootstrap.");
+    }
+    if (requestEmail && requestEmail !== tokenEmail) {
+      return jsonError(403, "email_mismatch", "Email mismatch between request and authenticated user.");
     }
 
     const envBootstrapEmail = String(process.env.NEXT_PUBLIC_ADMIN_EMAIL || "").trim().toLowerCase();
@@ -127,4 +136,3 @@ export async function POST(req: Request) {
     return jsonError(500, "internal_error", message, causeCode);
   }
 }
-

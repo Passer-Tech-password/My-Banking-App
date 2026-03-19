@@ -7,7 +7,7 @@ import { doc, getDoc } from "firebase/firestore";
 import AdminSidebar from "@/components/AdminSidebar";
 import AdminHeader from "@/components/AdminHeader";
 import { auth, db } from "@/lib/firebase";
-import { parseUserRole } from "@/lib/roles";
+import { isAdminUserData } from "@/lib/roles";
 
 export default function AdminLayout({
   children,
@@ -37,10 +37,8 @@ export default function AdminLayout({
 
       try {
         const profileSnap = await getDoc(doc(db, "users", user.uid));
-        const role = profileSnap.exists()
-          ? parseUserRole(((profileSnap.data() as unknown) as { role?: unknown })?.role)
-          : null;
-        if (!profileSnap.exists() || role !== "admin") {
+        const data = profileSnap.exists() ? (profileSnap.data() as unknown) : null;
+        if (!profileSnap.exists() || !isAdminUserData(data)) {
           setGuardLoading(false);
           router.replace("/admin/login");
           return;
