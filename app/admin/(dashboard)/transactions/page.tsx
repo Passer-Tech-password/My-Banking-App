@@ -16,6 +16,8 @@ import {
   increment,
   serverTimestamp,
   documentId,
+  type DocumentData,
+  type Query,
   type QueryDocumentSnapshot,
 } from "firebase/firestore";
 import { db, auth } from "@/lib/firebase";
@@ -248,10 +250,10 @@ export default function AdminTransactionsPage() {
       const col = collection(db, "transactions");
       let last: QueryDocumentSnapshot | null = null;
       while (true) {
-        const q = last
+        const txQ: Query<DocumentData> = last
           ? query(col, orderBy("date", "desc"), startAfter(last), limit(500))
           : query(col, orderBy("date", "desc"), limit(500));
-        const snap = await getDocs(q);
+        const snap = await getDocs(txQ);
         if (snap.empty) break;
         const batch = writeBatch(db);
         snap.docs.forEach((d) => batch.delete(d.ref));
@@ -263,10 +265,10 @@ export default function AdminTransactionsPage() {
       const usersCol = collection(db, "users");
       let lastUser: QueryDocumentSnapshot | null = null;
       while (true) {
-        const uq = lastUser
+        const usersQ: Query<DocumentData> = lastUser
           ? query(usersCol, orderBy(documentId()), startAfter(lastUser), limit(500))
           : query(usersCol, orderBy(documentId()), limit(500));
-        const usersSnap = await getDocs(uq);
+        const usersSnap = await getDocs(usersQ);
         if (usersSnap.empty) break;
         const batch = writeBatch(db);
         usersSnap.docs.forEach((d) => {
