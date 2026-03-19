@@ -5,10 +5,11 @@ import { useRouter } from "next/navigation";
 import { User } from "@/lib/User";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import { createUserWithEmailAndPassword, sendEmailVerification } from "firebase/auth";
+import { createUserWithEmailAndPassword, sendEmailVerification, updateProfile } from "firebase/auth";
 import { auth, db } from "@/lib/firebase";
 import { doc, setDoc, serverTimestamp } from "firebase/firestore";
 import { useToast } from "@/components/ToastProvider";
+import ImageUpload from "@/components/ImageUpload";
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -30,6 +31,7 @@ export default function RegisterPage() {
     ssnPin: "",
     password: "",
     confirmPassword: "",
+    profileImage: "",
     passport: null as File | null,
   };
   const [formData, setFormData] = useState(initialFormData);
@@ -70,6 +72,14 @@ export default function RegisterPage() {
       // 1. Create User in Firebase Auth
       const userCredential = await createUserWithEmailAndPassword(auth, email, formData.password);
       const uid = userCredential.user.uid;
+      const displayName = `${formData.firstName} ${formData.lastName}`.trim();
+
+      if (displayName || formData.profileImage) {
+        await updateProfile(userCredential.user, {
+          displayName: displayName || undefined,
+          photoURL: formData.profileImage || undefined,
+        });
+      }
 
       // 2. Create user object using the Builder pattern
       const newUser = User.builder()
@@ -88,7 +98,7 @@ export default function RegisterPage() {
         .setCurrency(formData.currency)
         .setSsnPin(formData.ssnPin)
         .setRole("user") // Default role
-        // Note: In a real app, upload file to storage and get URL
+        .setImage(formData.profileImage)
         .setPassportUrl(formData.passport ? formData.passport.name : "") 
         .build();
 
@@ -99,6 +109,7 @@ export default function RegisterPage() {
       await setDoc(doc(db, "users", uid), {
           ...userData,
           createdAt: serverTimestamp(),
+          updatedAt: serverTimestamp(),
           balance: 0, // Initialize balance
           blocked: false
       });
@@ -107,7 +118,7 @@ export default function RegisterPage() {
         doc(db, "publicUsers", uid),
         {
           email,
-          name: `${formData.firstName} ${formData.lastName}`.trim(),
+          name: displayName,
           createdAt: serverTimestamp(),
           updatedAt: serverTimestamp(),
         },
@@ -144,6 +155,14 @@ export default function RegisterPage() {
           <h3 className="font-semibold mb-3">Personal Details</h3>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="flex flex-col gap-2 md:col-span-1">
+              <span className="text-sm font-medium text-gray-700">Profile Photo</span>
+              <ImageUpload
+                value={formData.profileImage}
+                onChange={(src) => setFormData((prev) => ({ ...prev, profileImage: src }))}
+                disabled={loading}
+              />
+            </div>
             <input
               name="firstName"
               placeholder="First Name"

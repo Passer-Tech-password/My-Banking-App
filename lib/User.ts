@@ -15,6 +15,7 @@ export class User {
   ssnPin: string;
   password?: string;
   passportUrl?: string;
+  image?: string;
   role: "user" | "admin";
 
   constructor(builder: UserBuilder) {
@@ -34,6 +35,7 @@ export class User {
     this.ssnPin = builder.ssnPin;
     this.password = builder.password;
     this.passportUrl = builder.passportUrl;
+    this.image = builder.image;
     this.role = builder.role;
   }
 
@@ -59,6 +61,7 @@ export class UserBuilder {
   ssnPin: string = "";
   password?: string;
   passportUrl?: string;
+  image?: string;
   role: "user" | "admin" = "user";
 
   setFirstName(firstName: string): UserBuilder {
@@ -138,6 +141,11 @@ export class UserBuilder {
 
   setPassportUrl(passportUrl: string): UserBuilder {
     this.passportUrl = passportUrl;
+    return this;
+  }
+
+  setImage(image: string): UserBuilder {
+    this.image = image;
     return this;
   }
 
