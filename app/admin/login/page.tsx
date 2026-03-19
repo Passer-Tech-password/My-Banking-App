@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { fetchSignInMethodsForEmail, signInWithEmailAndPassword, signOut } from "firebase/auth";
 import { auth, db } from "@/lib/firebase";
-import { doc, getDoc, serverTimestamp, setDoc } from "firebase/firestore";
+import { doc, getDoc } from "firebase/firestore";
 import { useToast } from "@/components/ToastProvider";
 import { parseUserRole } from "@/lib/roles";
 import { isBootstrapAdminError, resolveBootstrapAdminEmail } from "@/lib/adminBootstrap";
@@ -80,30 +80,18 @@ export default function AdminLoginPage() {
       }
 
       await user.getIdToken(true);
+      const idToken = await user.getIdToken();
 
       const currentEmailRaw = (user.email || "").trim();
       const currentEmail = currentEmailRaw.toLowerCase();
       let bootstrapEmail = "";
       try {
-        bootstrapEmail = await resolveBootstrapAdminEmail({
-          db,
+        const result = await resolveBootstrapAdminEmail({
+          idToken,
           currentEmail: currentEmailRaw,
-          envBootstrapEmail: (process.env.NEXT_PUBLIC_ADMIN_EMAIL || "").trim().toLowerCase(),
         });
+        bootstrapEmail = result.bootstrapAdminEmail;
       } catch (e: any) {
-        if (isBootstrapAdminError(e) && e.code === "read_failed" && e.causeCode === "permission-denied") {
-          try {
-            await user.getIdToken(true);
-            await new Promise((r) => setTimeout(r, 750));
-            bootstrapEmail = await resolveBootstrapAdminEmail({
-              db,
-              currentEmail: currentEmailRaw,
-              envBootstrapEmail: (process.env.NEXT_PUBLIC_ADMIN_EMAIL || "").trim().toLowerCase(),
-            });
-          } catch (retryError) {
-            e = retryError;
-          }
-        }
         console.error("Bootstrap config error:", e);
         const code = e?.code ? String(e.code) : undefined;
         if (isBootstrapAdminError(e)) setError(e.message);
@@ -136,39 +124,17 @@ export default function AdminLoginPage() {
           return;
         } else {
           if (isBootstrapAdmin) {
-            try {
-              await setDoc(
-                doc(db, "users", user.uid),
-                {
-                  role: "admin",
-                  updatedAt: serverTimestamp(),
-                },
-                { merge: true },
-              );
-              router.replace("/admin/dashboard");
-              return;
-            } catch (promoteError: any) {
-              console.error("Admin promotion failed:", promoteError);
-              setError(
-                `Access denied (role=${String(userData.role || "unknown")}). Promotion failed (${promoteError?.code || "unknown"}).`,
-              );
-              await signOut(auth);
-              return;
-            }
+            setError("Admin role not initialized yet. Please try signing in again.");
+            await signOut(auth);
+            return;
           }
           setError(`Access denied. Not an admin account. (role=${String(userData.role || "unknown")})`);
           await signOut(auth);
         }
       } else {
         if (isBootstrapAdmin) {
-          await setDoc(doc(db, "users", user.uid), {
-            email: currentEmail,
-            role: "admin",
-            blocked: false,
-            createdAt: serverTimestamp(),
-            updatedAt: serverTimestamp(),
-          });
-          router.replace("/admin/dashboard");
+          setError("Admin profile is initializing. Please sign in again.");
+          await signOut(auth);
           return;
         }
         setError(`Access denied. No user profile found. (uid=${user.uid})`);

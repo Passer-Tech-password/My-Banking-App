@@ -1,23 +1,19 @@
-import { doc, getDoc, serverTimestamp, setDoc, type Firestore } from "firebase/firestore";
-
 export class BootstrapAdminError extends Error {
   code:
-    | "missing_config"
     | "invalid_config"
     | "missing_env"
     | "email_mismatch"
-    | "read_failed"
-    | "init_failed";
+    | "unauthorized"
+    | "request_failed";
   causeCode?: string;
 
   constructor(
     code:
-      | "missing_config"
       | "invalid_config"
       | "missing_env"
       | "email_mismatch"
-      | "read_failed"
-      | "init_failed",
+      | "unauthorized"
+      | "request_failed",
     message: string,
     causeCode?: string,
   ) {
@@ -31,76 +27,52 @@ export function isBootstrapAdminError(value: unknown): value is BootstrapAdminEr
   const code = (value as any)?.code;
   return (
     typeof (value as any)?.message === "string" &&
-    (code === "missing_config" ||
-      code === "invalid_config" ||
+    (code === "invalid_config" ||
       code === "missing_env" ||
       code === "email_mismatch" ||
-      code === "read_failed" ||
-      code === "init_failed")
+      code === "unauthorized" ||
+      code === "request_failed")
   );
 }
 
 export async function resolveBootstrapAdminEmail(params: {
-  db: Firestore;
+  idToken: string;
   currentEmail: string;
-  envBootstrapEmail: string;
-}): Promise<string> {
-  const currentEmailRaw = (params.currentEmail || "").trim();
-  const currentEmail = currentEmailRaw.toLowerCase();
-  const envBootstrapEmail = (params.envBootstrapEmail || "").trim().toLowerCase();
+}): Promise<{ bootstrapAdminEmail: string; isBootstrapAdmin: boolean; userPromoted?: boolean }> {
+  const res = await fetch("/api/admin/bootstrap", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${params.idToken}`,
+    },
+    body: JSON.stringify({ email: params.currentEmail }),
+  });
 
-  const securityRef = doc(params.db, "config", "security");
-  let securitySnap;
-  try {
-    securitySnap = await getDoc(securityRef);
-  } catch (e: any) {
-    const code = e?.code ? String(e.code) : "unknown";
-    throw new BootstrapAdminError(
-      "read_failed",
-      `Failed to read admin bootstrap config (${code}). Check Firestore rules and network.`,
-      code,
-    );
-  }
+  const data = (await res.json().catch(() => null)) as any;
 
-  if (securitySnap.exists()) {
-    const value = (securitySnap.data() as unknown as { bootstrapAdminEmail?: unknown })
-      ?.bootstrapAdminEmail;
-    if (typeof value === "string" && value.trim()) {
-      return value.trim().toLowerCase();
+  if (!res.ok) {
+    const code = String(data?.error?.code || "request_failed");
+    const message = String(data?.error?.message || `Admin bootstrap failed (${res.status}).`);
+    const causeCode = data?.error?.causeCode ? String(data.error.causeCode) : undefined;
+    if (
+      code === "missing_env" ||
+      code === "email_mismatch" ||
+      code === "invalid_config" ||
+      code === "unauthorized"
+    ) {
+      throw new BootstrapAdminError(code as any, message, causeCode);
     }
-    throw new BootstrapAdminError(
-      "invalid_config",
-      "Admin bootstrap config is invalid. Set config/security.bootstrapAdminEmail.",
-    );
+    throw new BootstrapAdminError("request_failed", message, causeCode);
   }
 
-  if (!envBootstrapEmail) {
-    throw new BootstrapAdminError(
-      "missing_env",
-      "Admin bootstrap is not configured. Set NEXT_PUBLIC_ADMIN_EMAIL or create config/security.",
-    );
+  const bootstrapAdminEmail = String(data?.bootstrapAdminEmail || "").trim().toLowerCase();
+  if (!bootstrapAdminEmail) {
+    throw new BootstrapAdminError("invalid_config", "Admin bootstrap config is invalid.");
   }
 
-  if (!currentEmail || currentEmail !== envBootstrapEmail) {
-    throw new BootstrapAdminError(
-      "email_mismatch",
-      "Email does not match bootstrap admin configuration. Sign in with NEXT_PUBLIC_ADMIN_EMAIL or create config/security.",
-    );
-  }
-
-  try {
-    await setDoc(securityRef, {
-      bootstrapAdminEmail: currentEmailRaw,
-      createdAt: serverTimestamp(),
-      updatedAt: serverTimestamp(),
-    });
-    return currentEmail;
-  } catch (e: any) {
-    const code = e?.code ? String(e.code) : "unknown";
-    throw new BootstrapAdminError(
-      "init_failed",
-      `Admin bootstrap config is missing and could not be initialized (${code}).`,
-      code,
-    );
-  }
+  return {
+    bootstrapAdminEmail,
+    isBootstrapAdmin: data?.isBootstrapAdmin === true,
+    userPromoted: data?.userPromoted === true,
+  };
 }

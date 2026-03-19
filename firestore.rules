@@ -26,7 +26,10 @@ service cloud.firestore {
     function isAdmin() {
       return signedIn()
         && exists(/databases/$(database)/documents/users/$(request.auth.uid))
-        && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == "admin";
+        && (
+          get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == "admin" ||
+          get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isAdmin == true
+        );
     }
 
     match /publicUsers/{userId} {
@@ -37,14 +40,7 @@ service cloud.firestore {
     }
 
     match /config/security {
-      allow read: if signedIn();
-      allow create: if signedIn()
-        && request.auth.token.email_verified == true
-        && !exists(/databases/$(database)/documents/config/security)
-        && request.resource.data.bootstrapAdminEmail == request.auth.token.email
-        && request.resource.data.blocked == null
-        && request.resource.data.keys().hasOnly(["bootstrapAdminEmail", "createdAt", "updatedAt"]);
-      allow update: if isAdmin();
+      allow read, create, update, delete: if false;
       allow delete: if false;
     }
 
@@ -52,24 +48,14 @@ service cloud.firestore {
       allow read: if (signedIn() && request.auth.uid == userId) || isAdmin();
       allow create: if signedIn()
         && request.auth.uid == userId
-        && (
-          request.resource.data.role == "user" ||
-          (request.resource.data.role == "admin" && isBootstrapAdmin())
-        )
+        && request.resource.data.role == "user"
         && request.resource.data.blocked == false;
       allow update: if isAdmin() || (
         signedIn()
         && request.auth.uid == userId
         && request.resource.data.role == resource.data.role
         && request.resource.data.blocked == resource.data.blocked
-      ) || (
-        isBootstrapAdmin()
-        && request.auth.uid == userId
-        && resource.data.role != "admin"
-        && request.resource.data.role == "admin"
-        && isNotBlocked(resource.data)
-        && isNotBlocked(request.resource.data)
-        && request.resource.data.diff(resource.data).changedKeys().hasOnly(["role", "updatedAt"])
+        && request.resource.data.isAdmin == resource.data.isAdmin
       );
       allow delete: if isAdmin();
 
