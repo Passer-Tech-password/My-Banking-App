@@ -13,6 +13,9 @@ import {
   getDoc,
   startAfter,
   writeBatch,
+  increment,
+  serverTimestamp,
+  documentId,
   type QueryDocumentSnapshot,
 } from "firebase/firestore";
 import { db, auth } from "@/lib/firebase";
@@ -162,12 +165,57 @@ export default function AdminTransactionsPage() {
     setSelectedIds((prev) => (prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]));
   };
 
+  const balanceDeltaFor = (tx: Transaction): number => {
+    const status = String(tx.status || "").toLowerCase();
+    const type = String(tx.type || "").toLowerCase();
+    const direction = String(tx.direction || "").toLowerCase();
+    const amount = Number(tx.amount || 0);
+
+    if (!Number.isFinite(amount) || amount <= 0) return 0;
+
+    if (status === "failed") return 0;
+
+    if (type === "deposit" || type === "credit") return -amount;
+
+    if (type === "withdrawal" || type === "debit") return amount;
+
+    if (type === "transfer") {
+      if (direction === "incoming") return -amount;
+      return amount;
+    }
+
+    return 0;
+  };
+
   const deleteSelected = async () => {
     if (selectedIds.length === 0) return;
     if (!confirm(`Delete ${selectedIds.length} selected transaction(s)? This cannot be undone.`)) return;
 
     try {
       setDeleting(true);
+      const selected = transactions.filter((t) => selectedIds.includes(t.id));
+      const deltasByUser = new Map<string, number>();
+      selected.forEach((tx) => {
+        const delta = balanceDeltaFor(tx);
+        if (!delta) return;
+        const uid = String(tx.userId || "").trim();
+        if (!uid) return;
+        deltasByUser.set(uid, (deltasByUser.get(uid) || 0) + delta);
+      });
+
+      const deltas = Array.from(deltasByUser.entries());
+      for (let i = 0; i < deltas.length; i += 500) {
+        const chunk = deltas.slice(i, i + 500);
+        const batch = writeBatch(db);
+        chunk.forEach(([uid, delta]) => {
+          batch.update(doc(db, "users", uid), {
+            balance: increment(delta),
+            updatedAt: serverTimestamp(),
+          });
+        });
+        await batch.commit();
+      }
+
       const ids = [...selectedIds];
       for (let i = 0; i < ids.length; i += 500) {
         const chunk = ids.slice(i, i + 500);
@@ -189,6 +237,7 @@ export default function AdminTransactionsPage() {
   const deleteAll = async () => {
     if (transactions.length === 0) return;
     if (!confirm("Delete ALL transaction logs? This cannot be undone.")) return;
+    if (!confirm("This will also reset ALL user balances to $0. Continue?")) return;
 
     try {
       setDeleting(true);
@@ -206,9 +255,27 @@ export default function AdminTransactionsPage() {
         last = snap.docs[snap.docs.length - 1] || null;
         if (snap.size < 500) break;
       }
+
+      const usersCol = collection(db, "users");
+      let lastUser: QueryDocumentSnapshot | null = null;
+      while (true) {
+        const uq = lastUser
+          ? query(usersCol, orderBy(documentId()), startAfter(lastUser), limit(500))
+          : query(usersCol, orderBy(documentId()), limit(500));
+        const usersSnap = await getDocs(uq);
+        if (usersSnap.empty) break;
+        const batch = writeBatch(db);
+        usersSnap.docs.forEach((d) => {
+          batch.update(d.ref, { balance: 0, updatedAt: serverTimestamp() });
+        });
+        await batch.commit();
+        lastUser = usersSnap.docs[usersSnap.docs.length - 1] || null;
+        if (usersSnap.size < 500) break;
+      }
+
       setTransactions([]);
       setSelectedIds([]);
-      toast.success("All transaction logs deleted");
+      toast.success("All transaction logs deleted and balances reset");
     } catch (e) {
       console.error("Delete all failed:", e);
       toast.error("Failed to delete all transaction logs");
