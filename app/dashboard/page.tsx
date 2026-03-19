@@ -878,12 +878,12 @@ export default function DashboardPage() {
                       <tr key={tx.id || idx} className="hover:bg-gray-50 transition-colors">
                         <td className="px-4 sm:px-6 py-4 font-medium text-gray-900">
                           <div className="flex items-center gap-3 min-w-0">
-                          <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
-                            ["deposit", "credit"].includes(tx.type) ? "bg-green-100 text-green-600" : "bg-red-100 text-red-600"
-                          }`}>
-                            {["deposit", "credit"].includes(tx.type) ? <PlusIcon className="w-4 h-4" /> : <MinusIcon className="w-4 h-4" />}
-                          </div>
-                          <span className="truncate">{tx.description || tx.type}</span>
+                            <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
+                              ["deposit", "credit"].includes(tx.type) ? "bg-green-100 text-green-600" : "bg-red-100 text-red-600"
+                            }`}>
+                              {["deposit", "credit"].includes(tx.type) ? <PlusIcon className="w-4 h-4" /> : <MinusIcon className="w-4 h-4" />}
+                            </div>
+                            <span className="truncate">{tx.description || tx.type}</span>
                           </div>
                         </td>
                         <td className="px-4 sm:px-6 py-4 whitespace-nowrap">{tx.date}</td>
