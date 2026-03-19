@@ -150,15 +150,19 @@ export default function AdminTransactionsPage() {
     }
   };
 
+  const visibleTransactionIds = transactions
+    .map((t) => t.id)
+    .filter((id): id is string => typeof id === "string" && id.length > 0);
+
   const allVisibleSelected =
-    transactions.length > 0 && selectedIds.length === transactions.length;
+    visibleTransactionIds.length > 0 && visibleTransactionIds.every((id) => selectedIds.includes(id));
 
   const toggleSelectAllVisible = () => {
     if (allVisibleSelected) {
       setSelectedIds([]);
       return;
     }
-    setSelectedIds(transactions.map((t) => t.id));
+    setSelectedIds(visibleTransactionIds);
   };
 
   const toggleSelectOne = (id: string) => {
@@ -193,7 +197,7 @@ export default function AdminTransactionsPage() {
 
     try {
       setDeleting(true);
-      const selected = transactions.filter((t) => selectedIds.includes(t.id));
+      const selected = transactions.filter((t) => !!t.id && selectedIds.includes(t.id));
       const deltasByUser = new Map<string, number>();
       selected.forEach((tx) => {
         const delta = balanceDeltaFor(tx);
@@ -223,7 +227,7 @@ export default function AdminTransactionsPage() {
         chunk.forEach((id) => batch.delete(doc(db, "transactions", id)));
         await batch.commit();
       }
-      setTransactions((prev) => prev.filter((t) => !selectedIds.includes(t.id)));
+      setTransactions((prev) => prev.filter((t) => !t.id || !selectedIds.includes(t.id)));
       setSelectedIds([]);
       toast.success("Selected transactions deleted");
     } catch (e) {
@@ -373,8 +377,8 @@ export default function AdminTransactionsPage() {
                     <td className="px-4 sm:px-6 py-4">
                       <input
                         type="checkbox"
-                        checked={selectedIds.includes(tx.id)}
-                        onChange={() => toggleSelectOne(tx.id)}
+                        checked={!!tx.id && selectedIds.includes(tx.id)}
+                        onChange={() => tx.id && toggleSelectOne(tx.id)}
                       />
                     </td>
                     <td className="px-4 sm:px-6 py-4">
