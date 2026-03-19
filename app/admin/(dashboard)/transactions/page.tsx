@@ -299,9 +299,9 @@ export default function AdminTransactionsPage() {
           {error}
         </div>
       )}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <h1 className="text-2xl font-bold text-gray-900">Transaction Logs</h1>
-        <div className="flex items-center gap-3">
+        <div className="flex flex-wrap items-center gap-3">
           <button
             onClick={deleteSelected}
             disabled={selectedIds.length === 0 || deleting}
@@ -344,7 +344,7 @@ export default function AdminTransactionsPage() {
           <table className="w-full text-left text-sm text-gray-600">
             <thead className="bg-gray-50 text-xs uppercase text-gray-500 font-semibold">
               <tr>
-                <th className="px-6 py-4">
+                <th className="px-4 sm:px-6 py-4">
                   <input
                     type="checkbox"
                     checked={allVisibleSelected}
@@ -352,32 +352,32 @@ export default function AdminTransactionsPage() {
                     disabled={transactions.length === 0}
                   />
                 </th>
-                <th className="px-6 py-4">Type</th>
-                <th className="px-6 py-4">Amount</th>
-                <th className="px-6 py-4">From / To</th>
-                <th className="px-6 py-4">Description</th>
-                <th className="px-6 py-4">Date</th>
-                <th className="px-6 py-4">Status</th>
+                <th className="px-4 sm:px-6 py-4">Type</th>
+                <th className="px-4 sm:px-6 py-4">Amount</th>
+                <th className="px-4 sm:px-6 py-4">From / To</th>
+                <th className="px-4 sm:px-6 py-4">Description</th>
+                <th className="px-4 sm:px-6 py-4">Date</th>
+                <th className="px-4 sm:px-6 py-4">Status</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
               {transactions.length === 0 ? (
                 <tr>
-                  <td colSpan={7} className="px-6 py-8 text-center text-gray-500">
+                  <td colSpan={7} className="px-4 sm:px-6 py-8 text-center text-gray-500">
                     No transactions found.
                   </td>
                 </tr>
               ) : (
                 transactions.map((tx) => (
                   <tr key={tx.id} className="hover:bg-gray-50 transition-colors">
-                    <td className="px-6 py-4">
+                    <td className="px-4 sm:px-6 py-4">
                       <input
                         type="checkbox"
                         checked={selectedIds.includes(tx.id)}
                         onChange={() => toggleSelectOne(tx.id)}
                       />
                     </td>
-                    <td className="px-6 py-4">
+                    <td className="px-4 sm:px-6 py-4">
                       <div className="flex items-center gap-2">
                         {tx.type === "deposit" || tx.type === "credit" ? (
                           <div className="p-1.5 bg-green-100 text-green-600 rounded-full">
@@ -391,22 +391,22 @@ export default function AdminTransactionsPage() {
                         <span className="capitalize font-medium">{tx.type}</span>
                       </div>
                     </td>
-                    <td className="px-6 py-4 font-mono font-medium text-gray-900">
+                    <td className="px-4 sm:px-6 py-4 font-mono font-medium text-gray-900 whitespace-nowrap">
                       {tx.type === "deposit" || tx.type === "credit" ? "+" : "-"}${tx.amount.toLocaleString()}
                     </td>
-                    <td className="px-6 py-4">
+                    <td className="px-4 sm:px-6 py-4">
                       <div className="flex flex-col">
                         <span className="text-xs text-gray-400">From: {tx.senderName || "System"}</span>
                         <span className="text-xs text-gray-400">To: {tx.receiverName || "System"}</span>
                       </div>
                     </td>
-                    <td className="px-6 py-4 max-w-xs truncate">
+                    <td className="px-4 sm:px-6 py-4 max-w-[12rem] sm:max-w-xs truncate">
                       {tx.description}
                     </td>
-                    <td className="px-6 py-4 text-gray-500">
+                    <td className="px-4 sm:px-6 py-4 text-gray-500 whitespace-nowrap">
                       {new Date(tx.date).toLocaleDateString()} <span className="text-xs">{new Date(tx.date).toLocaleTimeString()}</span>
                     </td>
-                    <td className="px-6 py-4">
+                    <td className="px-4 sm:px-6 py-4">
                       <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
                         tx.status === "completed" || tx.status === "success"
                           ? "bg-green-100 text-green-800" 

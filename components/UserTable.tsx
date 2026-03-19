@@ -30,24 +30,24 @@ export default function UserTable({ users, onToggleBlock, onDelete, onFund }: Us
       <table className="w-full text-left text-sm text-gray-600">
         <thead className="bg-gray-50 text-xs uppercase text-gray-500 font-semibold">
           <tr>
-            <th className="px-6 py-4">User Info</th>
-            <th className="px-6 py-4">Account Type</th>
-            <th className="px-6 py-4">Balance</th>
-            <th className="px-6 py-4">Status</th>
-            <th className="px-6 py-4 text-right">Actions</th>
+            <th className="px-4 sm:px-6 py-4">User Info</th>
+            <th className="px-4 sm:px-6 py-4">Account Type</th>
+            <th className="px-4 sm:px-6 py-4">Balance</th>
+            <th className="px-4 sm:px-6 py-4">Status</th>
+            <th className="px-4 sm:px-6 py-4 text-right">Actions</th>
           </tr>
         </thead>
         <tbody className="divide-y divide-gray-100">
           {users.length === 0 ? (
             <tr>
-              <td colSpan={5} className="px-6 py-8 text-center text-gray-500">
+              <td colSpan={5} className="px-4 sm:px-6 py-8 text-center text-gray-500">
                 No users found matching your search.
               </td>
             </tr>
           ) : (
             users.map((user) => (
               <tr key={user.id} className="hover:bg-gray-50 transition-colors">
-                <td className="px-6 py-4">
+                <td className="px-4 sm:px-6 py-4">
                   <div className="flex items-center gap-3">
                     <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-bold text-xs">
                       {user.firstName?.[0]}{user.lastName?.[0]}
@@ -58,13 +58,13 @@ export default function UserTable({ users, onToggleBlock, onDelete, onFund }: Us
                     </div>
                   </div>
                 </td>
-                <td className="px-6 py-4">
+                <td className="px-4 sm:px-6 py-4">
                   <span className="capitalize">{user.accountType || "Standard"}</span>
                 </td>
-                <td className="px-6 py-4 font-mono font-medium text-gray-900">
+                <td className="px-4 sm:px-6 py-4 font-mono font-medium text-gray-900">
                   ${user.balance?.toLocaleString() || "0.00"}
                 </td>
-                <td className="px-6 py-4">
+                <td className="px-4 sm:px-6 py-4">
                   <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
                     user.blocked 
                       ? "bg-red-100 text-red-800" 
@@ -73,7 +73,7 @@ export default function UserTable({ users, onToggleBlock, onDelete, onFund }: Us
                     {user.blocked ? "Blocked" : "Active"}
                   </span>
                 </td>
-                <td className="px-6 py-4 text-right">
+                <td className="px-4 sm:px-6 py-4 text-right">
                   <div className="flex items-center justify-end gap-2">
                     <button 
                       onClick={() => onFund(user)}

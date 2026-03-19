@@ -852,7 +852,7 @@ export default function DashboardPage() {
           )}
           {/* Recent Transactions Table */}
           <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-            <div className="p-6 border-b border-gray-100 flex items-center justify-between">
+            <div className="p-4 sm:p-6 border-b border-gray-100 flex items-center justify-between">
               <h3 className="font-semibold text-gray-900">Recent Transactions</h3>
               <Link href="/dashboard/transactions" className="text-sm text-blue-600 hover:text-blue-700 font-medium">View All</Link>
             </div>
@@ -860,32 +860,34 @@ export default function DashboardPage() {
               <table className="w-full text-left text-sm text-gray-600">
                 <thead className="bg-gray-50 text-xs uppercase text-gray-500 font-semibold">
                   <tr>
-                    <th className="px-6 py-4">Transaction</th>
-                    <th className="px-6 py-4">Date</th>
-                    <th className="px-6 py-4">Status</th>
-                    <th className="px-6 py-4 text-right">Amount</th>
+                    <th className="px-4 sm:px-6 py-4">Transaction</th>
+                    <th className="px-4 sm:px-6 py-4">Date</th>
+                    <th className="px-4 sm:px-6 py-4">Status</th>
+                    <th className="px-4 sm:px-6 py-4 text-right">Amount</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-100">
                   {transactions.length === 0 ? (
                     <tr>
-                      <td colSpan={4} className="px-6 py-8 text-center text-gray-500">
+                      <td colSpan={4} className="px-4 sm:px-6 py-8 text-center text-gray-500">
                         No transactions found
                       </td>
                     </tr>
                   ) : (
                     transactions.map((tx, idx) => (
                       <tr key={tx.id || idx} className="hover:bg-gray-50 transition-colors">
-                        <td className="px-6 py-4 font-medium text-gray-900 flex items-center gap-3">
+                        <td className="px-4 sm:px-6 py-4 font-medium text-gray-900">
+                          <div className="flex items-center gap-3 min-w-0">
                           <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
                             ["deposit", "credit"].includes(tx.type) ? "bg-green-100 text-green-600" : "bg-red-100 text-red-600"
                           }`}>
                             {["deposit", "credit"].includes(tx.type) ? <PlusIcon className="w-4 h-4" /> : <MinusIcon className="w-4 h-4" />}
                           </div>
-                          {tx.description || tx.type}
+                          <span className="truncate">{tx.description || tx.type}</span>
+                          </div>
                         </td>
-                        <td className="px-6 py-4">{tx.date}</td>
-                        <td className="px-6 py-4">
+                        <td className="px-4 sm:px-6 py-4 whitespace-nowrap">{tx.date}</td>
+                        <td className="px-4 sm:px-6 py-4">
                           <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
                             tx.status === "completed" ? "bg-green-100 text-green-800" : 
                             tx.status === "pending" ? "bg-yellow-100 text-yellow-800" : "bg-red-100 text-red-800"
@@ -893,7 +895,7 @@ export default function DashboardPage() {
                             {tx.status || "Completed"}
                           </span>
                         </td>
-                        <td className={`px-6 py-4 text-right font-semibold ${
+                        <td className={`px-4 sm:px-6 py-4 text-right font-semibold whitespace-nowrap ${
                           ["deposit", "credit"].includes(tx.type) ? "text-green-600" : "text-gray-900"
                         }`}>
                           {["deposit", "credit"].includes(tx.type) ? "+" : "-"}${tx.amount.toLocaleString()}
