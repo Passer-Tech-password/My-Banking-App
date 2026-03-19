@@ -103,6 +103,7 @@ export default function DashboardPage() {
 
     let isMounted = true;
     let txUnsub: null | (() => void) = null;
+    let fallbackTxUnsub: null | (() => void) = null;
     let contactsUnsub: null | (() => void) = null;
     
     const safetyTimer = setTimeout(() => {
@@ -164,6 +165,7 @@ export default function DashboardPage() {
         }
 
         if (txUnsub) txUnsub();
+        if (fallbackTxUnsub) fallbackTxUnsub();
         const txQuery = query(
           collection(db, "transactions"),
           where("userId", "==", user.uid),
@@ -240,18 +242,23 @@ export default function DashboardPage() {
             }
           },
           (error) => {
+            if (!isMounted) return;
             const info = toErrorInfo(error);
             console.error("Dashboard transactions stream error:", info);
 
             const code = info.code || "unknown";
             if (code === "failed-precondition" || info.message.toLowerCase().includes("requires an index")) {
-              if (txUnsub) txUnsub();
+              if (txUnsub) {
+                txUnsub();
+                txUnsub = null;
+              }
+              if (!isMounted) return;
               const fallbackQuery = query(
                 collection(db, "transactions"),
                 where("userId", "==", user.uid),
                 limit(20),
               );
-              txUnsub = onSnapshot(
+              fallbackTxUnsub = onSnapshot(
                 fallbackQuery,
                 (fallbackSnap) => {
                   const txs: Transaction[] = [];
@@ -263,6 +270,7 @@ export default function DashboardPage() {
                   if (isMounted) setTransactions(txs);
                 },
                 (fallbackError) => {
+                  if (!isMounted) return;
                   const fallbackInfo = toErrorInfo(fallbackError);
                   console.error("Dashboard transactions fallback stream error:", fallbackInfo);
                   toast.error(`Failed to load live transactions (${fallbackInfo.code || "unknown"}).`);
@@ -297,6 +305,7 @@ export default function DashboardPage() {
     return () => {
       isMounted = false;
       if (txUnsub) txUnsub();
+      if (fallbackTxUnsub) fallbackTxUnsub();
       if (contactsUnsub) contactsUnsub();
       clearTimeout(safetyTimer);
       unsub();

@@ -89,7 +89,7 @@ export default function AdminHeader({ onMobileMenuClick }: { onMobileMenuClick?:
     .join("");
   
   return (
-    <header className="sticky top-0 z-10 flex h-20 w-full bg-white shadow-sm border-b border-gray-100 items-center justify-between px-6 lg:px-12">
+    <header className="sticky top-0 z-10 flex h-20 w-full bg-white shadow-sm border-b border-gray-100 items-center justify-between px-4 sm:px-6 lg:px-12">
       {/* Left: Mobile Menu Button & Title */}
       <div className="flex items-center gap-4">
         <button 

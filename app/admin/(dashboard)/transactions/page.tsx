@@ -3,7 +3,18 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { onAuthStateChanged } from "firebase/auth";
-import { collection, getDocs, query, orderBy, limit, doc, getDoc } from "firebase/firestore";
+import {
+  collection,
+  getDocs,
+  query,
+  orderBy,
+  limit,
+  doc,
+  getDoc,
+  startAfter,
+  writeBatch,
+  type QueryDocumentSnapshot,
+} from "firebase/firestore";
 import { db, auth } from "@/lib/firebase";
 import { Transaction } from "@/lib/Transaction";
 import { useToast } from "@/components/ToastProvider";
@@ -19,9 +30,11 @@ export default function AdminTransactionsPage() {
   const router = useRouter();
   const toast = useToast();
   const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [authChecking, setAuthChecking] = useState(true);
   const [txLoading, setTxLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [deleting, setDeleting] = useState(false);
 
   const ADMIN_OVERRIDE_ENABLED =
     (process.env.NEXT_PUBLIC_ADMIN_OVERRIDE || "").toLowerCase() === "true" &&
@@ -84,6 +97,7 @@ export default function AdminTransactionsPage() {
         txs.push({ id: doc.id, ...data } as Transaction);
       });
       setTransactions(txs);
+      setSelectedIds([]);
     } catch (error) {
       console.error("Error fetching transactions:", error);
       setError("Failed to load transactions. Please try again later.");
@@ -133,6 +147,76 @@ export default function AdminTransactionsPage() {
     }
   };
 
+  const allVisibleSelected =
+    transactions.length > 0 && selectedIds.length === transactions.length;
+
+  const toggleSelectAllVisible = () => {
+    if (allVisibleSelected) {
+      setSelectedIds([]);
+      return;
+    }
+    setSelectedIds(transactions.map((t) => t.id));
+  };
+
+  const toggleSelectOne = (id: string) => {
+    setSelectedIds((prev) => (prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]));
+  };
+
+  const deleteSelected = async () => {
+    if (selectedIds.length === 0) return;
+    if (!confirm(`Delete ${selectedIds.length} selected transaction(s)? This cannot be undone.`)) return;
+
+    try {
+      setDeleting(true);
+      const ids = [...selectedIds];
+      for (let i = 0; i < ids.length; i += 500) {
+        const chunk = ids.slice(i, i + 500);
+        const batch = writeBatch(db);
+        chunk.forEach((id) => batch.delete(doc(db, "transactions", id)));
+        await batch.commit();
+      }
+      setTransactions((prev) => prev.filter((t) => !selectedIds.includes(t.id)));
+      setSelectedIds([]);
+      toast.success("Selected transactions deleted");
+    } catch (e) {
+      console.error("Delete selected failed:", e);
+      toast.error("Failed to delete selected transactions");
+    } finally {
+      setDeleting(false);
+    }
+  };
+
+  const deleteAll = async () => {
+    if (transactions.length === 0) return;
+    if (!confirm("Delete ALL transaction logs? This cannot be undone.")) return;
+
+    try {
+      setDeleting(true);
+      const col = collection(db, "transactions");
+      let last: QueryDocumentSnapshot | null = null;
+      while (true) {
+        const q = last
+          ? query(col, orderBy("date", "desc"), startAfter(last), limit(500))
+          : query(col, orderBy("date", "desc"), limit(500));
+        const snap = await getDocs(q);
+        if (snap.empty) break;
+        const batch = writeBatch(db);
+        snap.docs.forEach((d) => batch.delete(d.ref));
+        await batch.commit();
+        last = snap.docs[snap.docs.length - 1] || null;
+        if (snap.size < 500) break;
+      }
+      setTransactions([]);
+      setSelectedIds([]);
+      toast.success("All transaction logs deleted");
+    } catch (e) {
+      console.error("Delete all failed:", e);
+      toast.error("Failed to delete all transaction logs");
+    } finally {
+      setDeleting(false);
+    }
+  };
+
   if (authChecking) {
     return (
       <div className="flex items-center justify-center h-full min-h-[50vh]">
@@ -151,6 +235,20 @@ export default function AdminTransactionsPage() {
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold text-gray-900">Transaction Logs</h1>
         <div className="flex items-center gap-3">
+          <button
+            onClick={deleteSelected}
+            disabled={selectedIds.length === 0 || deleting}
+            className="flex items-center gap-2 px-3 py-1.5 bg-red-600 text-white rounded-lg text-sm font-medium hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            Delete Selected
+          </button>
+          <button
+            onClick={deleteAll}
+            disabled={transactions.length === 0 || deleting}
+            className="flex items-center gap-2 px-3 py-1.5 bg-white border border-red-200 rounded-lg text-sm font-medium text-red-700 hover:bg-red-50 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            Delete All
+          </button>
           <button 
             onClick={exportToCSV}
             disabled={transactions.length === 0 || exporting}
@@ -164,7 +262,9 @@ export default function AdminTransactionsPage() {
             {exporting ? "Exporting..." : "Export CSV"}
           </button>
           <div className="flex items-center gap-2 text-sm text-gray-500">
-            <span>Showing last {transactions.length}</span>
+            <span>
+              {selectedIds.length > 0 ? `Selected ${selectedIds.length} · ` : ""}Showing last {transactions.length}
+            </span>
             {txLoading && (
               <span className="inline-block h-3 w-3 border-b-2 border-blue-500 rounded-full animate-spin" />
             )}
@@ -177,6 +277,14 @@ export default function AdminTransactionsPage() {
           <table className="w-full text-left text-sm text-gray-600">
             <thead className="bg-gray-50 text-xs uppercase text-gray-500 font-semibold">
               <tr>
+                <th className="px-6 py-4">
+                  <input
+                    type="checkbox"
+                    checked={allVisibleSelected}
+                    onChange={toggleSelectAllVisible}
+                    disabled={transactions.length === 0}
+                  />
+                </th>
                 <th className="px-6 py-4">Type</th>
                 <th className="px-6 py-4">Amount</th>
                 <th className="px-6 py-4">From / To</th>
@@ -188,13 +296,20 @@ export default function AdminTransactionsPage() {
             <tbody className="divide-y divide-gray-100">
               {transactions.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="px-6 py-8 text-center text-gray-500">
+                  <td colSpan={7} className="px-6 py-8 text-center text-gray-500">
                     No transactions found.
                   </td>
                 </tr>
               ) : (
                 transactions.map((tx) => (
                   <tr key={tx.id} className="hover:bg-gray-50 transition-colors">
+                    <td className="px-6 py-4">
+                      <input
+                        type="checkbox"
+                        checked={selectedIds.includes(tx.id)}
+                        onChange={() => toggleSelectOne(tx.id)}
+                      />
+                    </td>
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-2">
                         {tx.type === "deposit" || tx.type === "credit" ? (

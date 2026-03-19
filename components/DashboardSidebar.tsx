@@ -13,6 +13,7 @@ import {
   UserGroupIcon,
   Cog6ToothIcon,
   ArrowRightOnRectangleIcon,
+  XMarkIcon,
 } from "@heroicons/react/24/outline";
 
 const navigation = [
@@ -24,7 +25,12 @@ const navigation = [
   { name: "Settings", href: "/dashboard/settings", icon: Cog6ToothIcon },
 ];
 
-export default function DashboardSidebar() {
+interface DashboardSidebarProps {
+  mobile?: boolean;
+  onClose?: () => void;
+}
+
+export default function DashboardSidebar({ mobile, onClose }: DashboardSidebarProps) {
   const pathname = usePathname();
   const router = useRouter();
 
@@ -38,10 +44,10 @@ export default function DashboardSidebar() {
   };
 
   return (
-    <div className="hidden lg:flex flex-col w-64 bg-slate-900 text-white min-h-screen fixed left-0 top-0 z-20 shadow-xl">
+    <div className={`flex flex-col w-64 bg-slate-900 text-white min-h-screen ${mobile ? "relative" : "fixed left-0 top-0 z-20"} shadow-xl`}>
       {/* Logo Area */}
-      <div className="flex items-center justify-center h-20 border-b border-slate-800 bg-slate-950">
-        <Link href="/" className="flex items-center gap-2">
+      <div className="flex items-center justify-between px-6 h-20 border-b border-slate-800 bg-slate-950">
+        <Link href="/" className="flex items-center gap-2" onClick={mobile ? onClose : undefined}>
            <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
              <span className="font-bold text-white text-lg">A</span>
            </div>
@@ -49,6 +55,11 @@ export default function DashboardSidebar() {
             Aurora<span className="text-blue-500">Bank</span>
           </span>
         </Link>
+        {mobile && (
+          <button onClick={onClose} className="text-slate-400 hover:text-white">
+            <XMarkIcon className="w-6 h-6" />
+          </button>
+        )}
       </div>
 
       {/* Navigation */}
@@ -59,6 +70,7 @@ export default function DashboardSidebar() {
             <Link
               key={item.name}
               href={item.href}
+              onClick={mobile ? onClose : undefined}
               className={`flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-lg transition-all duration-200 ${
                 isActive
                   ? "bg-blue-600 text-white shadow-md shadow-blue-900/20"
