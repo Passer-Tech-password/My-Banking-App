@@ -48,12 +48,23 @@ export async function resolveBootstrapAdminEmail(params: {
     body: JSON.stringify({ email: params.currentEmail }),
   });
 
-  const data = (await res.json().catch(() => null)) as any;
+  const raw = await res.text();
+  const data = (() => {
+    try {
+      return raw ? JSON.parse(raw) : null;
+    } catch {
+      return null;
+    }
+  })() as any;
 
   if (!res.ok) {
-    const code = String(data?.error?.code || "request_failed");
-    const message = String(data?.error?.message || `Admin bootstrap failed (${res.status}).`);
-    const causeCode = data?.error?.causeCode ? String(data.error.causeCode) : undefined;
+    const code = String(data?.code || "request_failed");
+    const message = String(
+      data?.message ||
+        (raw ? raw.slice(0, 300) : "") ||
+        `Admin bootstrap failed (${res.status}).`,
+    );
+    const causeCode = data?.causeCode ? String(data.causeCode) : undefined;
     if (
       code === "missing_env" ||
       code === "email_mismatch" ||

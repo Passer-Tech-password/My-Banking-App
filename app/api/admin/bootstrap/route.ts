@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { FieldValue } from "firebase-admin/firestore";
-import { firebaseAdminAuth, firebaseAdminDb } from "@/lib/firebaseAdmin";
+import { getFirebaseAdminAuth, getFirebaseAdminDb } from "@/lib/firebaseAdmin";
 
 export const runtime = "nodejs";
 
@@ -15,11 +15,10 @@ function jsonError(status: number, code: ApiErrorCode, message: string, causeCod
   return NextResponse.json(
     {
       ok: false,
-      error: {
-        code,
-        message,
-        causeCode,
-      },
+      error: "Bootstrap failed",
+      message,
+      code,
+      causeCode,
     },
     { status },
   );
@@ -27,11 +26,11 @@ function jsonError(status: number, code: ApiErrorCode, message: string, causeCod
 
 export async function POST(req: Request) {
   try {
-    let requestEmail: string | null = null;
-    try {
-      const body = (await req.json().catch(() => null)) as null | { email?: unknown };
-      if (body && typeof body.email === "string") requestEmail = body.email.trim().toLowerCase();
-    } catch {}
+    const body = (await req.json().catch(() => null)) as null | { email?: unknown };
+    const requestEmail = typeof body?.email === "string" ? body.email.trim().toLowerCase() : "";
+    if (!requestEmail) {
+      return jsonError(400, "invalid_config", "Missing request body field: email");
+    }
 
     const authHeader = req.headers.get("authorization") || req.headers.get("Authorization") || "";
     const match = authHeader.match(/^Bearer\s+(.+)$/i);
@@ -40,7 +39,10 @@ export async function POST(req: Request) {
       return jsonError(401, "unauthorized", "Missing Authorization bearer token.");
     }
 
-    const decoded = await firebaseAdminAuth.verifyIdToken(idToken);
+    const adminAuth = getFirebaseAdminAuth();
+    const adminDb = getFirebaseAdminDb();
+
+    const decoded = await adminAuth.verifyIdToken(idToken);
     const tokenEmail = String(decoded.email || "").trim().toLowerCase();
     const emailVerified = decoded.email_verified === true;
     if (!tokenEmail) {
@@ -55,7 +57,7 @@ export async function POST(req: Request) {
 
     const envBootstrapEmail = String(process.env.NEXT_PUBLIC_ADMIN_EMAIL || "").trim().toLowerCase();
 
-    const securityRef = firebaseAdminDb.doc("config/security");
+    const securityRef = adminDb.doc("config/security");
     const securitySnap = await securityRef.get();
 
     let bootstrapAdminEmail: string;
@@ -96,7 +98,7 @@ export async function POST(req: Request) {
     let userPromoted = false;
 
     if (isBootstrapAdmin) {
-      const userRef = firebaseAdminDb.doc(`users/${decoded.uid}`);
+      const userRef = adminDb.doc(`users/${decoded.uid}`);
       const userSnap = await userRef.get();
       if (userSnap.exists) {
         await userRef.set(
@@ -131,8 +133,18 @@ export async function POST(req: Request) {
       userPromoted,
     });
   } catch (e: any) {
+    console.error("BOOTSTRAP ERROR:", e);
     const message = e instanceof Error ? e.message : "Internal error";
     const causeCode = typeof e?.code === "string" ? e.code : undefined;
+
+    if (typeof message === "string" && message.startsWith("Missing environment variable: ")) {
+      return jsonError(500, "missing_env", message);
+    }
+
+    if (typeof causeCode === "string" && causeCode.startsWith("auth/")) {
+      return jsonError(401, "unauthorized", "Invalid or expired Firebase ID token.", causeCode);
+    }
+
     return jsonError(500, "internal_error", message, causeCode);
   }
 }

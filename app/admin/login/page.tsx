@@ -105,7 +105,16 @@ export default function AdminLoginPage() {
 
       const isBootstrapAdmin = bootstrapIsAdmin || currentEmail === bootstrapEmail;
 
-      const userDoc = await getDoc(doc(db, "users", user.uid));
+      const userRef = doc(db, "users", user.uid);
+      let userDoc = await getDoc(userRef);
+      if (isBootstrapAdmin) {
+        for (let attempt = 0; attempt < 5; attempt += 1) {
+          const data = userDoc.exists() ? (userDoc.data() as unknown) : null;
+          if (userDoc.exists() && isAdminUserData(data)) break;
+          await new Promise((r) => setTimeout(r, 400));
+          userDoc = await getDoc(userRef);
+        }
+      }
 
       if (userDoc.exists()) {
         const userData = userDoc.data() as {
@@ -127,7 +136,8 @@ export default function AdminLoginPage() {
           return;
         } else {
           if (isBootstrapAdmin) {
-            router.replace("/admin/dashboard");
+            setError("Admin profile promotion is still in progress. Please sign in again.");
+            await signOut(auth);
             return;
           }
           setError(`Access denied. Not an admin account. (role=${String(userData.role || "unknown")})`);
@@ -135,7 +145,8 @@ export default function AdminLoginPage() {
         }
       } else {
         if (isBootstrapAdmin) {
-          router.replace("/admin/dashboard");
+          setError("Admin profile initialization is still in progress. Please sign in again.");
+          await signOut(auth);
           return;
         }
         setError(`Access denied. No user profile found. (uid=${user.uid})`);
