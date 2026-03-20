@@ -112,7 +112,12 @@ export default function AdminLoginPage() {
           const data = userDoc.exists() ? (userDoc.data() as unknown) : null;
           if (userDoc.exists() && isAdminUserData(data)) break;
           await new Promise((r) => setTimeout(r, 400));
-          userDoc = await getDoc(userRef);
+          try {
+            userDoc = await getDoc(userRef);
+          } catch (readError) {
+            console.error("Admin profile retry getDoc failed:", readError);
+            break;
+          }
         }
       }
 
