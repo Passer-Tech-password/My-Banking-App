@@ -19,21 +19,9 @@ export default function AdminLoginPage() {
   const [debugDetails, setDebugDetails] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
 
-  const ADMIN_OVERRIDE_ENABLED =
-    (process.env.NEXT_PUBLIC_ADMIN_OVERRIDE || "").toLowerCase() === "true" &&
-    process.env.NODE_ENV !== "production";
-  const ADMIN_OVERRIDE_EMAIL = process.env.NEXT_PUBLIC_ADMIN_EMAIL;
-  const ADMIN_OVERRIDE_PASSWORD = process.env.NEXT_PUBLIC_ADMIN_PASSWORD;
-
   const [formData, setFormData] = useState(() => ({
-    email:
-      ADMIN_OVERRIDE_ENABLED && ADMIN_OVERRIDE_EMAIL
-        ? ADMIN_OVERRIDE_EMAIL.trim().toLowerCase()
-        : "",
-    password:
-      ADMIN_OVERRIDE_ENABLED && ADMIN_OVERRIDE_PASSWORD
-        ? ADMIN_OVERRIDE_PASSWORD.trim()
-        : "",
+    email: "",
+    password: "",
   }));
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {

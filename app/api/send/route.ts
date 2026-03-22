@@ -1,26 +1,63 @@
-import { TransactionEmailTemplate } from '@/components/email-template';
-import { Resend } from 'resend';
-import { NextResponse } from 'next/server';
+import { TransactionEmailTemplate } from "@/components/email-template";
+import { Resend } from "resend";
+import { NextResponse } from "next/server";
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+export const runtime = "nodejs";
+
+type ApiErrorCode = "invalid_request" | "missing_env" | "send_failed" | "internal_error";
+
+function jsonError(status: number, code: ApiErrorCode, message: string) {
+  return NextResponse.json(
+    {
+      ok: false,
+      code,
+      message,
+    },
+    { status },
+  );
+}
 
 export async function POST(request: Request) {
   try {
-    const { email, userName, type, amount, date, status, referenceId } = await request.json();
-
-    if (!process.env.RESEND_API_KEY) {
-      console.warn("RESEND_API_KEY is not set. Email skipped.");
-      return NextResponse.json({ message: "Email skipped (no API key)" });
+    const apiKey = String(process.env.RESEND_API_KEY || "").trim();
+    if (!apiKey) {
+      return jsonError(400, "missing_env", "RESEND_API_KEY is not set.");
     }
 
+    const body = (await request.json().catch(() => null)) as
+      | null
+      | {
+          email?: unknown;
+          userName?: unknown;
+          type?: unknown;
+          amount?: unknown;
+          date?: unknown;
+          status?: unknown;
+          referenceId?: unknown;
+        };
+
+    const email = typeof body?.email === "string" ? body.email.trim() : "";
+    const userName = typeof body?.userName === "string" ? body.userName.trim() : "";
+    const type = typeof body?.type === "string" ? body.type.trim() : "";
+    const date = typeof body?.date === "string" ? body.date.trim() : "";
+    const status = typeof body?.status === "string" ? body.status.trim() : "";
+    const referenceId = typeof body?.referenceId === "string" ? body.referenceId.trim() : "";
+    const amountRaw = body?.amount;
+    const amount = typeof amountRaw === "number" ? amountRaw : Number(amountRaw);
+
+    if (!email || !type || !Number.isFinite(amount)) {
+      return jsonError(400, "invalid_request", "Missing or invalid request fields.");
+    }
+
+    const resend = new Resend(apiKey);
     const { data, error } = await resend.emails.send({
-      from: 'Aurora Bank <onboarding@resend.dev>',
+      from: "Aurora Bank <onboarding@resend.dev>",
       to: [email],
       subject: `Transaction Alert: ${type.toUpperCase()} of $${amount}`,
       react: TransactionEmailTemplate({
         userName,
         transactionType: type,
-        amount: Number(amount),
+        amount,
         date,
         status,
         referenceId,
@@ -28,12 +65,14 @@ export async function POST(request: Request) {
     });
 
     if (error) {
-      console.error("Resend error:", error);
-      return NextResponse.json({ error }, { status: 500 });
+      console.error("RESEND ERROR:", error);
+      return jsonError(502, "send_failed", "Failed to send email.");
     }
 
-    return NextResponse.json(data);
+    return NextResponse.json({ ok: true, data });
   } catch (error) {
-    return NextResponse.json({ error }, { status: 500 });
+    console.error("SEND EMAIL ERROR:", error);
+    const message = error instanceof Error ? error.message : "Internal error";
+    return jsonError(500, "internal_error", message);
   }
 }

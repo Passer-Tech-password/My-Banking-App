@@ -55,7 +55,7 @@ export async function POST(req: Request) {
       return jsonError(403, "email_mismatch", "Email mismatch between request and authenticated user.");
     }
 
-    const envBootstrapEmail = String(process.env.NEXT_PUBLIC_ADMIN_EMAIL || "").trim().toLowerCase();
+    const envBootstrapEmail = String(process.env.ADMIN_BOOTSTRAP_EMAIL || "").trim().toLowerCase();
 
     const securityRef = adminDb.doc("config/security");
     const securitySnap = await securityRef.get();
@@ -64,22 +64,22 @@ export async function POST(req: Request) {
     if (securitySnap.exists) {
       const value = securitySnap.data()?.bootstrapAdminEmail;
       if (typeof value !== "string" || !value.trim()) {
-        return jsonError(500, "invalid_config", "Admin bootstrap config is invalid: missing bootstrapAdminEmail.");
+        return jsonError(400, "invalid_config", "Admin bootstrap config is invalid: missing bootstrapAdminEmail.");
       }
       bootstrapAdminEmail = value.trim().toLowerCase();
     } else {
       if (!envBootstrapEmail) {
         return jsonError(
-          500,
+          400,
           "missing_env",
-          "Admin bootstrap is not configured. Set NEXT_PUBLIC_ADMIN_EMAIL or initialize config/security via server.",
+          "Admin bootstrap is not configured. Set ADMIN_BOOTSTRAP_EMAIL or initialize config/security via server.",
         );
       }
       if (tokenEmail !== envBootstrapEmail) {
         return jsonError(
           403,
           "email_mismatch",
-          "Email does not match bootstrap admin configuration. Sign in with NEXT_PUBLIC_ADMIN_EMAIL.",
+          "Email does not match bootstrap admin configuration. Sign in with ADMIN_BOOTSTRAP_EMAIL.",
         );
       }
 
@@ -138,7 +138,7 @@ export async function POST(req: Request) {
     const causeCode = typeof e?.code === "string" ? e.code : undefined;
 
     if (typeof message === "string" && message.startsWith("Missing environment variable: ")) {
-      return jsonError(500, "missing_env", message);
+      return jsonError(400, "missing_env", message);
     }
 
     if (typeof causeCode === "string" && causeCode.startsWith("auth/")) {

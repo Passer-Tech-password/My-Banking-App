@@ -41,21 +41,7 @@ export default function AdminTransactionsPage() {
   const [error, setError] = useState<string | null>(null);
   const [deleting, setDeleting] = useState(false);
 
-  const ADMIN_OVERRIDE_ENABLED =
-    (process.env.NEXT_PUBLIC_ADMIN_OVERRIDE || "").toLowerCase() === "true" &&
-    process.env.NODE_ENV !== "production";
-
   useEffect(() => {
-    if (ADMIN_OVERRIDE_ENABLED) {
-      console.warn(
-        "Admin override is active: skipping Firebase auth checks on transactions page. Do not enable this in production.",
-      );
-      setError(null);
-      setAuthChecking(false);
-      fetchTransactions();
-      return;
-    }
-
     const unsub = onAuthStateChanged(auth, async (user) => {
       if (!user) {
         setAuthChecking(false);
