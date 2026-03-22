@@ -45,7 +45,11 @@ export async function POST(request: Request) {
     const amountRaw = body?.amount;
     const amount = typeof amountRaw === "number" ? amountRaw : Number(amountRaw);
 
-    if (!email || !type || !Number.isFinite(amount)) {
+    if (!Number.isFinite(amount)) {
+      return jsonError(400, "invalid_request", "Amount must be a valid number");
+    }
+
+    if (!email || !type) {
       return jsonError(400, "invalid_request", "Missing or invalid request fields.");
     }
 

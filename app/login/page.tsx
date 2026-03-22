@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { fetchSignInMethodsForEmail, signInWithEmailAndPassword } from "firebase/auth";
+import { fetchSignInMethodsForEmail, signInWithEmailAndPassword, signOut } from "firebase/auth";
 import { auth } from "@/lib/firebase";
 import { db } from "@/lib/firebase";
 import { doc, getDoc, serverTimestamp, setDoc } from "firebase/firestore";
@@ -38,7 +38,7 @@ export default function LoginPage() {
       const cred = await signInWithEmailAndPassword(auth, email, formData.password);
       if (!cred.user.emailVerified) {
         toast.info("Please verify your email to continue.");
-        router.push("/verify-email");
+        router.push(`/verify-email?next=${encodeURIComponent("/dashboard")}`);
         return;
       }
       try {
@@ -55,6 +55,14 @@ export default function LoginPage() {
           });
         } else {
           const data = snap.data() as unknown;
+          const blocked = (data as any)?.blocked;
+          const isBlocked = blocked === true || blocked === "true";
+          if (isBlocked) {
+            toast.error("Your account is restricted. Please contact support.");
+            await signOut(auth);
+            router.push("/blocked");
+            return;
+          }
           const role = parseUserRole((data as { role?: unknown } | null)?.role);
           if (role === "admin" || isAdminUserData(data)) {
             router.push("/admin/dashboard");
@@ -62,7 +70,10 @@ export default function LoginPage() {
           }
         }
       } catch (profileError) {
-        console.error(profileError);
+        console.error("LOGIN PROFILE ERROR:", profileError);
+        toast.error("Signed in, but failed to load your profile. Please try again.");
+        await signOut(auth);
+        return;
       }
       toast.success("Signed in successfully");
       router.push("/dashboard");
@@ -89,7 +100,7 @@ export default function LoginPage() {
       } else if (err.code === "auth/too-many-requests") {
         message = "Too many failed attempts. Please try again later.";
       } else {
-        console.error(err);
+        console.error("LOGIN ERROR:", err);
       }
 
       setError(message);
