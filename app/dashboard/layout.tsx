@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
 import { onAuthStateChanged, signOut } from "firebase/auth";
 import { doc, getDoc } from "firebase/firestore";
 import DashboardSidebar from "@/components/DashboardSidebar";
@@ -16,6 +17,7 @@ export default function DashboardLayout({
   children: React.ReactNode;
 }) {
   const router = useRouter();
+  const pathname = usePathname();
   const toast = useToast();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [guardLoading, setGuardLoading] = useState(true);
@@ -33,7 +35,8 @@ export default function DashboardLayout({
 
       if (!user.emailVerified) {
         setGuardLoading(false);
-        router.replace("/verify-email");
+        const nextTarget = pathname || "/dashboard";
+        router.replace(`/verify-email?next=${encodeURIComponent(nextTarget)}`);
         return;
       }
 

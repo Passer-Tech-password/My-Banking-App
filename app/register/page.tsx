@@ -127,7 +127,7 @@ export default function RegisterPage() {
 
       await sendEmailVerification(userCredential.user);
       toast.success("Account created. Please verify your email to continue.");
-      router.push("/verify-email");
+      router.push(`/verify-email?next=${encodeURIComponent("/dashboard")}`);
 
     } catch (error) {
       console.error("Error creating user:", error);
