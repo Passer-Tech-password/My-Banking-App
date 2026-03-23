@@ -112,13 +112,13 @@ export default function RegisterPage() {
         .setCurrency(formData.currency)
         .setSsnPin(formData.ssnPin)
         .setRole("user") // Default role
-        .setImage("")
+        .setImage(photoURL)
         .setPassportUrl(formData.passport ? formData.passport.name : "") 
         .build();
 
       // 3. Save extra details to Firestore
       // We don't save password in Firestore
-      const { password, image, ...userData } = newUser as any;
+      const { password, ...userData } = newUser as any;
       
       await setDoc(doc(db, "users", uid), {
           ...userData,

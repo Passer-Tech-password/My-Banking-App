@@ -49,8 +49,12 @@ export async function POST(request: Request) {
       return jsonError(400, "invalid_request", "Amount must be a valid number");
     }
 
-    if (!email || !type) {
-      return jsonError(400, "invalid_request", "Missing or invalid request fields.");
+    if (!email) {
+      return jsonError(400, "invalid_request", "Missing required field: email");
+    }
+
+    if (!type) {
+      return jsonError(400, "invalid_request", "Missing required field: type");
     }
 
     const resend = new Resend(apiKey);

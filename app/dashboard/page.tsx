@@ -107,6 +107,10 @@ export default function DashboardPage() {
     let fallbackTxUnsub: null | (() => void) = null;
     let contactsUnsub: null | (() => void) = null;
     let userProfileUnsub: null | (() => void) = null;
+    let backfillTimer: ReturnType<typeof setTimeout> | null = null;
+    let backfillChain: Promise<void> = Promise.resolve();
+    let lastBackfillDisplayName = "";
+    let lastBackfillPhotoURL = "";
     
     const safetyTimer = setTimeout(() => {
       if (isMounted) setLoading(false);
@@ -128,6 +132,26 @@ export default function DashboardPage() {
           userProfileUnsub();
           userProfileUnsub = null;
         }
+        const enqueueBackfill = (patch: { displayName?: string; photoURL?: string }) => {
+          const nextDisplayName = String(patch.displayName || "");
+          const nextPhotoURL = String(patch.photoURL || "");
+          if (nextDisplayName === lastBackfillDisplayName && nextPhotoURL === lastBackfillPhotoURL) return;
+          lastBackfillDisplayName = nextDisplayName;
+          lastBackfillPhotoURL = nextPhotoURL;
+          if (backfillTimer) clearTimeout(backfillTimer);
+          backfillTimer = setTimeout(() => {
+            const payload: Record<string, unknown> = { updatedAt: serverTimestamp() };
+            if (patch.displayName) payload.displayName = patch.displayName;
+            if (patch.photoURL) payload.photoURL = patch.photoURL;
+            backfillChain = backfillChain.then(async () => {
+              try {
+                await setDoc(userRef, payload, { merge: true });
+              } catch (e) {
+                console.error("Failed to backfill photoURL:", e);
+              }
+            });
+          }, 250);
+        };
         const snap = await getDoc(userRef);
 
         if (!snap.exists()) {
@@ -177,11 +201,10 @@ export default function DashboardPage() {
             const needsPhotoURL = !String(data?.photoURL || "").trim();
             const needsDisplayName = !String(data?.displayName || "").trim();
             if (profileSnap.exists() && (needsPhotoURL || needsDisplayName)) {
-              setDoc(
-                userRef,
-                { ...(needsDisplayName ? { displayName: computedName } : {}), ...(needsPhotoURL ? { photoURL } : {}), updatedAt: serverTimestamp() },
-                { merge: true },
-              ).catch((e) => console.error("Failed to backfill photoURL:", e));
+              const patch: { displayName?: string; photoURL?: string } = {};
+              if (needsDisplayName) patch.displayName = computedName;
+              if (needsPhotoURL) patch.photoURL = photoURL;
+              enqueueBackfill(patch);
             }
           },
           (e) => {
@@ -361,6 +384,7 @@ export default function DashboardPage() {
       if (fallbackTxUnsub) fallbackTxUnsub();
       if (contactsUnsub) contactsUnsub();
       if (userProfileUnsub) userProfileUnsub();
+      if (backfillTimer) clearTimeout(backfillTimer);
       clearTimeout(safetyTimer);
       unsub();
     };
