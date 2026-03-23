@@ -3,10 +3,11 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { User } from "@/lib/User";
+import { getDefaultAvatarUrl } from "@/lib/config";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { createUserWithEmailAndPassword, sendEmailVerification, updateProfile } from "firebase/auth";
-import { auth, db } from "@/lib/firebase";
+import { auth, db, uploadUserProfileImage } from "@/lib/firebase";
 import { doc, setDoc, serverTimestamp } from "firebase/firestore";
 import { useToast } from "@/components/ToastProvider";
 import ImageUpload from "@/components/ImageUpload";
@@ -32,6 +33,7 @@ export default function RegisterPage() {
     password: "",
     confirmPassword: "",
     profileImage: "",
+    profileImageFile: null as File | null,
     passport: null as File | null,
   };
   const [formData, setFormData] = useState(initialFormData);
@@ -74,12 +76,24 @@ export default function RegisterPage() {
       const uid = userCredential.user.uid;
       const displayName = `${formData.firstName} ${formData.lastName}`.trim();
 
-      if (displayName || formData.profileImage) {
-        await updateProfile(userCredential.user, {
-          displayName: displayName || undefined,
-          photoURL: formData.profileImage || undefined,
-        });
+      let photoURL = String(formData.profileImage || "").trim();
+      if (formData.profileImageFile) {
+        try {
+          photoURL = await uploadUserProfileImage({ uid, file: formData.profileImageFile });
+        } catch (e) {
+          console.error("Profile image upload failed:", e);
+          toast.error("Profile image upload failed. Using a default avatar.");
+          photoURL = "";
+        }
       }
+      if (!photoURL) {
+        photoURL = getDefaultAvatarUrl(displayName || email);
+      }
+
+      await updateProfile(userCredential.user, {
+        displayName: displayName || undefined,
+        photoURL: photoURL || undefined,
+      });
 
       // 2. Create user object using the Builder pattern
       const newUser = User.builder()
@@ -98,16 +112,18 @@ export default function RegisterPage() {
         .setCurrency(formData.currency)
         .setSsnPin(formData.ssnPin)
         .setRole("user") // Default role
-        .setImage(formData.profileImage)
+        .setImage("")
         .setPassportUrl(formData.passport ? formData.passport.name : "") 
         .build();
 
       // 3. Save extra details to Firestore
       // We don't save password in Firestore
-      const { password, ...userData } = newUser;
+      const { password, image, ...userData } = newUser as any;
       
       await setDoc(doc(db, "users", uid), {
           ...userData,
+          displayName,
+          photoURL,
           createdAt: serverTimestamp(),
           updatedAt: serverTimestamp(),
           balance: 0, // Initialize balance
@@ -119,6 +135,7 @@ export default function RegisterPage() {
         {
           email,
           name: displayName,
+          photoURL,
           createdAt: serverTimestamp(),
           updatedAt: serverTimestamp(),
         },
@@ -160,6 +177,7 @@ export default function RegisterPage() {
               <ImageUpload
                 value={formData.profileImage}
                 onChange={(src) => setFormData((prev) => ({ ...prev, profileImage: src }))}
+                onFileSelected={(file) => setFormData((prev) => ({ ...prev, profileImageFile: file }))}
                 disabled={loading}
               />
             </div>

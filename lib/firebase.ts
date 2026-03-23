@@ -2,6 +2,7 @@
 import { getApp, getApps, initializeApp } from "firebase/app";
 import { getAuth } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
+import { getDownloadURL, getStorage, ref, uploadBytes } from "firebase/storage";
 
 function requireEnv(value: string | undefined, name: string): string {
   if (!value) {
@@ -26,3 +27,21 @@ const app = getApps().length > 0 ? getApp() : initializeApp(firebaseConfig);
 
 export const db = getFirestore(app);
 export const auth = getAuth(app);
+export const storage = getStorage(app);
+
+export async function uploadUserProfileImage(params: { uid: string; file: File }): Promise<string> {
+  const file = params.file;
+  if (!file) {
+    throw new Error("Missing file");
+  }
+  if (!file.type || !file.type.startsWith("image/")) {
+    throw new Error("File must be an image");
+  }
+  if (file.size > 5 * 1024 * 1024) {
+    throw new Error("Image must be <= 5MB");
+  }
+
+  const objectRef = ref(storage, `userProfiles/${params.uid}/profile`);
+  const snap = await uploadBytes(objectRef, file, { contentType: file.type });
+  return getDownloadURL(snap.ref);
+}

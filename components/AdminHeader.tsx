@@ -3,9 +3,10 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { onAuthStateChanged, signOut } from "firebase/auth";
-import { doc, onSnapshot } from "firebase/firestore";
+import { doc, onSnapshot, serverTimestamp, setDoc } from "firebase/firestore";
 import { auth, db } from "@/lib/firebase";
 import { toErrorInfo } from "@/lib/errorInfo";
+import { getDefaultAvatarUrl } from "@/lib/config";
 import {
   Bars3Icon,
   BellIcon,
@@ -48,7 +49,7 @@ export default function AdminHeader({ onMobileMenuClick }: { onMobileMenuClick?:
         "Administrator";
       const authImage = String(user.photoURL || "").trim();
       setDisplayName(authName);
-      setAvatarUrl(authImage);
+      setAvatarUrl(authImage || getDefaultAvatarUrl(authName));
 
       profileUnsub = onSnapshot(
         doc(db, "users", user.uid),
@@ -57,11 +58,22 @@ export default function AdminHeader({ onMobileMenuClick }: { onMobileMenuClick?:
           const name =
             String(data?.displayName || "").trim() ||
             authName;
-          const image =
+          const imageRaw =
+            String(data?.photoURL || "").trim() ||
             String(data?.image || "").trim() ||
             authImage;
+          const image = imageRaw || getDefaultAvatarUrl(name || authName);
           setDisplayName(name);
           setAvatarUrl(image);
+          const needsPhotoURL = !String(data?.photoURL || "").trim();
+          const needsDisplayName = !String(data?.displayName || "").trim();
+          if (snap.exists() && (needsPhotoURL || needsDisplayName)) {
+            setDoc(
+              doc(db, "users", user.uid),
+              { ...(needsDisplayName ? { displayName: name } : {}), ...(needsPhotoURL ? { photoURL: image } : {}), updatedAt: serverTimestamp() },
+              { merge: true },
+            ).catch((e) => console.error("Failed to backfill photoURL:", e));
+          }
         },
         (error) => {
           const { code, message } = toErrorInfo(error);
@@ -70,7 +82,7 @@ export default function AdminHeader({ onMobileMenuClick }: { onMobileMenuClick?:
             message,
           });
           setDisplayName(authName);
-          setAvatarUrl(authImage);
+          setAvatarUrl(authImage || getDefaultAvatarUrl(authName));
         },
       );
     });

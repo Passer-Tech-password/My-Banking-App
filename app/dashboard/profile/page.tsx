@@ -7,6 +7,7 @@ import { onAuthStateChanged, updateProfile } from "firebase/auth";
 import { useRouter } from "next/navigation";
 import { UserCircleIcon, PencilIcon, CheckIcon } from "@heroicons/react/24/outline";
 import { useToast } from "@/components/ToastProvider";
+import { getDefaultAvatarUrl } from "@/lib/config";
 import ImageUpload from "@/components/ImageUpload";
 
 export default function ProfilePage() {
@@ -19,7 +20,7 @@ export default function ProfilePage() {
     email: "",
     phone: "",
     address: "",
-    image: "",
+    photoURL: "",
   });
 
   useEffect(() => {
@@ -36,15 +37,25 @@ export default function ProfilePage() {
 
       if (snap.exists()) {
         const data = snap.data();
+        const displayName = data.displayName || user.displayName || "";
+        const email = user.email || "";
+        const photoURL =
+          data.photoURL ||
+          data.image ||
+          user.photoURL ||
+          getDefaultAvatarUrl(displayName || email);
         setFormData((prev) => ({
           ...prev,
-          displayName: data.displayName || user.displayName || "",
+          displayName,
           phone: data.phone || "",
           address: data.address || "",
-          image: data.image || user.photoURL || "",
+          photoURL,
         }));
       } else {
-        setFormData((prev) => ({ ...prev, displayName: user.displayName || "", image: user.photoURL || "" }));
+        const displayName = user.displayName || "";
+        const email = user.email || "";
+        const photoURL = user.photoURL || getDefaultAvatarUrl(displayName || email);
+        setFormData((prev) => ({ ...prev, displayName, photoURL }));
       }
       setLoading(false);
     });
@@ -59,11 +70,12 @@ export default function ProfilePage() {
       setLoading(true);
       const userRef = doc(db, "users", user.uid);
       const snap = await getDoc(userRef);
+      const photoURL = String(formData.photoURL || "").trim() || getDefaultAvatarUrl(formData.displayName || formData.email);
       const patch: Record<string, unknown> = {
         displayName: formData.displayName,
         phone: formData.phone,
         address: formData.address,
-        image: formData.image,
+        photoURL,
         updatedAt: serverTimestamp(),
       };
 
@@ -76,10 +88,10 @@ export default function ProfilePage() {
 
       await setDoc(userRef, patch, { merge: true });
 
-      if (user.displayName !== formData.displayName || user.photoURL !== formData.image) {
+      if (user.displayName !== formData.displayName || user.photoURL !== photoURL) {
         await updateProfile(user, { 
           displayName: formData.displayName,
-          photoURL: formData.image 
+          photoURL 
         });
       }
 
@@ -141,13 +153,13 @@ export default function ProfilePage() {
             <div className="flex-shrink-0">
               {editing ? (
                 <ImageUpload
-                  value={formData.image}
-                  onChange={(src) => setFormData({ ...formData, image: src })}
+                  value={formData.photoURL}
+                  onChange={(src) => setFormData({ ...formData, photoURL: src })}
                 />
               ) : (
                 <div className="w-24 h-24 rounded-full overflow-hidden bg-blue-100 flex items-center justify-center text-blue-600 border-2 border-gray-100">
-                  {formData.image ? (
-                    <img src={formData.image} alt="Profile" className="w-full h-full object-cover" />
+                  {formData.photoURL ? (
+                    <img src={formData.photoURL} alt="Profile" className="w-full h-full object-cover" />
                   ) : (
                     <UserCircleIcon className="w-12 h-12" />
                   )}

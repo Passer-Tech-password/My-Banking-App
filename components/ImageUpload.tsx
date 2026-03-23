@@ -1,52 +1,122 @@
 "use client";
 
-import { CldUploadWidget } from "next-cloudinary";
+import { useEffect, useRef, useState } from "react";
 import { CameraIcon } from "@heroicons/react/24/outline";
+import { doc, serverTimestamp, setDoc } from "firebase/firestore";
+import { updateProfile } from "firebase/auth";
+import { auth, db, uploadUserProfileImage } from "@/lib/firebase";
+import { useToast } from "@/components/ToastProvider";
 
 interface ImageUploadProps {
   value: string;
   onChange: (src: string) => void;
   disabled?: boolean;
+  onFileSelected?: (file: File | null) => void;
 }
 
 const ImageUpload: React.FC<ImageUploadProps> = ({
   value,
   onChange,
-  disabled
+  disabled,
+  onFileSelected,
 }) => {
-  const onUpload = (result: any) => {
-    const url = String(result?.info?.secure_url || result?.info?.url || "").trim();
-    if (url) onChange(url);
+  const toast = useToast();
+  const [uploading, setUploading] = useState(false);
+  const inputRef = useRef<HTMLInputElement | null>(null);
+  const objectUrlRef = useRef<string | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (objectUrlRef.current) {
+        URL.revokeObjectURL(objectUrlRef.current);
+        objectUrlRef.current = null;
+      }
+    };
+  }, []);
+
+  const handlePick = () => {
+    if (disabled || uploading) return;
+    inputRef.current?.click();
   };
 
-  const uploadPreset = process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET;
-  const cloudName = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME;
-  const configured = !!uploadPreset && !!cloudName;
+  const handleFile = async (file: File | null) => {
+    onFileSelected?.(file);
+    if (!file) return;
+
+    const user = auth.currentUser;
+    if (!user) {
+      if (objectUrlRef.current) URL.revokeObjectURL(objectUrlRef.current);
+      const url = URL.createObjectURL(file);
+      objectUrlRef.current = url;
+      onChange(url);
+      return;
+    }
+
+    try {
+      setUploading(true);
+      const url = await uploadUserProfileImage({ uid: user.uid, file });
+      onChange(url);
+
+      try {
+        await setDoc(
+          doc(db, "users", user.uid),
+          { photoURL: url, updatedAt: serverTimestamp() },
+          { merge: true },
+        );
+      } catch (e) {
+        console.error("Failed to persist photoURL to Firestore:", e);
+      }
+
+      try {
+        if (user.photoURL !== url) {
+          await updateProfile(user, { photoURL: url });
+        }
+      } catch (e) {
+        console.error("Failed to persist photoURL to Firebase Auth profile:", e);
+      }
+
+      toast.success("Profile image updated");
+    } catch (e) {
+      console.error("Image upload failed:", e);
+      const msg = e instanceof Error ? e.message : "Upload failed";
+      toast.error(msg);
+    } finally {
+      setUploading(false);
+    }
+  };
 
   const Avatar = ({ onClick }: { onClick?: () => void }) => (
     <div
       onClick={disabled ? undefined : onClick}
       className={`relative transition group ${disabled ? "opacity-60 cursor-not-allowed" : "cursor-pointer hover:opacity-70"}`}
     >
-      <div className={`w-24 h-24 rounded-full overflow-hidden bg-gray-100 border-2 border-dashed flex items-center justify-center ${configured ? "border-gray-300" : "border-red-300"}`}>
+      <div className="w-24 h-24 rounded-full overflow-hidden bg-gray-100 border-2 border-dashed border-gray-300 flex items-center justify-center">
         {value ? (
           <img style={{ objectFit: "cover" }} className="w-full h-full" alt="Upload" src={value} />
         ) : (
-          <CameraIcon className={`w-8 h-8 ${configured ? "text-gray-400" : "text-red-400"}`} />
+          <CameraIcon className="w-8 h-8 text-gray-400" />
         )}
       </div>
-      {!disabled && configured && (
+      {!disabled && (
         <div className="absolute inset-0 flex items-center justify-center bg-black/30 rounded-full opacity-0 group-hover:opacity-100 transition-opacity">
-          <span className="text-white text-xs font-medium">Change</span>
+          <span className="text-white text-xs font-medium">{uploading ? "Uploading..." : "Change"}</span>
         </div>
       )}
     </div>
   );
 
-  if (!configured) {
-    return (
-      <div className="flex flex-col items-start gap-2">
-        <Avatar />
+  return (
+    <div className="flex flex-col items-start gap-2">
+      <Avatar onClick={handlePick} />
+      <input
+        ref={inputRef}
+        type="file"
+        accept="image/*"
+        onChange={(e) => handleFile(e.target.files?.[0] || null)}
+        disabled={disabled || uploading}
+        className="hidden"
+      />
+      {!auth.currentUser && (
         <input
           type="url"
           value={value}
@@ -55,20 +125,8 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
           placeholder="Paste image URL"
           className="w-full max-w-xs px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
         />
-      </div>
-    );
-  }
-
-  return (
-    <CldUploadWidget
-      onUpload={onUpload}
-      uploadPreset={uploadPreset}
-      options={{
-        maxFiles: 1,
-      }}
-    >
-      {({ open }) => <Avatar onClick={() => open()} />}
-    </CldUploadWidget>
+      )}
+    </div>
   );
 };
 

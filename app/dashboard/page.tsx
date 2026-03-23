@@ -23,6 +23,7 @@ import { Transaction } from "@/lib/Transaction";
 import { Card } from "@/lib/Card";
 import { useToast } from "@/components/ToastProvider";
 import { toErrorInfo } from "@/lib/errorInfo";
+import { getDefaultAvatarUrl } from "@/lib/config";
 import { 
   PlusIcon, 
   MinusIcon, 
@@ -105,6 +106,7 @@ export default function DashboardPage() {
     let txUnsub: null | (() => void) = null;
     let fallbackTxUnsub: null | (() => void) = null;
     let contactsUnsub: null | (() => void) = null;
+    let userProfileUnsub: null | (() => void) = null;
     
     const safetyTimer = setTimeout(() => {
       if (isMounted) setLoading(false);
@@ -122,15 +124,27 @@ export default function DashboardPage() {
         setUserId(user.uid);
 
         const userRef = doc(db, "users", user.uid);
+        if (userProfileUnsub) {
+          userProfileUnsub();
+          userProfileUnsub = null;
+        }
         const snap = await getDoc(userRef);
 
         if (!snap.exists()) {
+          const displayName =
+            String(user.displayName || "").trim() ||
+            String(user.email || "").trim().split("@")[0] ||
+            "User";
+          const photoURL = String(user.photoURL || "").trim() || getDefaultAvatarUrl(displayName || user.email || "");
           await setDoc(userRef, {
             email: user.email ?? "",
+            displayName,
+            photoURL,
             balance: 0,
             role: "user",
             blocked: false,
             createdAt: serverTimestamp(),
+            updatedAt: serverTimestamp(),
           });
         } else {
           setBalance(snap.data()?.balance ?? 0);
@@ -138,24 +152,63 @@ export default function DashboardPage() {
           setDailyTransferLimit(Number(snap.data()?.dailyTransferLimit || 0));
         }
 
-        const userData = snap.exists() ? snap.data() : null;
-        const computedName =
-          (userData?.firstName && userData?.lastName ? `${userData.firstName} ${userData.lastName}` : "") ||
-          (userData?.displayName as string) ||
-          (user.displayName) ||
-          (user.email?.split("@")[0]) ||
-          "User";
-        
-        setUserName(computedName.split(" ")[0]);
-        setUserImage((userData?.image as string) || (user.photoURL as string) || "");
+        userProfileUnsub = onSnapshot(
+          userRef,
+          (profileSnap) => {
+            const data = profileSnap.exists() ? (profileSnap.data() as any) : null;
+            const computedName =
+              (data?.firstName && data?.lastName ? `${data.firstName} ${data.lastName}` : "") ||
+              String(data?.displayName || "").trim() ||
+              String(user.displayName || "").trim() ||
+              String(user.email || "").trim().split("@")[0] ||
+              "User";
+
+            const photoURLRaw =
+              String(data?.photoURL || "").trim() ||
+              String(data?.image || "").trim() ||
+              String(user.photoURL || "").trim();
+            const photoURL = photoURLRaw || getDefaultAvatarUrl(computedName || user.email || "");
+
+            if (isMounted) {
+              setUserName(computedName.split(" ")[0]);
+              setUserImage(photoURL);
+            }
+
+            const needsPhotoURL = !String(data?.photoURL || "").trim();
+            const needsDisplayName = !String(data?.displayName || "").trim();
+            if (profileSnap.exists() && (needsPhotoURL || needsDisplayName)) {
+              setDoc(
+                userRef,
+                { ...(needsDisplayName ? { displayName: computedName } : {}), ...(needsPhotoURL ? { photoURL } : {}), updatedAt: serverTimestamp() },
+                { merge: true },
+              ).catch((e) => console.error("Failed to backfill photoURL:", e));
+            }
+          },
+          (e) => {
+            console.error("User profile stream error:", e);
+          },
+        );
 
         const publicRef = doc(db, "publicUsers", user.uid);
         try {
+          const snapData = snap.exists() ? (snap.data() as any) : null;
+          const publicName =
+            (snapData?.firstName && snapData?.lastName ? `${snapData.firstName} ${snapData.lastName}` : "") ||
+            String(snapData?.displayName || "").trim() ||
+            String(user.displayName || "").trim() ||
+            String(user.email || "").trim().split("@")[0] ||
+            "User";
+          const publicPhotoURLRaw =
+            String(snapData?.photoURL || "").trim() ||
+            String(snapData?.image || "").trim() ||
+            String(user.photoURL || "").trim();
+          const publicPhotoURL = publicPhotoURLRaw || getDefaultAvatarUrl(publicName || user.email || "");
           await setDoc(
             publicRef,
             {
               email: user.email ?? "",
-              name: computedName,
+              name: publicName,
+              photoURL: publicPhotoURL,
               updatedAt: serverTimestamp(),
             },
             { merge: true },
@@ -307,6 +360,7 @@ export default function DashboardPage() {
       if (txUnsub) txUnsub();
       if (fallbackTxUnsub) fallbackTxUnsub();
       if (contactsUnsub) contactsUnsub();
+      if (userProfileUnsub) userProfileUnsub();
       clearTimeout(safetyTimer);
       unsub();
     };

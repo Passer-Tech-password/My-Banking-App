@@ -11,6 +11,7 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { useToast } from "@/components/ToastProvider";
 import { isAdminUserData, parseUserRole } from "@/lib/roles";
+import { getDefaultAvatarUrl } from "@/lib/config";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -45,8 +46,17 @@ export default function LoginPage() {
         const userRef = doc(db, "users", cred.user.uid);
         const snap = await getDoc(userRef);
         if (!snap.exists()) {
+          const displayName =
+            String(cred.user.displayName || "").trim() ||
+            String(cred.user.email || "").trim().split("@")[0] ||
+            "User";
+          const photoURL =
+            String(cred.user.photoURL || "").trim() ||
+            getDefaultAvatarUrl(displayName || email);
           await setDoc(userRef, {
             email: cred.user.email ?? email,
+            displayName,
+            photoURL,
             role: "user",
             blocked: false,
             createdAt: serverTimestamp(),
@@ -55,6 +65,19 @@ export default function LoginPage() {
           });
         } else {
           const data = snap.data() as unknown;
+          const hasPhotoURL = !!String((data as any)?.photoURL || "").trim();
+          if (!hasPhotoURL) {
+            const displayName =
+              String((data as any)?.displayName || "").trim() ||
+              String(cred.user.displayName || "").trim() ||
+              String(cred.user.email || "").trim().split("@")[0] ||
+              "User";
+            const photoURL =
+              String((data as any)?.image || "").trim() ||
+              String(cred.user.photoURL || "").trim() ||
+              getDefaultAvatarUrl(displayName || email);
+            await setDoc(userRef, { photoURL, updatedAt: serverTimestamp() }, { merge: true });
+          }
           const blocked = (data as any)?.blocked;
           const isBlocked = blocked === true || blocked === "true";
           if (isBlocked) {
