@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { onAuthStateChanged } from "firebase/auth";
-import { collection, getDocs, query, doc, updateDoc, deleteDoc, getDoc, onSnapshot, orderBy, limit } from "firebase/firestore";
+import { collection, getDocs, query, doc, updateDoc, deleteDoc, getDoc, onSnapshot, orderBy, limit, where } from "firebase/firestore";
 import { auth, db } from "@/lib/firebase";
 import UserTable, { UserData } from "@/components/UserTable";
 import FundUserModal from "@/components/FundUserModal";
@@ -23,6 +23,17 @@ export default function AdminDashboardPage() {
   const toast = useToast();
   const [users, setUsers] = useState<UserData[]>([]);
   const [recentTransactions, setRecentTransactions] = useState<Transaction[]>([]);
+  const [pendingCardRequests, setPendingCardRequests] = useState<
+    Array<{
+      id: string;
+      userId: string;
+      email: string;
+      status: "pending" | "approved" | "rejected";
+      createdAt?: any;
+      updatedAt?: any;
+    }>
+  >([]);
+  const [cardRequestsLoading, setCardRequestsLoading] = useState(false);
   const [authChecking, setAuthChecking] = useState(true);
   const [usersLoading, setUsersLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
@@ -38,6 +49,7 @@ export default function AdminDashboardPage() {
     setGreeting(hour < 12 ? "Good morning" : hour < 18 ? "Good afternoon" : "Good evening");
 
     let txUnsub: null | (() => void) = null;
+    let cardReqUnsub: null | (() => void) = null;
     let authUnsub: null | (() => void) = null;
     const startTxStream = () => {
       if (txUnsub) txUnsub();
@@ -52,6 +64,49 @@ export default function AdminDashboardPage() {
         (err) => {
           console.error("Admin activity stream error:", err);
           toast.error("Failed to load live activity");
+        },
+      );
+    };
+
+    const startCardRequestsStream = () => {
+      if (cardReqUnsub) cardReqUnsub();
+      setCardRequestsLoading(true);
+      const q = query(
+        collection(db, "cardRequests"),
+        where("status", "==", "pending"),
+        orderBy("createdAt", "desc"),
+        limit(50),
+      );
+      cardReqUnsub = onSnapshot(
+        q,
+        (snap) => {
+          const rows: Array<{
+            id: string;
+            userId: string;
+            email: string;
+            status: "pending" | "approved" | "rejected";
+            createdAt?: any;
+            updatedAt?: any;
+          }> = [];
+          snap.forEach((d) => {
+            const data = d.data() as any;
+            const status = String(data?.status || "pending") as any;
+            rows.push({
+              id: d.id,
+              userId: String(data?.userId || ""),
+              email: String(data?.email || ""),
+              status: status === "approved" || status === "rejected" ? status : "pending",
+              createdAt: data?.createdAt,
+              updatedAt: data?.updatedAt,
+            });
+          });
+          setPendingCardRequests(rows);
+          setCardRequestsLoading(false);
+        },
+        (err) => {
+          console.error("Admin cardRequests stream error:", err);
+          setCardRequestsLoading(false);
+          toast.error("Failed to load card requests");
         },
       );
     };
@@ -74,6 +129,7 @@ export default function AdminDashboardPage() {
         setAuthChecking(false);
         fetchUsers();
         startTxStream();
+        startCardRequestsStream();
       } catch (error) {
         console.error("Error verifying admin user:", error);
         authUnsub?.();
@@ -86,6 +142,7 @@ export default function AdminDashboardPage() {
     return () => {
       authUnsub?.();
       txUnsub?.();
+      cardReqUnsub?.();
     };
   }, [router]);
 
@@ -141,6 +198,42 @@ export default function AdminDashboardPage() {
           toast.error("Failed to delete user");
       }
   }
+
+  const updateCardRequestStatus = async (requestId: string, action: "approve" | "reject") => {
+    const user = auth.currentUser;
+    if (!user) {
+      toast.error("Not signed in");
+      return;
+    }
+    try {
+      const idToken = await user.getIdToken();
+      const res = await fetch("/api/admin/card-requests", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${idToken}`,
+        },
+        body: JSON.stringify({ requestId, action }),
+      });
+      const raw = await res.text();
+      const data = (() => {
+        try {
+          return raw ? JSON.parse(raw) : null;
+        } catch {
+          return null;
+        }
+      })() as any;
+      if (!res.ok) {
+        const msg = String(data?.message || raw || `Request failed (${res.status}).`);
+        toast.error(msg);
+        return;
+      }
+      toast.success(action === "approve" ? "Request approved" : "Request rejected");
+    } catch (e) {
+      console.error("Update card request failed:", e);
+      toast.error("Failed to update card request");
+    }
+  };
 
   const openFundModal = (user: UserData) => {
     setSelectedUser(user);
@@ -217,6 +310,49 @@ export default function AdminDashboardPage() {
             <p className="text-2xl font-bold text-gray-900">{stats.blocked}</p>
           </div>
         </div>
+      </div>
+
+      <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+        <div className="p-6 border-b border-gray-100 flex items-center justify-between gap-4">
+          <div>
+            <h2 className="text-lg font-bold text-gray-900">Virtual Card Requests</h2>
+            <p className="text-sm text-gray-500">Pending approvals</p>
+          </div>
+          {cardRequestsLoading && (
+            <div className="flex items-center gap-2 text-sm text-gray-500">
+              <span className="inline-block h-4 w-4 border-b-2 border-blue-500 rounded-full animate-spin" />
+              <span>Loading...</span>
+            </div>
+          )}
+        </div>
+        {pendingCardRequests.length === 0 ? (
+          <div className="p-6 text-sm text-gray-500">No pending card requests.</div>
+        ) : (
+          <div className="divide-y divide-gray-100">
+            {pendingCardRequests.map((r) => (
+              <div key={r.id} className="p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div className="min-w-0">
+                  <div className="text-sm font-medium text-gray-900 truncate">{r.email || "Unknown email"}</div>
+                  <div className="text-xs text-gray-500 truncate">userId: {r.userId} • requestId: {r.id}</div>
+                </div>
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => updateCardRequestStatus(r.id, "approve")}
+                    className="px-3 py-2 rounded-lg text-sm font-medium bg-green-600 text-white hover:bg-green-700 transition-colors"
+                  >
+                    Approve
+                  </button>
+                  <button
+                    onClick={() => updateCardRequestStatus(r.id, "reject")}
+                    className="px-3 py-2 rounded-lg text-sm font-medium bg-red-600 text-white hover:bg-red-700 transition-colors"
+                  >
+                    Reject
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
 
       <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">

@@ -57,6 +57,10 @@ export default function DashboardPage() {
   const [savedContacts, setSavedContacts] = useState<Array<{ id: string; email: string; name: string }>>([]);
   const [userName, setUserName] = useState("");
   const [userImage, setUserImage] = useState("");
+  const [cardRequestStatus, setCardRequestStatus] = useState<"none" | "pending" | "approved" | "rejected">("none");
+  const [cardRequestId, setCardRequestId] = useState<string | null>(null);
+  const [cardRequestLoading, setCardRequestLoading] = useState(false);
+  const [cardRequestError, setCardRequestError] = useState<string | null>(null);
 
   // Fetch cards
   useEffect(() => {
@@ -107,6 +111,7 @@ export default function DashboardPage() {
     let fallbackTxUnsub: null | (() => void) = null;
     let contactsUnsub: null | (() => void) = null;
     let userProfileUnsub: null | (() => void) = null;
+    let cardRequestUnsub: null | (() => void) = null;
     let backfillTimer: ReturnType<typeof setTimeout> | null = null;
     let backfillChain: Promise<void> = Promise.resolve();
     let lastBackfillDisplayName = "";
@@ -223,6 +228,43 @@ export default function DashboardPage() {
           },
           (e) => {
             console.error("User profile stream error:", e);
+          },
+        );
+
+        if (cardRequestUnsub) {
+          cardRequestUnsub();
+          cardRequestUnsub = null;
+        }
+        setCardRequestError(null);
+        setCardRequestStatus("none");
+        setCardRequestId(null);
+        const cardReqQ = query(
+          collection(db, "cardRequests"),
+          where("userId", "==", user.uid),
+          orderBy("createdAt", "desc"),
+          limit(1),
+        );
+        cardRequestUnsub = onSnapshot(
+          cardReqQ,
+          (snap) => {
+            if (snap.empty) {
+              setCardRequestStatus("none");
+              setCardRequestId(null);
+              return;
+            }
+            const row = snap.docs[0]!;
+            const data = row.data() as any;
+            const status = String(data?.status || "").trim();
+            if (status === "pending" || status === "approved" || status === "rejected") {
+              setCardRequestStatus(status);
+            } else {
+              setCardRequestStatus("none");
+            }
+            setCardRequestId(row.id);
+          },
+          (e) => {
+            console.error("cardRequests stream error:", e);
+            setCardRequestError("Failed to load card request status.");
           },
         );
 
@@ -398,11 +440,64 @@ export default function DashboardPage() {
       if (fallbackTxUnsub) fallbackTxUnsub();
       if (contactsUnsub) contactsUnsub();
       if (userProfileUnsub) userProfileUnsub();
+      if (cardRequestUnsub) cardRequestUnsub();
       if (backfillTimer) clearTimeout(backfillTimer);
       clearTimeout(safetyTimer);
       unsub();
     };
   }, [router]);
+
+  const applyForVirtualCard = async () => {
+    const user = auth.currentUser;
+    if (!user) {
+      toast.error("You must be signed in.");
+      return;
+    }
+    if (cardRequestStatus === "pending") {
+      toast.info("You already have a pending card request.");
+      return;
+    }
+    try {
+      setCardRequestLoading(true);
+      setCardRequestError(null);
+      const email = String(user.email || "").trim().toLowerCase();
+      if (!email) {
+        toast.error("Your account has no email.");
+        return;
+      }
+      const existingPendingQ = query(
+        collection(db, "cardRequests"),
+        where("userId", "==", user.uid),
+        where("status", "==", "pending"),
+        limit(1),
+      );
+      const existingPendingSnap = await getDocs(existingPendingQ);
+      if (!existingPendingSnap.empty) {
+        setCardRequestStatus("pending");
+        setCardRequestId(existingPendingSnap.docs[0]!.id);
+        toast.info("You already have a pending card request.");
+        return;
+      }
+      const ref = doc(collection(db, "cardRequests"));
+      await setDoc(ref, {
+        userId: user.uid,
+        email,
+        status: "pending",
+        createdAt: serverTimestamp(),
+        updatedAt: serverTimestamp(),
+      });
+      setCardRequestStatus("pending");
+      setCardRequestId(ref.id);
+      toast.success("Virtual card request submitted.");
+    } catch (e) {
+      const info = toErrorInfo(e);
+      console.error("Create card request failed:", info);
+      setCardRequestError("Failed to submit card request.");
+      toast.error(`Failed to submit card request (${info.code || "unknown"}).`);
+    } finally {
+      setCardRequestLoading(false);
+    }
+  };
 
   const saveTransaction = async (
     type: "deposit" | "withdrawal",
@@ -779,12 +874,58 @@ export default function DashboardPage() {
           <button onClick={exportStatement} className="bg-white border border-gray-300 text-gray-700 px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-50 transition-colors">
             Download Statement
           </button>
+          <button
+            onClick={applyForVirtualCard}
+            disabled={cardRequestLoading || cardRequestStatus === "pending"}
+            className="bg-white border border-gray-300 text-gray-700 px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-50 transition-colors disabled:opacity-70"
+          >
+            {cardRequestStatus === "pending"
+              ? "Awaiting card approval"
+              : cardRequestLoading
+                ? "Submitting..."
+                : "Apply for Virtual Card"}
+          </button>
           <button className="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors shadow-sm flex items-center gap-2">
             <PlusIcon className="w-4 h-4" />
             New Transfer
           </button>
         </div>
       </div>
+
+      {cardRequestError && (
+        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
+          {cardRequestError}
+        </div>
+      )}
+
+      {cardRequestStatus === "rejected" && (
+        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
+          Your virtual card request was rejected.
+        </div>
+      )}
+
+      {cardRequestStatus === "approved" && (
+        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
+          <div className="flex items-center justify-between gap-4">
+            <div>
+              <div className="text-sm text-gray-500">Virtual Card</div>
+              <div className="text-xl font-semibold text-gray-900">{userName || "User"}</div>
+              <div className="text-xs text-gray-400">Approved request{cardRequestId ? `: ${cardRequestId.slice(0, 8)}…` : ""}</div>
+            </div>
+            <div className="text-right">
+              <div className="text-sm text-gray-500">Status</div>
+              <div className="text-green-700 font-semibold">Active</div>
+            </div>
+          </div>
+          <div className="mt-4 h-28 rounded-xl bg-gradient-to-br from-blue-700 to-blue-900 text-white p-5 flex flex-col justify-between">
+            <div className="text-xs opacity-90">Aurora Bank</div>
+            <div className="flex items-end justify-between">
+              <div className="tracking-widest text-lg font-semibold">•••• •••• •••• 1234</div>
+              <div className="text-xs opacity-90">12/30</div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Main Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
