@@ -90,12 +90,15 @@ export default function AdminDashboardPage() {
           }> = [];
           snap.forEach((d) => {
             const data = d.data() as any;
-            const status = String(data?.status || "pending") as any;
+            const status =
+              data?.status === "approved" || data?.status === "rejected"
+                ? data.status
+                : "pending";
             rows.push({
               id: d.id,
               userId: String(data?.userId || ""),
               email: String(data?.email || ""),
-              status: status === "approved" || status === "rejected" ? status : "pending",
+              status,
               createdAt: data?.createdAt,
               updatedAt: data?.updatedAt,
             });

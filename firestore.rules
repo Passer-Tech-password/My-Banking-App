@@ -110,7 +110,9 @@ service cloud.firestore {
         && request.resource.data.userId == request.auth.uid
         && request.resource.data.email == request.auth.token.email
         && request.resource.data.status == "pending";
-      allow update, delete: if isAdmin();
+      allow update: if isAdmin()
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(["status", "updatedAt"]);
+      allow delete: if isAdmin();
     }
   }
 }

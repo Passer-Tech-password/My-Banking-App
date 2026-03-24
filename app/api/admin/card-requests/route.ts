@@ -60,6 +60,11 @@ export async function POST(req: Request) {
       return jsonError(404, "not_found", "Card request not found.");
     }
 
+    const currentStatus = String(snap.data()?.status || "").trim();
+    if (currentStatus && currentStatus !== "pending") {
+      return jsonError(400, "invalid_request", "Request already processed");
+    }
+
     const nextStatus = action === "approve" ? "approved" : "rejected";
     await ref.set(
       {
@@ -80,4 +85,3 @@ export async function POST(req: Request) {
     return jsonError(500, "internal_error", message);
   }
 }
-
