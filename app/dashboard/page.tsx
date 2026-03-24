@@ -140,12 +140,23 @@ export default function DashboardPage() {
           lastBackfillPhotoURL = nextPhotoURL;
           if (backfillTimer) clearTimeout(backfillTimer);
           backfillTimer = setTimeout(() => {
-            const payload: Record<string, unknown> = { updatedAt: serverTimestamp() };
-            if (patch.displayName) payload.displayName = patch.displayName;
-            if (patch.photoURL) payload.photoURL = patch.photoURL;
             backfillChain = backfillChain.then(async () => {
               try {
-                await setDoc(userRef, payload, { merge: true });
+                await runTransaction(db, async (tx) => {
+                  const current = await tx.get(userRef);
+                  if (!current.exists()) return;
+                  const data = current.data() as any;
+                  const update: Record<string, unknown> = { updatedAt: serverTimestamp() };
+                  if (patch.displayName && !String(data?.displayName || "").trim()) {
+                    update.displayName = patch.displayName;
+                  }
+                  if (patch.photoURL && !String(data?.photoURL || "").trim()) {
+                    update.photoURL = patch.photoURL;
+                  }
+                  if (Object.keys(update).length > 1) {
+                    tx.set(userRef, update, { merge: true });
+                  }
+                });
               } catch (e) {
                 console.error("Failed to backfill photoURL:", e);
               }
