@@ -147,13 +147,16 @@ export default function DashboardPage() {
                   if (!current.exists()) return;
                   const data = current.data() as any;
                   const update: Record<string, unknown> = { updatedAt: serverTimestamp() };
+                  let needsWrite = false;
                   if (patch.displayName && !String(data?.displayName || "").trim()) {
                     update.displayName = patch.displayName;
+                    needsWrite = true;
                   }
                   if (patch.photoURL && !String(data?.photoURL || "").trim()) {
                     update.photoURL = patch.photoURL;
+                    needsWrite = true;
                   }
-                  if (Object.keys(update).length > 1) {
+                  if (needsWrite) {
                     tx.set(userRef, update, { merge: true });
                   }
                 });
