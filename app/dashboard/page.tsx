@@ -875,15 +875,10 @@ export default function DashboardPage() {
             Download Statement
           </button>
           <button
-            onClick={applyForVirtualCard}
-            disabled={cardRequestLoading || cardRequestStatus === "pending"}
-            className="bg-white border border-gray-300 text-gray-700 px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-50 transition-colors disabled:opacity-70"
+            onClick={() => router.push("/apply-card")}
+            className="bg-white border border-gray-300 text-gray-700 px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-50 transition-colors"
           >
-            {cardRequestStatus === "pending"
-              ? "Awaiting card approval"
-              : cardRequestLoading
-                ? "Submitting..."
-                : "Apply for Virtual Card"}
+            Get Virtual Card
           </button>
           <button className="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors shadow-sm flex items-center gap-2">
             <PlusIcon className="w-4 h-4" />
