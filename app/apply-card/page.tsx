@@ -44,8 +44,8 @@ export default function ApplyCardPage() {
           setRequestId(null);
         }
       } catch (e) {
-        console.error(\"Check existing card request failed:\", e);
-        setError(\"Failed to check your card request status.\");
+        console.error("Check existing card request failed:", e);
+        setError("Failed to check your card request status.");
       } finally {
         setAuthChecking(false);
       }
@@ -97,9 +97,9 @@ export default function ApplyCardPage() {
       toast.success("Your request has been submitted.");
       router.push("/dashboard");
     } catch (e) {
-      console.error(\"Submit card request failed:\", e);
-      setError(\"Failed to submit card request.\");
-      toast.error(\"Submission failed. Please try again.\");
+      console.error("Submit card request failed:", e);
+      setError("Failed to submit card request.");
+      toast.error("Submission failed. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -107,8 +107,8 @@ export default function ApplyCardPage() {
 
   if (authChecking) {
     return (
-      <div className=\"flex items-center justify-center min-h-[60vh]\">
-        <div className=\"animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600\"></div>
+      <div className="flex items-center justify-center min-h-[60vh]">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
       </div>
     );
   }
