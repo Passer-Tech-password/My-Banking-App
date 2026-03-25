@@ -5,12 +5,12 @@ export class Subscriber {
   updatedAt?: unknown;
   ip?: string | null;
 
-  constructor(builder: SubscriberBuilder) {
-    this.id = builder.id;
-    this.email = builder.email;
-    this.createdAt = builder.createdAt;
-    this.updatedAt = builder.updatedAt;
-    this.ip = builder.ip;
+  constructor(init: { id?: string; email: string; createdAt?: unknown; updatedAt?: unknown; ip?: string | null }) {
+    this.id = init.id;
+    this.email = init.email;
+    this.createdAt = init.createdAt;
+    this.updatedAt = init.updatedAt;
+    this.ip = init.ip;
   }
 
   static builder(): SubscriberBuilder {
@@ -63,7 +63,12 @@ export class SubscriberBuilder {
   build(): Subscriber {
     const email = String(this.email || "").trim().toLowerCase();
     if (!email) throw new Error("Subscriber requires email");
-    return new Subscriber({ ...this, email } as SubscriberBuilder);
+    return new Subscriber({
+      id: this.id,
+      email,
+      createdAt: this.createdAt,
+      updatedAt: this.updatedAt,
+      ip: this.ip,
+    });
   }
 }
-

@@ -9,16 +9,26 @@ export class ContactMessage {
   createdAt?: unknown;
   updatedAt?: unknown;
 
-  constructor(builder: ContactMessageBuilder) {
-    this.id = builder.id;
-    this.userId = builder.userId;
-    this.name = builder.name;
-    this.email = builder.email;
-    this.subject = builder.subject;
-    this.message = builder.message;
-    this.ip = builder.ip;
-    this.createdAt = builder.createdAt;
-    this.updatedAt = builder.updatedAt;
+  constructor(init: {
+    id?: string;
+    userId?: string | null;
+    name: string;
+    email: string;
+    subject?: string;
+    message: string;
+    ip?: string | null;
+    createdAt?: unknown;
+    updatedAt?: unknown;
+  }) {
+    this.id = init.id;
+    this.userId = init.userId;
+    this.name = init.name;
+    this.email = init.email;
+    this.subject = init.subject;
+    this.message = init.message;
+    this.ip = init.ip;
+    this.createdAt = init.createdAt;
+    this.updatedAt = init.updatedAt;
   }
 
   static builder(): ContactMessageBuilder {
@@ -104,17 +114,16 @@ export class ContactMessageBuilder {
     if (!name) throw new Error("ContactMessage requires name");
     if (!email) throw new Error("ContactMessage requires email");
     if (!message) throw new Error("ContactMessage requires message");
-    const next = new ContactMessageBuilder();
-    next.id = this.id;
-    next.userId = this.userId;
-    next.name = name;
-    next.email = email;
-    next.subject = subject;
-    next.message = message;
-    next.ip = this.ip;
-    next.createdAt = this.createdAt;
-    next.updatedAt = this.updatedAt;
-    return new ContactMessage(next);
+    return new ContactMessage({
+      id: this.id,
+      userId: this.userId,
+      name,
+      email,
+      subject,
+      message,
+      ip: this.ip,
+      createdAt: this.createdAt,
+      updatedAt: this.updatedAt,
+    });
   }
 }
-
