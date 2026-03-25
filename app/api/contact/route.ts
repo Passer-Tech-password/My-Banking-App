@@ -19,13 +19,6 @@ function jsonError(status: number, code: ApiErrorCode, message: string) {
 
 export async function POST(req: Request) {
   try {
-    const authHeader = req.headers.get("authorization") || req.headers.get("Authorization") || "";
-    const match = authHeader.match(/^Bearer\s+(.+)$/i);
-    const idToken = match?.[1];
-    if (!idToken) {
-      return jsonError(401, "unauthorized", "Missing Authorization bearer token.");
-    }
-
     const body = (await req.json().catch(() => null)) as
       | null
       | {
@@ -44,15 +37,20 @@ export async function POST(req: Request) {
 
     const adminAuth = getFirebaseAdminAuth();
     const adminDb = getFirebaseAdminDb();
-    const decoded = await adminAuth.verifyIdToken(idToken);
-    const uid = String(decoded.uid || "").trim();
-    if (!uid) {
-      return jsonError(401, "unauthorized", "Invalid token.");
-    }
+    const authHeader = req.headers.get("authorization") || req.headers.get("Authorization") || "";
+    const match = authHeader.match(/^Bearer\s+(.+)$/i);
+    const idToken = match?.[1];
+    const uid =
+      idToken
+        ? await adminAuth
+            .verifyIdToken(idToken)
+            .then((d) => String(d.uid || "").trim())
+            .catch(() => "")
+        : "";
 
     const ref = adminDb.collection("contactMessages").doc();
     await ref.set({
-      userId: uid,
+      userId: uid || null,
       name,
       email,
       subject,
@@ -72,4 +70,3 @@ export async function POST(req: Request) {
     return jsonError(500, "internal_error", message);
   }
 }
-

@@ -117,21 +117,12 @@ service cloud.firestore {
 
     match /subscribers/{subscriberId} {
       allow read: if isAdmin();
-      allow create: if isAuthenticated()
-        && request.resource.data.userId == request.auth.uid
-        && request.resource.data.email is string
-        && request.resource.data.email == request.resource.data.email.toLower();
-      allow update, delete: if isAdmin();
+      allow create, update, delete: if false;
     }
 
     match /contactMessages/{messageId} {
       allow read: if isAdmin();
-      allow create: if isAuthenticated()
-        && request.resource.data.userId == request.auth.uid
-        && request.resource.data.name is string
-        && request.resource.data.email is string
-        && request.resource.data.message is string;
-      allow update, delete: if isAdmin();
+      allow create, update, delete: if false;
     }
   }
 }

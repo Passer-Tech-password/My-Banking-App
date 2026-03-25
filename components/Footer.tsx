@@ -5,14 +5,12 @@ import Link from "next/link";
 import { createTranslator, type Locale } from "@/lib/i18n/messages";
 import { getLocaleFromDocument } from "@/lib/i18n/client";
 import { useEffect, useState } from "react";
-import { auth, db } from "@/lib/firebase";
-import { collection, getDocs, limit, query, where, setDoc, doc, serverTimestamp } from "firebase/firestore";
 
 export default function Footer({ locale }: { locale?: Locale }) {
   const [resolvedLocale, setResolvedLocale] = useState<Locale>(locale ?? "en");
   const [email, setEmail] = useState("");
   const [submitting, setSubmitting] = useState(false);
-  const [feedback, setFeedback] = useState<string | null>(null);
+  const [feedback, setFeedback] = useState<{ type: "success" | "error" | "info"; message: string } | null>(null);
 
   useEffect(() => {
     if (locale) {
@@ -89,40 +87,39 @@ export default function Footer({ locale }: { locale?: Locale }) {
                 e.preventDefault();
                 if (submitting) return;
                 setFeedback(null);
-                const user = auth.currentUser;
-                if (!user) {
-                  setFeedback("Please sign in to subscribe.");
-                  return;
-                }
                 const emailTrimmed = email.trim().toLowerCase();
                 if (!emailTrimmed || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailTrimmed)) {
-                  setFeedback("Enter a valid email.");
+                  setFeedback({ type: "error", message: "Enter a valid email." });
                   return;
                 }
                 try {
                   setSubmitting(true);
-                  const q = query(
-                    collection(db, "subscribers"),
-                    where("email", "==", emailTrimmed),
-                    limit(1),
-                  );
-                  const snap = await getDocs(q);
-                  if (!snap.empty) {
-                    setFeedback("You are already subscribed.");
+                  const res = await fetch("/api/subscribe", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ email: emailTrimmed }),
+                  });
+                  const raw = await res.text();
+                  const data = (() => {
+                    try {
+                      return raw ? JSON.parse(raw) : null;
+                    } catch {
+                      return null;
+                    }
+                  })() as any;
+                  if (!res.ok) {
+                    setFeedback({ type: "error", message: String(data?.message || raw || "Subscription failed.") });
                     return;
                   }
-                  const ref = doc(collection(db, "subscribers"));
-                  await setDoc(ref, {
-                    userId: user.uid,
-                    email: emailTrimmed,
-                    createdAt: serverTimestamp(),
-                    updatedAt: serverTimestamp(),
-                  });
-                  setFeedback("Subscribed successfully.");
+                  if (data?.alreadySubscribed === true) {
+                    setFeedback({ type: "info", message: "You are already subscribed." });
+                  } else {
+                    setFeedback({ type: "success", message: "Subscribed successfully." });
+                  }
                   setEmail("");
                 } catch (err) {
                   console.error("Subscribe error:", err);
-                  setFeedback("Subscription failed. Please try again.");
+                  setFeedback({ type: "error", message: "Subscription failed. Please try again." });
                 } finally {
                   setSubmitting(false);
                 }
@@ -139,7 +136,9 @@ export default function Footer({ locale }: { locale?: Locale }) {
                 {t("footer.subscribeButton")}
               </button>
               {feedback && (
-                <div className="text-xs text-gray-400">{feedback}</div>
+                <div className={`text-xs ${feedback.type === "success" ? "text-green-400" : feedback.type === "error" ? "text-red-400" : "text-gray-400"}`}>
+                  {feedback.message}
+                </div>
               )}
             </form>
           </div>

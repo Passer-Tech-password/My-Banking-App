@@ -878,7 +878,11 @@ export default function DashboardPage() {
             onClick={() => router.push("/apply-card")}
             className="bg-white border border-gray-300 text-gray-700 px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-50 transition-colors"
           >
-            Get Virtual Card
+            {cardRequestStatus === "approved"
+              ? "Manage Virtual Card"
+              : cardRequestStatus === "pending"
+                ? "Track Virtual Card"
+                : "Get Virtual Card"}
           </button>
           <button className="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors shadow-sm flex items-center gap-2">
             <PlusIcon className="w-4 h-4" />
@@ -921,6 +925,32 @@ export default function DashboardPage() {
           </div>
         </div>
       )}
+
+      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
+        <h2 className="text-lg font-semibold text-gray-900">Virtual Card Policy & Usage</h2>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
+          <div className="bg-gray-50 border border-gray-100 rounded-xl p-4">
+            <div className="text-sm font-semibold text-gray-900">Policy</div>
+            <ul className="text-sm text-gray-600 list-disc pl-5 space-y-1 mt-2">
+              <li>Issued only after admin approval.</li>
+              <li>Never share card details or OTP codes.</li>
+              <li>Report suspicious activity immediately.</li>
+            </ul>
+          </div>
+          <div className="bg-gray-50 border border-gray-100 rounded-xl p-4">
+            <div className="text-sm font-semibold text-gray-900">Usage</div>
+            <p className="text-sm text-gray-600 mt-2">
+              Use your virtual card for online payments and subscriptions. Verify merchant URLs before paying.
+            </p>
+          </div>
+          <div className="bg-gray-50 border border-gray-100 rounded-xl p-4">
+            <div className="text-sm font-semibold text-gray-900">Verification</div>
+            <p className="text-sm text-gray-600 mt-2">
+              Apply via Get Virtual Card. Status updates in real-time on your dashboard.
+            </p>
+          </div>
+        </div>
+      </div>
 
       {/* Main Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
