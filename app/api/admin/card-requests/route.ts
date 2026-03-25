@@ -88,7 +88,7 @@ export async function POST(req: Request) {
           let sum = 0;
           for (let i = 0; i < ds.length; i++) {
             let d = ds[i];
-            if (i % 2 === (ds.length % 2)) {
+            if ((ds.length - 1 - i) % 2 === 1) {
               d *= 2;
               if (d > 9) d -= 9;
             }
