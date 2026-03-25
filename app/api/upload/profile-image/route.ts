@@ -49,7 +49,7 @@ export async function POST(req: Request) {
     const buffer = Buffer.from(await file.arrayBuffer());
     const result = await uploadProfileImage({ uid, buffer, contentType: file.type });
     const url = String(result.secure_url || "").trim();
-    const version = Number((result as any)?.version || 0);
+    const version = Number(result.version || 0);
     const photoVersion = Number.isFinite(version) && version > 0 ? version : Date.now();
     if (!url) {
       return jsonError(500, "internal_error", "Upload failed.");

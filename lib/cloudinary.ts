@@ -23,6 +23,11 @@ export async function uploadProfileImage(params: { uid: string; buffer: Buffer; 
   const cld = getCloudinary();
   const publicId = `user_${params.uid}`;
 
+  type CloudinaryResult = {
+    secure_url?: unknown;
+    version?: unknown;
+  };
+
   return new Promise<{ secure_url: string; version: number }>((resolve, reject) => {
     const stream = cld.uploader.upload_stream(
       {
@@ -34,9 +39,10 @@ export async function uploadProfileImage(params: { uid: string; buffer: Buffer; 
       },
       (err, result) => {
         if (err) return reject(err);
-        const url = String((result as any)?.secure_url || "").trim();
+        const r = (result || null) as CloudinaryResult | null;
+        const url = typeof r?.secure_url === "string" ? r.secure_url.trim() : "";
         if (!url) return reject(new Error("Upload failed"));
-        const version = Number((result as any)?.version || 0);
+        const version = typeof r?.version === "number" ? r.version : Number(r?.version);
         resolve({ secure_url: url, version: Number.isFinite(version) && version > 0 ? version : Date.now() });
       },
     );
