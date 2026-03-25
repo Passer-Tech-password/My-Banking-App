@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { FieldValue } from "firebase-admin/firestore";
 import { getFirebaseAdminAuth, getFirebaseAdminDb } from "@/lib/firebaseAdmin";
+import crypto from "crypto";
 
 export const runtime = "nodejs";
 
@@ -66,9 +67,40 @@ export async function POST(req: Request) {
     }
 
     const nextStatus = action === "approve" ? "approved" : "rejected";
+    const data = snap.data() as any;
+    const requestedUserId = String(data?.userId || "").trim();
+    if (!requestedUserId) {
+      return jsonError(400, "invalid_request", "Invalid card request (missing userId).");
+    }
+
+    let cardId: string | null = typeof data?.cardId === "string" ? data.cardId : null;
+    if (action === "approve") {
+      if (!cardId) {
+        const digits = Array.from({ length: 16 }, () => String(crypto.randomInt(0, 10))).join("");
+        const formatted = `${digits.slice(0, 4)} ${digits.slice(4, 8)} ${digits.slice(8, 12)} ${digits.slice(12)}`;
+        const cvv = String(crypto.randomInt(0, 1000)).padStart(3, "0");
+        const now = new Date();
+        const expMonth = String(((now.getMonth() + 1 + 24) % 12) || 12).padStart(2, "0");
+        const expYear = String((now.getFullYear() + 2) % 100).padStart(2, "0");
+        const holder = String(data?.email || "").trim() || "AURORA MEMBER";
+        const cardRef = adminDb.collection(`users/${requestedUserId}/cards`).doc();
+        cardId = cardRef.id;
+        await cardRef.set({
+          network: "VISA",
+          number: formatted,
+          holder,
+          expires: `${expMonth}/${expYear}`,
+          cvv,
+          createdAt: FieldValue.serverTimestamp(),
+          updatedAt: FieldValue.serverTimestamp(),
+        });
+      }
+    }
+
     await ref.set(
       {
         status: nextStatus,
+        ...(cardId ? { cardId } : {}),
         updatedAt: FieldValue.serverTimestamp(),
       },
       { merge: true },

@@ -1,14 +1,15 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { doc, getDoc, serverTimestamp, setDoc } from "firebase/firestore";
+import { doc, getDoc } from "firebase/firestore";
 import { auth, db } from "@/lib/firebase";
-import { onAuthStateChanged, updateProfile } from "firebase/auth";
+import { onAuthStateChanged } from "firebase/auth";
 import { useRouter } from "next/navigation";
 import { UserCircleIcon, PencilIcon, CheckIcon } from "@heroicons/react/24/outline";
 import { useToast } from "@/components/ToastProvider";
 import { getDefaultAvatarUrl } from "@/lib/config";
 import ImageUpload from "@/components/ImageUpload";
+import { stripQueryParam } from "@/lib/url";
 
 export default function ProfilePage() {
   const router = useRouter();
@@ -70,38 +71,38 @@ export default function ProfilePage() {
 
     try {
       setLoading(true);
-      const userRef = doc(db, "users", user.uid);
-      const snap = await getDoc(userRef);
-      const photoURL = String(formData.photoURL || "").trim() || getDefaultAvatarUrl(formData.displayName || formData.email);
-      const patch: Record<string, unknown> = {
-        displayName: formData.displayName,
-        phone: formData.phone,
-        address: formData.address,
-        photoURL,
-        updatedAt: serverTimestamp(),
-      };
-
-      if (!snap.exists()) {
-        patch.email = user.email ?? "";
-        patch.role = "user";
-        patch.blocked = false;
-        patch.createdAt = serverTimestamp();
-      }
-
-      await setDoc(userRef, patch, { merge: true });
-
-      if (user.displayName !== formData.displayName || user.photoURL !== photoURL) {
-        await updateProfile(user, { 
+      const idToken = await user.getIdToken();
+      const res = await fetch("/api/user/update-profile", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${idToken}`,
+        },
+        body: JSON.stringify({
           displayName: formData.displayName,
-          photoURL 
-        });
+          phone: formData.phone,
+          address: formData.address,
+          photoURL: stripQueryParam(formData.photoURL, "v"),
+        }),
+      });
+      const raw = await res.text();
+      const data = (() => {
+        try {
+          return raw ? JSON.parse(raw) : null;
+        } catch {
+          return null;
+        }
+      })() as any;
+      if (!res.ok) {
+        toast.error(String(data?.message || raw || "Failed to update profile. Please try again."));
+        return;
       }
 
       setEditing(false);
       toast.success("Profile updated");
     } catch (error) {
       console.error("Error updating profile:", error);
-      toast.error("Failed to update profile. Please try again.");
+      toast.error(error instanceof Error ? error.message : "Failed to update profile. Please try again.");
     } finally {
       setLoading(false);
     }
