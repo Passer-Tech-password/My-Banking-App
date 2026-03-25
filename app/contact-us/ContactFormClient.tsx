@@ -11,12 +11,40 @@ export default function ContactFormClient() {
   const [email, setEmail] = useState("");
   const [subject, setSubject] = useState("");
   const [message, setMessage] = useState("");
+  const [website, setWebsite] = useState("");
+  const [turnstileToken, setTurnstileToken] = useState("");
   const [loading, setLoading] = useState(false);
+
+  const turnstileSiteKey = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY;
+  const turnstileEnabled = !!turnstileSiteKey;
 
   useEffect(() => {
     const userEmail = String(auth.currentUser?.email || "").trim();
     if (userEmail) setEmail(userEmail);
   }, []);
+
+  useEffect(() => {
+    if (!turnstileEnabled) return;
+    const callbackName = "__aurora_turnstile_cb";
+    const expiredName = "__aurora_turnstile_expired";
+    (window as any)[callbackName] = (token: string) => setTurnstileToken(String(token || ""));
+    (window as any)[expiredName] = () => setTurnstileToken("");
+
+    const existing = document.querySelector('script[data-turnstile="1"]');
+    if (existing) return;
+
+    const script = document.createElement("script");
+    script.src = "https://challenges.cloudflare.com/turnstile/v0/api.js";
+    script.async = true;
+    script.defer = true;
+    script.setAttribute("data-turnstile", "1");
+    document.head.appendChild(script);
+
+    return () => {
+      delete (window as any)[callbackName];
+      delete (window as any)[expiredName];
+    };
+  }, [turnstileEnabled]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -29,6 +57,14 @@ export default function ContactFormClient() {
 
     if (!name || !emailTrimmed || !messageTrimmed) {
       toast.error("Please fill in name, email, and message.");
+      return;
+    }
+    if (website.trim()) {
+      toast.error("Invalid request.");
+      return;
+    }
+    if (turnstileEnabled && !turnstileToken) {
+      toast.error("Please complete the CAPTCHA.");
       return;
     }
 
@@ -49,6 +85,8 @@ export default function ContactFormClient() {
           email: emailTrimmed,
           subject: subjectTrimmed,
           message: messageTrimmed,
+          website,
+          turnstileToken,
         }),
       });
 
@@ -72,6 +110,8 @@ export default function ContactFormClient() {
       if (!auth.currentUser?.email) setEmail("");
       setSubject("");
       setMessage("");
+      setWebsite("");
+      setTurnstileToken("");
     } catch (err) {
       console.error("CONTACT SUBMIT ERROR:", err);
       toast.error("Failed to send message. Please try again.");
@@ -156,6 +196,22 @@ export default function ContactFormClient() {
           required
         ></textarea>
       </div>
+
+      <div className="hidden">
+        <label htmlFor="website">Website</label>
+        <input id="website" value={website} onChange={(e) => setWebsite(e.target.value)} />
+      </div>
+
+      {turnstileEnabled && (
+        <div className="flex justify-start">
+          <div
+            className="cf-turnstile"
+            data-sitekey={turnstileSiteKey}
+            data-callback="__aurora_turnstile_cb"
+            data-expired-callback="__aurora_turnstile_expired"
+          />
+        </div>
+      )}
 
       <button
         type="submit"
