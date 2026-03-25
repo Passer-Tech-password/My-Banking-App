@@ -86,13 +86,15 @@ export async function POST(req: Request) {
         const luhnCheckDigit = (num: string): string => {
           const ds = num.split("").map((c) => Number(c));
           let sum = 0;
-          for (let i = 0; i < ds.length; i++) {
+          let shouldDouble = true;
+          for (let i = ds.length - 1; i >= 0; i--) {
             let d = ds[i];
-            if ((ds.length - 1 - i) % 2 === 1) {
+            if (shouldDouble) {
               d *= 2;
               if (d > 9) d -= 9;
             }
             sum += d;
+            shouldDouble = !shouldDouble;
           }
           return String((10 - (sum % 10)) % 10);
         };
