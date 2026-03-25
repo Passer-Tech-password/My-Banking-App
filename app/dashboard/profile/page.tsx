@@ -39,11 +39,13 @@ export default function ProfilePage() {
         const data = snap.data();
         const displayName = data.displayName || user.displayName || "";
         const email = user.email || "";
-        const photoURL =
-          data.photoURL ||
-          data.image ||
-          user.photoURL ||
-          getDefaultAvatarUrl(displayName || email);
+        const baseUrl = String((data as any)?.photoURL || "").trim() || String((data as any)?.image || "").trim() || String(user.photoURL || "").trim();
+        const version = Number((data as any)?.photoVersion || 0);
+        const versionedUrl =
+          baseUrl && Number.isFinite(version) && version > 0
+            ? `${baseUrl}${baseUrl.includes("?") ? "&" : "?"}v=${encodeURIComponent(String(version))}`
+            : baseUrl;
+        const photoURL = versionedUrl || getDefaultAvatarUrl(displayName || email);
         setFormData((prev) => ({
           ...prev,
           displayName,

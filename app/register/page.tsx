@@ -7,7 +7,7 @@ import { getDefaultAvatarUrl } from "@/lib/config";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { createUserWithEmailAndPassword, sendEmailVerification, updateProfile } from "firebase/auth";
-import { auth, db, uploadUserProfileImage } from "@/lib/firebase";
+import { auth, db } from "@/lib/firebase";
 import { doc, setDoc, serverTimestamp } from "firebase/firestore";
 import { useToast } from "@/components/ToastProvider";
 import ImageUpload from "@/components/ImageUpload";
@@ -33,7 +33,6 @@ export default function RegisterPage() {
     password: "",
     confirmPassword: "",
     profileImage: "",
-    profileImageFile: null as File | null,
     passport: null as File | null,
   };
   const [formData, setFormData] = useState(initialFormData);
@@ -77,15 +76,6 @@ export default function RegisterPage() {
       const displayName = `${formData.firstName} ${formData.lastName}`.trim();
 
       let photoURL = String(formData.profileImage || "").trim();
-      if (formData.profileImageFile) {
-        try {
-          photoURL = await uploadUserProfileImage({ uid, file: formData.profileImageFile });
-        } catch (e) {
-          console.error("Profile image upload failed:", e);
-          toast.error("Profile image upload failed. Using a default avatar.");
-          photoURL = "";
-        }
-      }
       if (!photoURL) {
         photoURL = getDefaultAvatarUrl(displayName || email);
       }
@@ -177,7 +167,6 @@ export default function RegisterPage() {
               <ImageUpload
                 value={formData.profileImage}
                 onChange={(src) => setFormData((prev) => ({ ...prev, profileImage: src }))}
-                onFileSelected={(file) => setFormData((prev) => ({ ...prev, profileImageFile: file }))}
                 disabled={loading}
               />
             </div>

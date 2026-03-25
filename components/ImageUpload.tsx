@@ -2,9 +2,8 @@
 
 import { useEffect, useRef, useState } from "react";
 import { CameraIcon } from "@heroicons/react/24/outline";
-import { doc, serverTimestamp, setDoc } from "firebase/firestore";
 import { updateProfile } from "firebase/auth";
-import { auth, db, uploadUserProfileImage } from "@/lib/firebase";
+import { auth } from "@/lib/firebase";
 import { useToast } from "@/components/ToastProvider";
 
 interface ImageUploadProps {
@@ -44,28 +43,46 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
     if (!file) return;
 
     const user = auth.currentUser;
-    if (!user) {
-      if (objectUrlRef.current) URL.revokeObjectURL(objectUrlRef.current);
-      const url = URL.createObjectURL(file);
-      objectUrlRef.current = url;
-      onChange(url);
-      return;
-    }
+    if (!user) return;
 
     try {
       setUploading(true);
-      const url = await uploadUserProfileImage({ uid: user.uid, file });
-      onChange(url);
+      if (objectUrlRef.current) URL.revokeObjectURL(objectUrlRef.current);
+      const previewUrl = URL.createObjectURL(file);
+      objectUrlRef.current = previewUrl;
+      onChange(previewUrl);
 
-      try {
-        await setDoc(
-          doc(db, "users", user.uid),
-          { photoURL: url, updatedAt: serverTimestamp() },
-          { merge: true },
-        );
-      } catch (e) {
-        console.error("Failed to persist photoURL to Firestore:", e);
+      const idToken = await user.getIdToken();
+      const form = new FormData();
+      form.set("file", file);
+      const res = await fetch("/api/upload/profile-image", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${idToken}`,
+        },
+        body: form,
+      });
+      const raw = await res.text();
+      const data = (() => {
+        try {
+          return raw ? JSON.parse(raw) : null;
+        } catch {
+          return null;
+        }
+      })() as any;
+      if (!res.ok) {
+        const msg = String(data?.message || raw || "Upload failed");
+        toast.error(msg);
+        return;
       }
+      const url = String(data?.url || "").trim();
+      if (!url) {
+        toast.error("Upload failed");
+        return;
+      }
+      const photoVersion = Number(data?.photoVersion || Date.now());
+      const versionedUrl = `${url}${url.includes("?") ? "&" : "?"}v=${encodeURIComponent(String(photoVersion))}`;
+      onChange(versionedUrl);
 
       try {
         if (user.photoURL !== url) {
@@ -116,16 +133,6 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
         disabled={disabled || uploading}
         className="hidden"
       />
-      {!auth.currentUser && (
-        <input
-          type="url"
-          value={value}
-          onChange={(e) => onChange(e.target.value)}
-          disabled={disabled}
-          placeholder="Paste image URL"
-          className="w-full max-w-xs px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-        />
-      )}
     </div>
   );
 };

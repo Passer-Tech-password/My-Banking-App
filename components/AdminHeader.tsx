@@ -58,10 +58,15 @@ export default function AdminHeader({ onMobileMenuClick }: { onMobileMenuClick?:
           const name =
             String(data?.displayName || "").trim() ||
             authName;
-          const imageRaw =
+          const baseUrl =
             String(data?.photoURL || "").trim() ||
             String(data?.image || "").trim() ||
             authImage;
+          const version = Number(data?.photoVersion || 0);
+          const imageRaw =
+            baseUrl && Number.isFinite(version) && version > 0
+              ? `${baseUrl}${baseUrl.includes("?") ? "&" : "?"}v=${encodeURIComponent(String(version))}`
+              : baseUrl;
           const image = imageRaw || getDefaultAvatarUrl(name || authName);
           setDisplayName(name);
           setAvatarUrl(image);

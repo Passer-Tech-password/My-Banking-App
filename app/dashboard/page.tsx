@@ -210,7 +210,12 @@ export default function DashboardPage() {
               String(data?.photoURL || "").trim() ||
               String(data?.image || "").trim() ||
               String(user.photoURL || "").trim();
-            const photoURL = photoURLRaw || getDefaultAvatarUrl(computedName || user.email || "");
+            const version = Number(data?.photoVersion || 0);
+            const photoURLWithVersion =
+              photoURLRaw && Number.isFinite(version) && version > 0
+                ? `${photoURLRaw}${photoURLRaw.includes("?") ? "&" : "?"}v=${encodeURIComponent(String(version))}`
+                : photoURLRaw;
+            const photoURL = photoURLWithVersion || getDefaultAvatarUrl(computedName || user.email || "");
 
             if (isMounted) {
               setUserName(computedName.split(" ")[0]);
