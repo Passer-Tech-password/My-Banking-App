@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { FieldValue } from "firebase-admin/firestore";
 import { getFirebaseAdminAuth, getFirebaseAdminDb } from "@/lib/firebaseAdmin";
+import { ContactMessage } from "@/lib/ContactMessage";
 
 export const runtime = "nodejs";
 
@@ -150,16 +151,17 @@ export async function POST(req: Request) {
         : "";
 
     const ref = adminDb.collection("contactMessages").doc();
-    await ref.set({
-      userId: uid || null,
-      name,
-      email,
-      subject,
-      message,
-      ip: ip !== "unknown" ? ip : null,
-      createdAt: FieldValue.serverTimestamp(),
-      updatedAt: FieldValue.serverTimestamp(),
-    });
+    const contact = ContactMessage.builder()
+      .setUserId(uid || null)
+      .setName(name)
+      .setEmail(email)
+      .setSubject(subject)
+      .setMessage(message)
+      .setIp(ip !== "unknown" ? ip : null)
+      .setCreatedAt(FieldValue.serverTimestamp())
+      .setUpdatedAt(FieldValue.serverTimestamp())
+      .build();
+    await ref.set(contact.toFirestore());
 
     return NextResponse.json({ ok: true, id: ref.id });
   } catch (e) {

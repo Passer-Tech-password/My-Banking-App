@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { FieldValue } from "firebase-admin/firestore";
 import { getFirebaseAdminDb } from "@/lib/firebaseAdmin";
+import { Subscriber } from "@/lib/Subscriber";
 
 export const runtime = "nodejs";
 
@@ -91,12 +92,13 @@ export async function POST(req: Request) {
       return NextResponse.json({ ok: true, alreadySubscribed: true });
     }
 
-    await ref.set({
-      email,
-      ip: ip !== "unknown" ? ip : null,
-      createdAt: FieldValue.serverTimestamp(),
-      updatedAt: FieldValue.serverTimestamp(),
-    });
+    const subscriber = Subscriber.builder()
+      .setEmail(email)
+      .setIp(ip !== "unknown" ? ip : null)
+      .setCreatedAt(FieldValue.serverTimestamp())
+      .setUpdatedAt(FieldValue.serverTimestamp())
+      .build();
+    await ref.set(subscriber.toFirestore());
 
     return NextResponse.json({ ok: true, alreadySubscribed: false });
   } catch (e) {

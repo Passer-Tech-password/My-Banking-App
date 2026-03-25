@@ -8,6 +8,7 @@ import { auth, db } from "@/lib/firebase";
 import { onAuthStateChanged } from "firebase/auth";
 import { collection, doc, getDocs, limit, orderBy, query, serverTimestamp, setDoc, where } from "firebase/firestore";
 import { useToast } from "@/components/ToastProvider";
+import { CardRequest } from "@/lib/CardRequest";
 
 export default function ApplyCardPage() {
   const router = useRouter();
@@ -85,13 +86,14 @@ export default function ApplyCardPage() {
         return;
       }
       const ref = doc(collection(db, "cardRequests"));
-      await setDoc(ref, {
-        userId: user.uid,
-        email,
-        status: "pending",
-        createdAt: serverTimestamp(),
-        updatedAt: serverTimestamp(),
-      });
+      const req = CardRequest.builder()
+        .setUserId(user.uid)
+        .setEmail(email)
+        .setStatus("pending")
+        .setCreatedAt(serverTimestamp())
+        .setUpdatedAt(serverTimestamp())
+        .build();
+      await setDoc(ref, req.toFirestore());
       setStatus("pending");
       setRequestId(ref.id);
       toast.success("Your request has been submitted.");

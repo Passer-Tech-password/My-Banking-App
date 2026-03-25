@@ -83,12 +83,12 @@ export async function POST(req: Request) {
           } while (b >= 250);
           return String(b % 10);
         };
-        const luhnCheckDigit = (num: string): string => {
-          const ds = num.split("").map((c) => Number(c));
+        const luhnChecksum = (num: string): number => {
           let sum = 0;
-          let shouldDouble = true;
-          for (let i = ds.length - 1; i >= 0; i--) {
-            let d = ds[i];
+          let shouldDouble = false;
+          for (let i = num.length - 1; i >= 0; i--) {
+            let d = Number(num[i]);
+            if (!Number.isFinite(d)) return NaN;
             if (shouldDouble) {
               d *= 2;
               if (d > 9) d -= 9;
@@ -96,7 +96,12 @@ export async function POST(req: Request) {
             sum += d;
             shouldDouble = !shouldDouble;
           }
-          return String((10 - (sum % 10)) % 10);
+          return sum % 10;
+        };
+        const luhnCheckDigit = (base: string): string => {
+          const checksum = luhnChecksum(`${base}0`);
+          if (!Number.isFinite(checksum)) throw new Error("Failed to generate card number.");
+          return String((10 - checksum) % 10);
         };
         const prefix = "4";
         const body = Array.from({ length: 14 }, () => randomDigit()).join("");
