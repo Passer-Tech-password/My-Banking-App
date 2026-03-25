@@ -83,7 +83,24 @@ export async function POST(req: Request) {
           } while (b >= 250);
           return String(b % 10);
         };
-        const digits = Array.from({ length: 16 }, () => randomDigit()).join("");
+        const luhnCheckDigit = (num: string): string => {
+          const ds = num.split("").map((c) => Number(c));
+          let sum = 0;
+          for (let i = 0; i < ds.length; i++) {
+            let d = ds[i];
+            if (i % 2 === (ds.length % 2)) {
+              d *= 2;
+              if (d > 9) d -= 9;
+            }
+            sum += d;
+          }
+          return String((10 - (sum % 10)) % 10);
+        };
+        const prefix = "4";
+        const body = Array.from({ length: 14 }, () => randomDigit()).join("");
+        const partial = `${prefix}${body}`;
+        const check = luhnCheckDigit(partial);
+        const digits = `${partial}${check}`;
         const formatted = `${digits.slice(0, 4)} ${digits.slice(4, 8)} ${digits.slice(8, 12)} ${digits.slice(12)}`;
         const cvv = String(crypto.randomBytes(2).readUInt16BE(0) % 1000).padStart(3, "0");
         const now = new Date();
