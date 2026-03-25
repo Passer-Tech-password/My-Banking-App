@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { collection, addDoc, getDocs, deleteDoc, doc, query, where } from "firebase/firestore";
+import { collection, addDoc, getDocs, deleteDoc, doc, query, where, orderBy, limit } from "firebase/firestore";
 import { auth, db } from "@/lib/firebase";
 import { onAuthStateChanged } from "firebase/auth";
 import { useRouter } from "next/navigation";
@@ -14,6 +14,7 @@ export default function CardsPage() {
   const toast = useToast();
   const [loading, setLoading] = useState(true);
   const [cards, setCards] = useState<Card[]>([]);
+  const [cardRequestStatus, setCardRequestStatus] = useState<"none" | "pending" | "approved" | "rejected">("none");
   const [showAddForm, setShowAddForm] = useState(false);
   const [newCard, setNewCard] = useState({
     network: "VISA" as CardNetwork,
@@ -29,7 +30,25 @@ export default function CardsPage() {
         router.push("/login");
         return;
       }
-      fetchCards(user.uid);
+      await fetchCards(user.uid);
+      try {
+        const reqQ = query(
+          collection(db, "cardRequests"),
+          where("userId", "==", user.uid),
+          orderBy("createdAt", "desc"),
+          limit(1),
+        );
+        const snap = await getDocs(reqQ);
+        if (snap.empty) {
+          setCardRequestStatus("none");
+        } else {
+          const s = String((snap.docs[0]!.data() as any)?.status || "pending");
+          setCardRequestStatus(s === "approved" || s === "rejected" ? (s as any) : "pending");
+        }
+      } catch (e) {
+        console.error("Failed to load card request status:", e);
+        setCardRequestStatus("none");
+      }
     });
     return () => unsub();
   }, [router]);
@@ -81,34 +100,6 @@ export default function CardsPage() {
     }
   };
 
-  const handleGenerateVirtualCard = async () => {
-    const user = auth.currentUser;
-    if (!user) return;
-
-    try {
-      // Simple random generation for demo purposes
-      const random4 = () => Math.floor(1000 + Math.random() * 9000).toString();
-      const generatedNumber = `4${random4().substring(1)} ${random4()} ${random4()} ${random4()}`;
-      const expMonth = Math.floor(1 + Math.random() * 12).toString().padStart(2, '0');
-      const expYear = (new Date().getFullYear() + 2 + Math.floor(Math.random() * 3)).toString().slice(-2);
-      
-      const card = Card.builder()
-        .setNetwork("VISA")
-        .setNumber(generatedNumber)
-        .setHolder((user.displayName || "AURORA USER").toUpperCase())
-        .setExpires(`${expMonth}/${expYear}`)
-        .setCvv(Math.floor(100 + Math.random() * 900).toString())
-        .build();
-
-      await addDoc(collection(db, `users/${user.uid}/cards`), card.toFirestore());
-      fetchCards(user.uid);
-      toast.success("Virtual card generated successfully");
-    } catch (error) {
-      console.error("Error generating card:", error);
-      toast.error("Failed to generate virtual card.");
-    }
-  };
-
   const handleDeleteCard = async (cardId: string) => {
     const user = auth.currentUser;
     if (!user) return;
@@ -142,11 +133,11 @@ export default function CardsPage() {
         </div>
         <div className="flex gap-2">
           <button
-            onClick={handleGenerateVirtualCard}
+            onClick={() => router.push(cardRequestStatus === "none" ? "/apply-card" : "/track-card")}
             className="flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-lg text-sm font-medium hover:bg-indigo-700 transition-colors shadow-sm"
           >
             <CreditCardIcon className="w-4 h-4" />
-            Get Virtual Card
+            {cardRequestStatus === "approved" ? "Manage Virtual Card" : cardRequestStatus === "pending" ? "Track Request" : "Get Virtual Card"}
           </button>
           <button
             onClick={() => setShowAddForm(true)}
