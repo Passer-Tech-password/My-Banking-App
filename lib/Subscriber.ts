@@ -1,3 +1,11 @@
+export interface SubscriberInit {
+  id?: string;
+  email: string;
+  createdAt?: unknown;
+  updatedAt?: unknown;
+  ip?: string | null;
+}
+
 export class Subscriber {
   id?: string;
   email: string;
@@ -5,7 +13,7 @@ export class Subscriber {
   updatedAt?: unknown;
   ip?: string | null;
 
-  constructor(init: { id?: string; email: string; createdAt?: unknown; updatedAt?: unknown; ip?: string | null }) {
+  constructor(init: SubscriberInit) {
     this.id = init.id;
     this.email = init.email;
     this.createdAt = init.createdAt;

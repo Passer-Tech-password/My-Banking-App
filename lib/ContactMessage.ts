@@ -1,3 +1,15 @@
+export interface ContactMessageInit {
+  id?: string;
+  userId?: string | null;
+  name: string;
+  email: string;
+  subject?: string;
+  message: string;
+  ip?: string | null;
+  createdAt?: unknown;
+  updatedAt?: unknown;
+}
+
 export class ContactMessage {
   id?: string;
   userId?: string | null;
@@ -9,17 +21,7 @@ export class ContactMessage {
   createdAt?: unknown;
   updatedAt?: unknown;
 
-  constructor(init: {
-    id?: string;
-    userId?: string | null;
-    name: string;
-    email: string;
-    subject?: string;
-    message: string;
-    ip?: string | null;
-    createdAt?: unknown;
-    updatedAt?: unknown;
-  }) {
+  constructor(init: ContactMessageInit) {
     this.id = init.id;
     this.userId = init.userId;
     this.name = init.name;
