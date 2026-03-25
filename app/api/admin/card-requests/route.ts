@@ -76,13 +76,14 @@ export async function POST(req: Request) {
     let cardId: string | null = typeof data?.cardId === "string" ? data.cardId : null;
     if (action === "approve") {
       if (!cardId) {
-        const digits = crypto
-          .randomBytes(8)
-          .toString("hex")
-          .slice(0, 16)
-          .split("")
-          .map((c) => String(parseInt(c, 16) % 10))
-          .join("");
+        const randomDigit = (): string => {
+          let b = 0;
+          do {
+            b = crypto.randomBytes(1)[0];
+          } while (b >= 250);
+          return String(b % 10);
+        };
+        const digits = Array.from({ length: 16 }, () => randomDigit()).join("");
         const formatted = `${digits.slice(0, 4)} ${digits.slice(4, 8)} ${digits.slice(8, 12)} ${digits.slice(12)}`;
         const cvv = String(crypto.randomBytes(2).readUInt16BE(0) % 1000).padStart(3, "0");
         const now = new Date();
