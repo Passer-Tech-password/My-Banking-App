@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { onAuthStateChanged } from "firebase/auth";
+import { onAuthStateChanged, signOut } from "firebase/auth";
 import { collection, getDocs, query, doc, updateDoc, deleteDoc, getDoc, onSnapshot, orderBy, limit, where } from "firebase/firestore";
 import { auth, db } from "@/lib/firebase";
 import UserTable, { UserData } from "@/components/UserTable";
@@ -209,7 +209,7 @@ export default function AdminDashboardPage() {
       return;
     }
     try {
-      const idToken = await user.getIdToken();
+      const idToken = await user.getIdToken(true);
       const res = await fetch("/api/admin/card-requests", {
         method: "POST",
         headers: {
@@ -218,6 +218,12 @@ export default function AdminDashboardPage() {
         },
         body: JSON.stringify({ requestId, action }),
       });
+      if (res.status === 401) {
+        toast.error("Session expired. Please login again.");
+        await signOut(auth);
+        router.push("/admin/login");
+        return;
+      }
       const raw = await res.text();
       const data = (() => {
         try {

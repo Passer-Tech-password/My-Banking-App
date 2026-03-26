@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { doc, getDoc } from "firebase/firestore";
 import { auth, db } from "@/lib/firebase";
-import { onAuthStateChanged } from "firebase/auth";
+import { onAuthStateChanged, signOut } from "firebase/auth";
 import { useRouter } from "next/navigation";
 import { UserCircleIcon, PencilIcon, CheckIcon } from "@heroicons/react/24/outline";
 import { useToast } from "@/components/ToastProvider";
@@ -71,7 +71,7 @@ export default function ProfilePage() {
 
     try {
       setLoading(true);
-      const idToken = await user.getIdToken();
+      const idToken = await user.getIdToken(true);
       const res = await fetch("/api/user/update-profile", {
         method: "POST",
         headers: {
@@ -85,6 +85,12 @@ export default function ProfilePage() {
           photoURL: stripQueryParam(formData.photoURL, "v"),
         }),
       });
+      if (res.status === 401) {
+        toast.error("Session expired. Please login again.");
+        await signOut(auth);
+        router.push("/login");
+        return;
+      }
       const raw = await res.text();
       const data = (() => {
         try {

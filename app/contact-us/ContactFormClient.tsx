@@ -72,7 +72,7 @@ export default function ContactFormClient() {
       setLoading(true);
 
       const user = auth.currentUser;
-      const idToken = user ? await user.getIdToken().catch(() => null) : null;
+      const idToken = user ? await user.getIdToken(true).catch(() => null) : null;
 
       const res = await fetch("/api/contact", {
         method: "POST",

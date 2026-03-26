@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { CameraIcon } from "@heroicons/react/24/outline";
-import { updateProfile } from "firebase/auth";
+import { signOut, updateProfile } from "firebase/auth";
 import { auth } from "@/lib/firebase";
 import { useToast } from "@/components/ToastProvider";
 
@@ -52,7 +52,7 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
       objectUrlRef.current = previewUrl;
       onChange(previewUrl);
 
-      const idToken = await user.getIdToken();
+      const idToken = await user.getIdToken(true);
       const form = new FormData();
       form.set("file", file);
       const res = await fetch("/api/upload/profile-image", {
@@ -62,6 +62,12 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
         },
         body: form,
       });
+      if (res.status === 401) {
+        toast.error("Session expired. Please login again.");
+        await signOut(auth);
+        window.location.href = "/login";
+        return;
+      }
       const raw = await res.text();
       const data = (() => {
         try {

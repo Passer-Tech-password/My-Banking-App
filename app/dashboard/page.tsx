@@ -62,24 +62,6 @@ export default function DashboardPage() {
   const [cardRequestLoading, setCardRequestLoading] = useState(false);
   const [cardRequestError, setCardRequestError] = useState<string | null>(null);
 
-  // Fetch cards
-  useEffect(() => {
-    if (!userId) return;
-    const q = query(collection(db, `users/${userId}/cards`));
-    const unsubscribe = onSnapshot(q, (snapshot) => {
-      const cards: Card[] = [];
-      snapshot.forEach((doc) => {
-        cards.push({ id: doc.id, ...doc.data() } as Card);
-      });
-      if (cards.length > 0) {
-        setMainCard(cards[0]);
-      } else {
-        setMainCard(null);
-      }
-    });
-    return () => unsubscribe();
-  }, [userId]);
-
   const sendEmail = async (type: string, amount: number, status: string, referenceId: string) => {
     if (!auth.currentUser?.email) return;
     try {
@@ -112,6 +94,7 @@ export default function DashboardPage() {
     let contactsUnsub: null | (() => void) = null;
     let userProfileUnsub: null | (() => void) = null;
     let cardRequestUnsub: null | (() => void) = null;
+    let cardsUnsub: null | (() => void) = null;
     let backfillTimer: ReturnType<typeof setTimeout> | null = null;
     let backfillChain: Promise<void> = Promise.resolve();
     let lastBackfillDisplayName = "";
@@ -255,6 +238,11 @@ export default function DashboardPage() {
             if (snap.empty) {
               setCardRequestStatus("none");
               setCardRequestId(null);
+              if (cardsUnsub) {
+                cardsUnsub();
+                cardsUnsub = null;
+              }
+              setMainCard(null);
               return;
             }
             const row = snap.docs[0]!;
@@ -266,6 +254,37 @@ export default function DashboardPage() {
               setCardRequestStatus("none");
             }
             setCardRequestId(row.id);
+
+            if (status !== "approved") {
+              if (cardsUnsub) {
+                cardsUnsub();
+                cardsUnsub = null;
+              }
+              setMainCard(null);
+              return;
+            }
+
+            if (cardsUnsub) return;
+            const cardsQ = query(
+              collection(db, `users/${user.uid}/cards`),
+              orderBy("createdAt", "desc"),
+              limit(1),
+            );
+            cardsUnsub = onSnapshot(
+              cardsQ,
+              (cardsSnap) => {
+                if (cardsSnap.empty) {
+                  setMainCard(null);
+                  return;
+                }
+                const d = cardsSnap.docs[0]!;
+                setMainCard({ id: d.id, ...(d.data() as any) } as Card);
+              },
+              (e) => {
+                console.error("Cards stream error:", e);
+                setMainCard(null);
+              },
+            );
           },
           (e) => {
             console.error("cardRequests stream error:", e);
@@ -421,16 +440,6 @@ export default function DashboardPage() {
           },
         );
 
-        // Fetch Main Card
-        const cardsQ = query(collection(db, `users/${user.uid}/cards`), limit(1));
-        const cardsSnap = await getDocs(cardsQ);
-        if (isMounted) {
-          if (!cardsSnap.empty) {
-            setMainCard({ id: cardsSnap.docs[0].id, ...cardsSnap.docs[0].data() } as Card);
-          } else {
-            setMainCard(null);
-          }
-        }
       } catch (error) {
         console.error("Dashboard error:", error);
       } finally {
@@ -446,6 +455,7 @@ export default function DashboardPage() {
       if (contactsUnsub) contactsUnsub();
       if (userProfileUnsub) userProfileUnsub();
       if (cardRequestUnsub) cardRequestUnsub();
+      if (cardsUnsub) cardsUnsub();
       if (backfillTimer) clearTimeout(backfillTimer);
       clearTimeout(safetyTimer);
       unsub();
@@ -1211,8 +1221,25 @@ export default function DashboardPage() {
               </>
             ) : (
               <div className="text-center py-8 bg-gray-50 rounded-xl border border-dashed border-gray-200">
-                <p className="text-gray-500 mb-4">No cards added</p>
-                <Link href="/dashboard/cards" className="text-blue-600 font-medium">Add Card</Link>
+                <p className="text-gray-700 mb-1">
+                  {cardRequestStatus === "pending"
+                    ? "Your request is under review."
+                    : cardRequestStatus === "rejected"
+                      ? "Your request was rejected."
+                      : cardRequestStatus === "approved"
+                        ? "Your virtual card is being provisioned."
+                        : "Apply for a virtual card to access My Cards."}
+                </p>
+                <Link
+                  href={cardRequestStatus === "none" ? "/apply-card" : "/track-card"}
+                  className="text-blue-600 font-medium"
+                >
+                  {cardRequestStatus === "none"
+                    ? "Apply for Card"
+                    : cardRequestStatus === "rejected"
+                      ? "Re-Apply"
+                      : "Track Request"}
+                </Link>
               </div>
             )}
           </div>

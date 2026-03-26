@@ -128,6 +128,15 @@ export async function POST(req: Request) {
       }
     }
 
+    await adminDb.doc(`users/${requestedUserId}`).set(
+      {
+        virtualCardStatus: nextStatus,
+        virtualCardApproved: nextStatus == "approved",
+        updatedAt: FieldValue.serverTimestamp(),
+      },
+      { merge: true },
+    );
+
     await ref.set(
       {
         status: nextStatus,

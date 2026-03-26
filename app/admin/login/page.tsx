@@ -67,8 +67,7 @@ export default function AdminLoginPage() {
         return;
       }
 
-      await user.getIdToken(true);
-      const idToken = await user.getIdToken();
+      const idToken = await user.getIdToken(true);
 
       const currentEmailRaw = (user.email || "").trim();
       const currentEmail = currentEmailRaw.toLowerCase();
