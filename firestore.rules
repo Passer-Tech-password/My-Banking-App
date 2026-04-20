@@ -84,7 +84,11 @@ service cloud.firestore {
           "accountType",
           "currency",
           "ssnPin",
-          "updatedAt"
+          "updatedAt",
+          "settings",
+          "monthlyBudget",
+          "dailyTransferLimit",
+          "photoVersion"
         ])
       );
       allow delete: if isAdmin();
