@@ -267,7 +267,6 @@ export default function DashboardPage() {
             if (cardsUnsub) return;
             const cardsQ = query(
               collection(db, `users/${user.uid}/cards`),
-              orderBy("createdAt", "desc"),
               limit(1),
             );
             cardsUnsub = onSnapshot(

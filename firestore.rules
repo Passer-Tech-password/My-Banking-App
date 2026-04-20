@@ -2,23 +2,23 @@ rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
-    function isAuthenticated() {
-      return request.auth != null;
-    }
-
     function isOwner(userId) {
-      return isAuthenticated() && request.auth.uid == userId;
+      return request.auth != null && request.auth.uid == userId;
     }
 
     function isAdmin() {
-      return isAuthenticated() && (
+      return request.auth != null && (
         request.auth.token.get('admin', false) == true ||
+        request.auth.token.get('role', 'user') == 'admin'
+      );
+    }
+
+    function isAdminDoc() {
+      return request.auth != null && (
+        exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
         (
-          exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
-          (
-            get(/databases/$(database)/documents/users/$(request.auth.uid)).data.get('role', 'user') == "admin" ||
-            get(/databases/$(database)/documents/users/$(request.auth.uid)).data.get('isAdmin', false) == true
-          )
+          get(/databases/$(database)/documents/users/$(request.auth.uid)).data.get('role', 'user') == "admin" ||
+          get(/databases/$(database)/documents/users/$(request.auth.uid)).data.get('isAdmin', false) == true
         )
       );
     }
@@ -39,27 +39,31 @@ service cloud.firestore {
         );
     }
 
+    function isAnyAdmin() {
+      return isAdmin() || isAdminDoc();
+    }
+
     match /publicUsers/{userId} {
-      allow read: if isAuthenticated();
+      allow read: if request.auth != null;
       allow create: if isOwner(userId);
-      allow update: if isAdmin() || isOwner(userId);
-      allow delete: if isAdmin();
+      allow update: if isOwner(userId);
+      allow read, create, update, delete: if isAnyAdmin();
     }
 
     match /config/security {
-      allow read, create, update, delete: if false;
+      allow read, write: if false;
     }
 
     match /users/{userId} {
-      allow read: if isOwner(userId) || isAdmin();
-      allow create: if isOwner(userId)
+      allow read: if request.auth != null && request.auth.uid == userId;
+      allow read, write: if isAnyAdmin();
+      allow create: if request.auth != null && request.auth.uid == userId
         && request.resource.data.email == request.auth.token.email
         && request.resource.data.role == "user"
         && request.resource.data.blocked == false
         && (request.resource.data.isAdmin == false || !(request.resource.data.keys().hasAny(["isAdmin"])));
 
-      allow update: if isAdmin() || (
-        isOwner(userId)
+      allow update: if request.auth != null && request.auth.uid == userId
         && isNotBlockedUserDoc()
         && request.resource.data.email == resource.data.email
         && request.resource.data.role == resource.data.role
@@ -89,52 +93,46 @@ service cloud.firestore {
           "monthlyBudget",
           "dailyTransferLimit",
           "photoVersion"
-        ])
-      );
-      allow delete: if isAdmin();
+        ]);
+      allow delete: if false;
 
       match /cards/{cardId} {
-        allow read: if isAdmin() || (isOwner(userId) && hasApprovedVirtualCard(userId));
-        allow create, update, delete: if isAdmin();
+        allow read: if request.auth != null && request.auth.uid == userId;
+        allow read, write: if isAnyAdmin();
       }
 
       match /contacts/{contactId} {
-        allow read, create, update, delete: if isAdmin() || isOwner(userId);
+        allow read, write: if request.auth != null && request.auth.uid == userId;
+        allow read, write: if isAnyAdmin();
       }
     }
 
     match /transactions/{txId} {
-      allow read: if (isAuthenticated() && resource.data.userId == request.auth.uid) || isAdmin();
-      allow create: if isAdmin() || (isAuthenticated() && request.resource.data.userId == request.auth.uid);
-      allow update, delete: if isAdmin();
+      allow read: if request.auth != null && resource.data.get('userId', '') == request.auth.uid;
+      allow read, write: if isAnyAdmin();
+      allow create: if request.auth != null && request.resource.data.get('userId', '') == request.auth.uid;
     }
 
     match /fundingRequests/{requestId} {
-      allow read: if (isAuthenticated() && resource.data.userId == request.auth.uid) || isAdmin();
-      allow create: if isAuthenticated()
-        && request.resource.data.userId == request.auth.uid;
-      allow update: if isAdmin();
-      allow delete: if isAdmin();
+      allow read: if request.auth != null && resource.data.get('userId', '') == request.auth.uid;
+      allow read, write: if isAnyAdmin();
+      allow create: if request.auth != null && request.resource.data.get('userId', '') == request.auth.uid;
     }
 
     match /cardRequests/{requestId} {
-      allow read: if isAuthenticated() && (resource.data.userId == request.auth.uid || isAdmin());
-      allow create: if isAuthenticated()
-        && request.resource.data.userId == request.auth.uid
-        && request.resource.data.email == request.auth.token.email
-        && request.resource.data.status == "pending";
-      allow update: if isAdmin()
-        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(["status", "updatedAt"]);
-      allow delete: if isAdmin();
+      allow read: if request.auth != null && resource.data.get('userId', '') == request.auth.uid;
+      allow read, write: if isAnyAdmin();
+      allow create: if request.auth != null && request.resource.data.get('userId', '') == request.auth.uid && request.resource.data.get('status', '') == "pending";
+      allow update: if isAnyAdmin() && request.resource.data.diff(resource.data).affectedKeys().hasOnly(["status", "updatedAt", "cardId"]);
     }
 
     match /subscribers/{subscriberId} {
-      allow read: if isAdmin();
+      allow read: if isAnyAdmin();
       allow create, update, delete: if false;
     }
 
     match /contactMessages/{messageId} {
-      allow read: if isAdmin();
+      allow read: if isAnyAdmin();
       allow create, update, delete: if false;
     }
   }
