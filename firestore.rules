@@ -1,20 +1,26 @@
 rules_version = '2';
-
+ 
 service cloud.firestore {
   match /databases/{database}/documents {
+    
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
     function isOwner(userId) {
-      return request.auth != null && request.auth.uid == userId;
+      return isAuthenticated() && request.auth.uid == userId;
     }
 
     function isAdmin() {
-      return request.auth != null && (
+      return isAuthenticated() && (
         request.auth.token.get('admin', false) == true ||
-        request.auth.token.get('role', 'user') == 'admin'
+        request.auth.token.get('role', '') == 'admin'
       );
     }
 
-    function isAdminDoc() {
-      return request.auth != null && (
+    function isAnyAdmin() {
+      return isAdmin() || (
+        isAuthenticated() &&
         exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
         (
           get(/databases/$(database)/documents/users/$(request.auth.uid)).data.get('role', 'user') == "admin" ||
@@ -23,26 +29,7 @@ service cloud.firestore {
       );
     }
 
-    function isNotBlockedUserDoc() {
-      return !exists(/databases/$(database)/documents/users/$(request.auth.uid)) ||
-        (
-          get(/databases/$(database)/documents/users/$(request.auth.uid)).data.get('blocked', false) != true &&
-          get(/databases/$(database)/documents/users/$(request.auth.uid)).data.get('blocked', false) != "true"
-        );
-    }
-
-    function hasApprovedVirtualCard(userId) {
-      return exists(/databases/$(database)/documents/users/$(userId)) &&
-        (
-          get(/databases/$(database)/documents/users/$(userId)).data.get('virtualCardStatus', 'none') == "approved" ||
-          get(/databases/$(database)/documents/users/$(userId)).data.get('virtualCardApproved', false) == true
-        );
-    }
-
-    function isAnyAdmin() {
-      return isAdmin() || isAdminDoc();
-    }
-
+    // Top-level match for public user profiles
     match /publicUsers/{userId} {
       allow read: if request.auth != null;
       allow create: if isOwner(userId);
@@ -55,74 +42,54 @@ service cloud.firestore {
     }
 
     match /users/{userId} {
-      allow read: if request.auth != null && request.auth.uid == userId;
-      allow read, write: if isAnyAdmin();
-      allow create: if request.auth != null && request.auth.uid == userId
+      allow read: if request.auth != null && (request.auth.uid == userId || isAnyAdmin());
+      
+      match /cards/{cardId} {
+        allow read, write: if isOwner(userId) || isAnyAdmin();
+      }
+
+      allow create: if isOwner(userId)
         && request.resource.data.email == request.auth.token.email
         && request.resource.data.role == "user"
         && request.resource.data.blocked == false
         && (request.resource.data.isAdmin == false || !(request.resource.data.keys().hasAny(["isAdmin"])));
 
-      allow update: if request.auth != null && request.auth.uid == userId
-        && isNotBlockedUserDoc()
+      allow update: if isOwner(userId)
         && request.resource.data.email == resource.data.email
         && request.resource.data.role == resource.data.role
         && request.resource.data.blocked == resource.data.blocked
         && request.resource.data.isAdmin == resource.data.isAdmin
         && request.resource.data.balance == resource.data.balance
         && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
-          "displayName",
-          "firstName",
-          "middleName",
-          "lastName",
-          "photoURL",
-          "image",
-          "phone",
-          "mobile",
-          "address",
-          "city",
-          "state",
-          "zipCode",
-          "dob",
-          "passportUrl",
-          "accountType",
-          "currency",
-          "ssnPin",
-          "updatedAt",
-          "settings",
-          "monthlyBudget",
-          "dailyTransferLimit",
-          "photoVersion"
+          "displayName", "firstName", "middleName", "lastName",
+          "photoURL", "image", "phone", "mobile", "address",
+          "city", "state", "zipCode", "dob", "passportUrl",
+          "accountType", "currency", "ssnPin", "updatedAt",
+          "settings", "monthlyBudget", "dailyTransferLimit", "photoVersion"
         ]);
       allow delete: if false;
-
-      match /cards/{cardId} {
-        allow read: if request.auth != null && request.auth.uid == userId;
-        allow read, write: if isAnyAdmin();
-      }
-
-      match /contacts/{contactId} {
-        allow read, write: if request.auth != null && request.auth.uid == userId;
-        allow read, write: if isAnyAdmin();
-      }
-    }
+ 
+       match /contacts/{contactId} {
+         allow read, write: if isOwner(userId) || isAnyAdmin();
+       }
+     }
 
     match /transactions/{txId} {
-      allow read: if request.auth != null && resource.data.get('userId', '') == request.auth.uid;
-      allow read, write: if isAnyAdmin();
-      allow create: if request.auth != null && request.resource.data.get('userId', '') == request.auth.uid;
+      allow read: if request.auth != null && (resource.data.userId == request.auth.uid || isAnyAdmin());
+      allow write: if isAnyAdmin();
+      allow create: if request.auth != null && request.resource.data.userId == request.auth.uid;
     }
 
     match /fundingRequests/{requestId} {
-      allow read: if request.auth != null && resource.data.get('userId', '') == request.auth.uid;
-      allow read, write: if isAnyAdmin();
-      allow create: if request.auth != null && request.resource.data.get('userId', '') == request.auth.uid;
+      allow read: if request.auth != null && (resource.data.userId == request.auth.uid || isAnyAdmin());
+      allow write: if isAnyAdmin();
+      allow create: if request.auth != null && request.resource.data.userId == request.auth.uid;
     }
 
     match /cardRequests/{requestId} {
-      allow read: if request.auth != null && resource.data.get('userId', '') == request.auth.uid;
-      allow read, write: if isAnyAdmin();
-      allow create: if request.auth != null && request.resource.data.get('userId', '') == request.auth.uid && request.resource.data.get('status', '') == "pending";
+      allow read: if request.auth != null && (resource.data.userId == request.auth.uid || isAnyAdmin());
+      allow write: if isAnyAdmin();
+      allow create: if request.auth != null && request.resource.data.userId == request.auth.uid && request.resource.data.status == "pending";
       allow update: if isAnyAdmin() && request.resource.data.diff(resource.data).affectedKeys().hasOnly(["status", "updatedAt", "cardId"]);
     }
 

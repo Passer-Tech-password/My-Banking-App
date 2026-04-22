@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { collection, getDocs, limit, orderBy, query, where } from "firebase/firestore";
+import { collection, getDocs, limit, onSnapshot, orderBy, query, where } from "firebase/firestore";
 import { auth, db } from "@/lib/firebase";
 import { onAuthStateChanged } from "firebase/auth";
 import { useRouter } from "next/navigation";
@@ -15,8 +15,31 @@ export default function CardsPage() {
   const [loading, setLoading] = useState(true);
   const [cards, setCards] = useState<Card[]>([]);
   const [cardRequestStatus, setCardRequestStatus] = useState<"none" | "pending" | "approved" | "rejected">("none");
+  const [refreshing, setRefreshing] = useState(false);
+
+  const refreshCards = async () => {
+    const user = auth.currentUser;
+    if (!user) return;
+    setRefreshing(true);
+    try {
+      const q = query(collection(db, `users/${user.uid}/cards`));
+      const snap = await getDocs(q);
+      const fetchedCards: Card[] = [];
+      snap.forEach((doc) => {
+        fetchedCards.push({ id: doc.id, ...doc.data() } as Card);
+      });
+      setCards(fetchedCards);
+      toast.success("Cards refreshed");
+    } catch (err) {
+      console.error("Refresh error:", err);
+      toast.error("Failed to refresh cards");
+    } finally {
+      setRefreshing(false);
+    }
+  };
 
   useEffect(() => {
+    let cardsUnsub: (() => void) | null = null;
     const unsub = onAuthStateChanged(auth, async (user) => {
       if (!user) {
         router.push("/login");
@@ -29,46 +52,55 @@ export default function CardsPage() {
           orderBy("createdAt", "desc"),
           limit(1),
         );
-        const snap = await getDocs(reqQ);
-        const nextStatus = (() => {
-          if (snap.empty) return "none" as const;
-          const s = String((snap.docs[0]!.data() as any)?.status || "pending");
-          return s === "approved" || s === "rejected" ? (s as any) : ("pending" as const);
-        })();
-        setCardRequestStatus(nextStatus);
-        if (nextStatus === "approved") {
-          await fetchCards(user.uid);
-          return;
-        }
+        
+        const requestUnsub = onSnapshot(reqQ, (snap) => {
+          const nextStatus = (() => {
+            if (snap.empty) return "none" as const;
+            const s = String((snap.docs[0]!.data() as any)?.status || "pending");
+            return s === "approved" || s === "rejected" ? (s as any) : ("pending" as const);
+          })();
+          
+          setCardRequestStatus(nextStatus);
+          
+          if (nextStatus === "approved") {
+            if (cardsUnsub) return;
+            const q = query(collection(db, `users/${user.uid}/cards`));
+            cardsUnsub = onSnapshot(q, (snapshot) => {
+              const fetchedCards: Card[] = [];
+              snapshot.forEach((doc) => {
+                fetchedCards.push({ id: doc.id, ...doc.data() } as Card);
+              });
+              setCards(fetchedCards);
+              setLoading(false);
+            }, (err) => {
+              console.error("Cards stream error:", err);
+              setLoading(false);
+            });
+          } else {
+            if (cardsUnsub) {
+              cardsUnsub();
+              cardsUnsub = null;
+            }
+            setCards([]);
+            setLoading(false);
+          }
+        }, (err) => {
+          console.error("Card request status error:", err);
+          setLoading(false);
+        });
+
+        return () => {
+          requestUnsub();
+          if (cardsUnsub) cardsUnsub();
+        };
       } catch (e) {
         console.error("Failed to load card request status:", e);
         setCardRequestStatus("none");
+        setLoading(false);
       }
-      setCards([]);
-      setLoading(false);
     });
     return () => unsub();
   }, [router]);
-
-  const fetchCards = async (userId: string) => {
-    try {
-      const q = query(collection(db, `users/${userId}/cards`));
-      const snapshot = await getDocs(q);
-      const fetchedCards: Card[] = [];
-      snapshot.forEach((doc) => {
-        fetchedCards.push({ id: doc.id, ...doc.data() } as Card);
-      });
-      setCards(fetchedCards);
-    } catch (error) {
-      console.error("Error fetching cards:", error);
-      const code = (error as any)?.code;
-      if (code === "permission-denied") {
-        setCards([]);
-      }
-    } finally {
-      setLoading(false);
-    }
-  };
 
   if (loading) {
     return (
@@ -86,6 +118,16 @@ export default function CardsPage() {
           <p className="text-sm text-gray-500">Manage your payment methods.</p>
         </div>
         <div className="flex gap-2">
+          <button
+            onClick={refreshCards}
+            disabled={refreshing}
+            className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-50 transition-colors shadow-sm disabled:opacity-50"
+          >
+            <svg className={`w-4 h-4 ${refreshing ? 'animate-spin' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+            </svg>
+            {refreshing ? "Refreshing..." : "Refresh"}
+          </button>
           <button
             onClick={() => router.push(cardRequestStatus === "none" ? "/apply-card" : "/track-card")}
             className="flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-lg text-sm font-medium hover:bg-indigo-700 transition-colors shadow-sm"
