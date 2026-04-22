@@ -245,6 +245,7 @@ export default function DashboardPage() {
         cardRequestUnsub = onSnapshot(
           cardReqQ,
           (snap) => {
+            console.log("Card requests update, empty:", snap.empty, "count:", snap.size);
             if (snap.empty) {
               setCardRequestStatus("none");
               setCardRequestId(null);
@@ -258,6 +259,7 @@ export default function DashboardPage() {
             const row = snap.docs[0]!;
             const data = row.data() as any;
             const status = String(data?.status || "").trim();
+            console.log("Card request data:", { id: row.id, status });
             if (status === "pending" || status === "approved" || status === "rejected") {
               setCardRequestStatus(status);
             } else {
@@ -274,7 +276,10 @@ export default function DashboardPage() {
               return;
             }
 
-            if (cardsUnsub) return;
+            if (cardsUnsub) {
+              console.log("Cards stream already active, skipping setup");
+              return;
+            }
             const cardsPath = `users/${user.uid}/cards`;
             console.log("Starting cards stream for path:", cardsPath, "Auth UID:", user.uid);
             const cardsQ = query(
@@ -292,11 +297,11 @@ export default function DashboardPage() {
                 }
                 const d = cardsSnap.docs[0]!;
                 const cardData = { id: d.id, ...(d.data() as any) } as Card;
-                console.log("Setting main card:", cardData.id);
+                console.log("Setting main card:", cardData.id, "Number:", cardData.number?.slice(-4));
                 setMainCard(cardData);
               },
               (e) => {
-                console.error("Cards stream error for path:", cardsPath, "Error:", e);
+                console.error("Cards stream error for path:", cardsPath, "Error code:", e.code, "Message:", e.message);
                 setMainCard(null);
                 if (cardsUnsub) {
                   cardsUnsub();
@@ -306,7 +311,11 @@ export default function DashboardPage() {
             );
           },
           (e) => {
-            console.error("cardRequests stream error:", e);
+            console.error("cardRequests stream error details:", {
+              code: e.code,
+              message: e.message,
+              name: e.name
+            });
             setCardRequestError("Failed to load card request status.");
           },
         );
@@ -480,6 +489,21 @@ export default function DashboardPage() {
       unsub();
     };
   }, [router]);
+
+  const scrollToTransfer = () => {
+    console.log("scrollToTransfer called, ref state:", transferWidgetRef.current ? "exists" : "null");
+    if (transferWidgetRef.current) {
+      transferWidgetRef.current.scrollIntoView({ behavior: "smooth", block: "center" });
+    } else {
+      const el = document.getElementById("transfer-widget");
+      console.log("Fallback search for transfer-widget:", el ? "found" : "not found");
+      if (el) {
+        el.scrollIntoView({ behavior: "smooth", block: "center" });
+      } else {
+        toast.error("Transfer section not found. Please scroll down.");
+      }
+    }
+  };
 
   const applyForVirtualCard = async () => {
     const user = auth.currentUser;
@@ -956,7 +980,7 @@ export default function DashboardPage() {
                 : "Get Virtual Card"}
           </button>
           <button 
-            onClick={() => transferWidgetRef.current?.scrollIntoView({ behavior: 'smooth' })}
+            onClick={scrollToTransfer}
             className="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors shadow-sm flex items-center gap-2"
           >
             <ArrowUpRightIcon className="w-4 h-4" />
@@ -1104,7 +1128,7 @@ export default function DashboardPage() {
             </button>
             
             <button 
-              onClick={() => transferWidgetRef.current?.scrollIntoView({ behavior: 'smooth' })}
+              onClick={scrollToTransfer}
               className="bg-white p-4 rounded-xl border border-gray-100 shadow-sm hover:shadow-md transition-all flex flex-col items-center justify-center gap-2 group"
             >
               <div className="w-10 h-10 bg-blue-50 rounded-full flex items-center justify-center text-blue-600 group-hover:bg-blue-100 transition-colors">

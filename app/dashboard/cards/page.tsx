@@ -54,18 +54,25 @@ export default function CardsPage() {
         );
         
         const requestUnsub = onSnapshot(reqQ, (snap) => {
+          console.log("Card requests update in My Cards, size:", snap.size);
           const nextStatus = (() => {
             if (snap.empty) return "none" as const;
             const s = String((snap.docs[0]!.data() as any)?.status || "pending");
+            console.log("Card request status in My Cards:", s);
             return s === "approved" || s === "rejected" ? (s as any) : ("pending" as const);
           })();
           
           setCardRequestStatus(nextStatus);
           
           if (nextStatus === "approved") {
-            if (cardsUnsub) return;
+            if (cardsUnsub) {
+              console.log("Cards stream already active in My Cards");
+              return;
+            }
             const q = query(collection(db, `users/${user.uid}/cards`));
+            console.log("Starting cards stream in My Cards for UID:", user.uid);
             cardsUnsub = onSnapshot(q, (snapshot) => {
+              console.log("Cards update in My Cards, size:", snapshot.size);
               const fetchedCards: Card[] = [];
               snapshot.forEach((doc) => {
                 fetchedCards.push({ id: doc.id, ...doc.data() } as Card);
@@ -73,7 +80,7 @@ export default function CardsPage() {
               setCards(fetchedCards);
               setLoading(false);
             }, (err) => {
-              console.error("Cards stream error:", err);
+              console.error("Cards stream error in My Cards - Code:", err.code, "Message:", err.message, "Path:", `users/${user.uid}/cards`);
               setLoading(false);
             });
           } else {
@@ -85,7 +92,11 @@ export default function CardsPage() {
             setLoading(false);
           }
         }, (err) => {
-          console.error("Card request status error:", err);
+          console.error("Card request status error in My Cards details:", {
+            code: err.code,
+            message: err.message,
+            name: err.name
+          });
           setLoading(false);
         });
 
