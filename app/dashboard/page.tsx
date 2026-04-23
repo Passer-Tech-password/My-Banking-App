@@ -840,7 +840,7 @@ export default function DashboardPage() {
       setDepositRoutingNumber("");
       setDepositNarration("");
       setDepositBankName("");
-      toast.info("Deposit request submitted. Await admin approval.");
+      toast.info("Your deposit has been successfully processed. Just wait for the admin approval.");
       
       // Email for deposit request
       sendEmail("deposit", amount, "pending", reqRef.id);
@@ -904,7 +904,7 @@ export default function DashboardPage() {
       setWithdrawRoutingNumber("");
       setWithdrawNarration("");
       setWithdrawBankName("");
-      toast.info("Withdrawal request submitted. Await admin approval.");
+      toast.info("Your withdrawal has been successfully processed. Just wait for the admin approval.");
 
       // Send email for pending request
       if (withdrawalTxId) {
