@@ -18,6 +18,11 @@ type FundingRequest = {
   status: FundingRequestStatus;
   createdAt?: any;
   updatedAt?: any;
+  routingNumber?: string;
+  narration?: string;
+  bankName?: string;
+  method?: string;
+  note?: string;
 };
 
 export default function UserRequestsPage() {
@@ -107,16 +112,28 @@ export default function UserRequestsPage() {
         ) : (
           <div className="divide-y divide-gray-100">
             {requests.map((r) => (
-              <div key={r.id} className="p-6 flex items-center justify-between gap-4">
-                <div className="flex items-center gap-3">
-                  <span
-                    className={`text-xs font-semibold px-2 py-1 rounded ${
-                      r.type === "deposit" ? "bg-green-50 text-green-700" : "bg-blue-50 text-blue-700"
-                    }`}
-                  >
-                    {r.type.toUpperCase()}
-                  </span>
-                  <p className="text-lg font-bold text-gray-900">${Number(r.amount || 0).toFixed(2)}</p>
+              <div key={r.id} className="p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div className="flex flex-col gap-2">
+                  <div className="flex items-center gap-3">
+                    <span
+                      className={`text-xs font-semibold px-2 py-1 rounded ${
+                        r.type === "deposit" ? "bg-green-50 text-green-700" : "bg-blue-50 text-blue-700"
+                      }`}
+                    >
+                      {r.type.toUpperCase()}
+                    </span>
+                    <p className="text-lg font-bold text-gray-900">${Number(r.amount || 0).toFixed(2)}</p>
+                  </div>
+                  
+                  {(r.bankName || r.routingNumber || r.narration || r.method) && (
+                     <div className="text-xs text-gray-500 flex flex-wrap gap-x-4 gap-y-1 mt-1">
+                       {r.bankName && <span><span className="font-medium">Bank:</span> {r.bankName}</span>}
+                       {r.routingNumber && <span><span className="font-medium">Routine #:</span> {r.routingNumber}</span>}
+                       {r.narration && <span><span className="font-medium">Narration:</span> {r.narration}</span>}
+                       {r.method && <span><span className="font-medium">Method:</span> {r.method}</span>}
+                       {r.note && <span><span className="font-medium">Note:</span> {r.note}</span>}
+                     </div>
+                   )}
                 </div>
                 <div className="flex items-center gap-2">
                   {r.status === "pending" && (

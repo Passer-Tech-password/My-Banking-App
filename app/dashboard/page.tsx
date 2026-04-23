@@ -55,6 +55,12 @@ export default function DashboardPage() {
   const [withdrawMethod, setWithdrawMethod] = useState("Bank Transfer");
   const [depositNote, setDepositNote] = useState("");
   const [withdrawNote, setWithdrawNote] = useState("");
+  const [depositRoutingNumber, setDepositRoutingNumber] = useState("");
+  const [depositNarration, setDepositNarration] = useState("");
+  const [depositBankName, setDepositBankName] = useState("");
+  const [withdrawRoutingNumber, setWithdrawRoutingNumber] = useState("");
+  const [withdrawNarration, setWithdrawNarration] = useState("");
+  const [withdrawBankName, setWithdrawBankName] = useState("");
   const [monthlyBudget, setMonthlyBudget] = useState<number>(0);
   const [monthExpense, setMonthExpense] = useState<number>(0);
   const [dailyTransferLimit, setDailyTransferLimit] = useState<number>(0);
@@ -822,12 +828,18 @@ export default function DashboardPage() {
         status: "pending",
         method: depositMethod,
         note: depositNote,
+        routingNumber: depositRoutingNumber,
+        narration: depositNarration,
+        bankName: depositBankName,
         createdAt: serverTimestamp(),
         updatedAt: serverTimestamp(),
       });
       setDepositOpen(false);
       setDepositValue("");
       setDepositNote("");
+      setDepositRoutingNumber("");
+      setDepositNarration("");
+      setDepositBankName("");
       toast.info("Deposit request submitted. Await admin approval.");
       
       // Email for deposit request
@@ -877,6 +889,9 @@ export default function DashboardPage() {
           txId: txRef.id,
           method: withdrawMethod,
           note: withdrawNote,
+          routingNumber: withdrawRoutingNumber,
+          narration: withdrawNarration,
+          bankName: withdrawBankName,
           createdAt: serverTimestamp(),
           updatedAt: serverTimestamp(),
         });
@@ -886,6 +901,9 @@ export default function DashboardPage() {
       setWithdrawOpen(false);
       setWithdrawValue("");
       setWithdrawNote("");
+      setWithdrawRoutingNumber("");
+      setWithdrawNarration("");
+      setWithdrawBankName("");
       toast.info("Withdrawal request submitted. Await admin approval.");
 
       // Send email for pending request
@@ -1177,6 +1195,38 @@ export default function DashboardPage() {
                       <option>Crypto</option>
                     </select>
                   </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Bank Name</label>
+                      <input
+                        type="text"
+                        value={depositBankName}
+                        onChange={(e) => setDepositBankName(e.target.value)}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                        placeholder="Enter bank name"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Routine number</label>
+                      <input
+                        type="text"
+                        value={depositRoutingNumber}
+                        onChange={(e) => setDepositRoutingNumber(e.target.value)}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                        placeholder="Enter routine number"
+                      />
+                    </div>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Narration</label>
+                    <input
+                      type="text"
+                      value={depositNarration}
+                      onChange={(e) => setDepositNarration(e.target.value)}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                      placeholder="Enter narration"
+                    />
+                  </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">Notes (Optional)</label>
                     <textarea
@@ -1228,6 +1278,38 @@ export default function DashboardPage() {
                       <option>Mobile Money</option>
                       <option>Crypto</option>
                     </select>
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Bank Name</label>
+                      <input
+                        type="text"
+                        value={withdrawBankName}
+                        onChange={(e) => setWithdrawBankName(e.target.value)}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                        placeholder="Enter bank name"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Routine number</label>
+                      <input
+                        type="text"
+                        value={withdrawRoutingNumber}
+                        onChange={(e) => setWithdrawRoutingNumber(e.target.value)}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                        placeholder="Enter routine number"
+                      />
+                    </div>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Narration</label>
+                    <input
+                      type="text"
+                      value={withdrawNarration}
+                      onChange={(e) => setWithdrawNarration(e.target.value)}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                      placeholder="Enter narration"
+                    />
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">Account Details / Notes</label>

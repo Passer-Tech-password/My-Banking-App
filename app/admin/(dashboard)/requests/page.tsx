@@ -30,6 +30,10 @@ type FundingRequest = {
   status: FundingRequestStatus;
   txId?: string;
   method?: string;
+  routingNumber?: string;
+  narration?: string;
+  bankName?: string;
+  note?: string;
   createdAt?: any;
   updatedAt?: any;
 };
@@ -309,9 +313,15 @@ export default function AdminRequestsPage() {
                     </span>
                     <span className="text-sm text-gray-500 truncate">{r.userId}</span>
                   </div>
-                  <div className="mt-2 flex items-center gap-3">
+                  <div className="mt-2 flex flex-col gap-1">
                     <p className="text-lg font-bold text-gray-900">${Number(r.amount || 0).toFixed(2)}</p>
-                    <p className="text-sm text-gray-500">{r.method || "manual"}</p>
+                    <div className="text-xs text-gray-500 flex flex-wrap gap-x-4 gap-y-1">
+                      {r.method && <span><span className="font-medium">Method:</span> {r.method}</span>}
+                      {r.bankName && <span><span className="font-medium">Bank:</span> {r.bankName}</span>}
+                      {r.routingNumber && <span><span className="font-medium">Routine #:</span> {r.routingNumber}</span>}
+                      {r.narration && <span><span className="font-medium">Narration:</span> {r.narration}</span>}
+                      {r.note && <span><span className="font-medium">Note:</span> {r.note}</span>}
+                    </div>
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
