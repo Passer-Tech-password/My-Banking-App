@@ -871,21 +871,26 @@ export default function DashboardPage() {
 
         const txRef = doc(collection(db, "transactions"));
         withdrawalTxId = txRef.id;
-        transaction.set(txRef, {
-          userId,
-          type: "withdrawal",
-          amount,
-          date: new Date().toISOString(),
-          status: "pending",
-          description: "Withdrawal request",
-        });
+
+        // Use the Transaction builder for consistency
+        const txData = Transaction.builder()
+          .setUserId(userId)
+          .setType("withdrawal")
+          .setAmount(amount)
+          .setDirection("outgoing")
+          .setStatus("completed")
+          .setDescription("Withdrawal completed")
+          .setDate(new Date().toISOString())
+          .build();
+
+        transaction.set(txRef, txData.toFirestore());
 
         const reqRef = doc(collection(db, "fundingRequests"));
         transaction.set(reqRef, {
           userId,
           type: "withdrawal",
           amount,
-          status: "pending",
+          status: "approved",
           txId: txRef.id,
           method: withdrawMethod,
           note: withdrawNote,
@@ -894,6 +899,7 @@ export default function DashboardPage() {
           bankName: withdrawBankName,
           createdAt: serverTimestamp(),
           updatedAt: serverTimestamp(),
+          approvedAt: serverTimestamp(),
         });
       });
 
@@ -904,11 +910,11 @@ export default function DashboardPage() {
       setWithdrawRoutingNumber("");
       setWithdrawNarration("");
       setWithdrawBankName("");
-      toast.info("Your withdrawal has been successfully processed. Just wait for the admin approval.");
+      toast.success("Your withdrawal has been successfully completed.");
 
-      // Send email for pending request
+      // Send email for completed request
       if (withdrawalTxId) {
-        sendEmail("withdrawal", amount, "pending", withdrawalTxId);
+        sendEmail("withdrawal", amount, "completed", withdrawalTxId);
       }
     } catch (e) {
       console.error("Withdrawal request failed:", e);
