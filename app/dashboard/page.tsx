@@ -61,6 +61,7 @@ export default function DashboardPage() {
   const [withdrawRoutingNumber, setWithdrawRoutingNumber] = useState("");
   const [withdrawNarration, setWithdrawNarration] = useState("");
   const [withdrawBankName, setWithdrawBankName] = useState("");
+  const [withdrawLoading, setWithdrawLoading] = useState(false);
   const [monthlyBudget, setMonthlyBudget] = useState<number>(0);
   const [monthExpense, setMonthExpense] = useState<number>(0);
   const [dailyTransferLimit, setDailyTransferLimit] = useState<number>(0);
@@ -857,6 +858,8 @@ export default function DashboardPage() {
       return;
     }
     if (!userId) return;
+
+    setWithdrawLoading(true);
     try {
       let withdrawalTxId = "";
       await runTransaction(db, async (transaction) => {
@@ -872,18 +875,18 @@ export default function DashboardPage() {
         const txRef = doc(collection(db, "transactions"));
         withdrawalTxId = txRef.id;
 
-        // Use the Transaction builder for consistency
-        const txData = Transaction.builder()
-          .setUserId(userId)
-          .setType("withdrawal")
-          .setAmount(amount)
-          .setDirection("outgoing")
-          .setStatus("completed")
-          .setDescription("Withdrawal completed")
-          .setDate(new Date().toISOString())
-          .build();
+        // Use plain object for transaction record to ensure compatibility within runTransaction
+        const txData = {
+          userId,
+          type: "withdrawal",
+          amount,
+          direction: "outgoing",
+          status: "completed",
+          description: "Withdrawal completed",
+          date: new Date().toISOString(),
+        };
 
-        transaction.set(txRef, txData.toFirestore());
+        transaction.set(txRef, txData);
 
         const reqRef = doc(collection(db, "fundingRequests"));
         transaction.set(reqRef, {
@@ -919,6 +922,8 @@ export default function DashboardPage() {
     } catch (e) {
       console.error("Withdrawal request failed:", e);
       toast.error(e instanceof Error ? e.message : "Withdrawal request failed");
+    } finally {
+      setWithdrawLoading(false);
     }
   };
 
@@ -1329,7 +1334,13 @@ export default function DashboardPage() {
                   </div>
                   <div className="flex justify-end gap-2 pt-2">
                     <button onClick={() => setWithdrawOpen(false)} className="px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 rounded-lg">Cancel</button>
-                    <button onClick={withdraw} className="px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg">Submit Withdrawal</button>
+                    <button 
+                      onClick={withdraw} 
+                      disabled={withdrawLoading}
+                      className="px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      {withdrawLoading ? "Processing..." : "Submit Withdrawal"}
+                    </button>
                   </div>
                 </div>
               </div>
