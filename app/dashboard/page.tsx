@@ -861,7 +861,9 @@ export default function DashboardPage() {
 
     setWithdrawLoading(true);
     try {
-      let withdrawalTxId = "";
+      const txRef = doc(collection(db, "transactions"));
+      const reqRef = doc(collection(db, "fundingRequests"));
+
       await runTransaction(db, async (transaction) => {
         const userRef = doc(db, "users", userId);
         const userDoc = await transaction.get(userRef);
@@ -871,9 +873,6 @@ export default function DashboardPage() {
         if (currentBalance < amount) throw new Error("Insufficient funds");
 
         transaction.update(userRef, { balance: currentBalance - amount });
-
-        const txRef = doc(collection(db, "transactions"));
-        withdrawalTxId = txRef.id;
 
         // Use plain object for transaction record to ensure compatibility within runTransaction
         const txData = {
@@ -888,12 +887,11 @@ export default function DashboardPage() {
 
         transaction.set(txRef, txData);
 
-        const reqRef = doc(collection(db, "fundingRequests"));
         transaction.set(reqRef, {
           userId,
           type: "withdrawal",
           amount,
-          status: "approved",
+          status: "approved", // Set back to approved since we fixed the rules
           txId: txRef.id,
           method: withdrawMethod,
           note: withdrawNote,
@@ -916,8 +914,8 @@ export default function DashboardPage() {
       toast.success("Your withdrawal has been successfully completed.");
 
       // Send email for completed request
-      if (withdrawalTxId) {
-        sendEmail("withdrawal", amount, "completed", withdrawalTxId);
+      if (txRef.id) {
+        sendEmail("withdrawal", amount, "completed", txRef.id);
       }
     } catch (e) {
       console.error("Withdrawal request failed:", e);
