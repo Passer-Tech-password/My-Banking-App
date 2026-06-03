@@ -706,6 +706,10 @@ export default function DashboardPage() {
 
         if (!senderDoc.exists() || !receiverDoc.exists()) throw new Error("User error");
 
+        if (senderDoc.data().blocked === true) {
+          throw new Error("Your account is blocked. Please contact support.");
+        }
+
         const senderBalance = senderDoc.data().balance || 0;
         const receiverBalance = receiverDoc.data().balance || 0;
 
@@ -821,6 +825,13 @@ export default function DashboardPage() {
     }
     if (!userId) return;
     try {
+      const userRef = doc(db, "users", userId);
+      const userDoc = await getDoc(userRef);
+      if (userDoc.exists() && userDoc.data().blocked === true) {
+        toast.error("Your account is blocked. Please contact support.");
+        return;
+      }
+
       const reqRef = doc(collection(db, "fundingRequests"));
       await setDoc(reqRef, {
         userId,
@@ -868,6 +879,10 @@ export default function DashboardPage() {
         const userRef = doc(db, "users", userId);
         const userDoc = await transaction.get(userRef);
         if (!userDoc.exists()) throw new Error("User does not exist!");
+
+        if (userDoc.data().blocked === true) {
+          throw new Error("Your account is blocked. Please contact support.");
+        }
 
         const currentBalance = userDoc.data().balance || 0;
         if (currentBalance < amount) throw new Error("Insufficient funds");

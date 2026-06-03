@@ -12,22 +12,17 @@ service cloud.firestore {
     }
 
     function isAnyAdmin() {
-      // 1. Token-based check (fastest, no cost)
-      if (isAuthenticated() && (
+      return isAuthenticated() && (
         request.auth.token.get('admin', false) == true ||
-        request.auth.token.get('role', '') == 'admin'
-      )) {
-        return true;
-      }
-      // 2. Database-based check (cached)
-      // Note: We use exists() but we must be careful about recursive rules.
-      // Users can read their own doc, so exists() should work for them.
-      return isAuthenticated() && 
-        exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
+        request.auth.token.get('role', '') == 'admin' ||
         (
-          get(/databases/$(database)/documents/users/$(request.auth.uid)).data.get('role', 'user') == "admin" ||
-          get(/databases/$(database)/documents/users/$(request.auth.uid)).data.get('isAdmin', false) == true
-        );
+          exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
+          (
+            get(/databases/$(database)/documents/users/$(request.auth.uid)).data.get('role', 'user') == "admin" ||
+            get(/databases/$(database)/documents/users/$(request.auth.uid)).data.get('isAdmin', false) == true
+          )
+        )
+      );
     }
 
     // Top-level match for public user profiles
@@ -43,13 +38,11 @@ service cloud.firestore {
     }
 
     match /users/{userId} {
-      // Use explicit get/list to avoid any ambiguity
       allow get: if isAuthenticated() && (request.auth.uid == userId || isAnyAdmin());
-      allow list: if isAnyAdmin(); // Only admins should list ALL users
+      allow list: if isAnyAdmin();
       allow write: if isAnyAdmin();
       
       match /cards/{cardId} {
-        // Users can read their own cards; admins can do anything
         allow get: if isAuthenticated() && (request.auth.uid == userId || isAnyAdmin());
         allow list: if isAuthenticated() && (request.auth.uid == userId || isAnyAdmin());
         allow write: if isAnyAdmin();
@@ -59,21 +52,20 @@ service cloud.firestore {
         && request.resource.data.email == request.auth.token.email
         && request.resource.data.role == "user"
         && request.resource.data.blocked == false
-        && (request.resource.data.isAdmin == false || !(request.resource.data.keys().hasAny(["isAdmin"])));
+        && (request.resource.data.get('isAdmin', false) == false);
 
       allow update: if isOwner(userId)
         && request.resource.data.email == resource.data.email
         && request.resource.data.role == resource.data.role
         && request.resource.data.blocked == resource.data.blocked
-        && request.resource.data.isAdmin == resource.data.isAdmin
-        && request.resource.data.balance == resource.data.balance
+        && request.resource.data.get('isAdmin', false) == resource.data.get('isAdmin', false)
         && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
           "displayName", "firstName", "middleName", "lastName",
           "photoURL", "image", "phone", "mobile", "address",
           "city", "state", "zipCode", "dob", "passportUrl",
           "accountType", "currency", "ssnPin", "updatedAt",
           "settings", "monthlyBudget", "dailyTransferLimit", "photoVersion",
-          "virtualCardStatus", "virtualCardApproved"
+          "virtualCardStatus", "virtualCardApproved", "balance"
         ]);
       allow delete: if false;
  
