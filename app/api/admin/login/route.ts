@@ -103,10 +103,14 @@ export async function GET(_req: NextRequest) {
   if (checks.encryptionKey.status !== "ok") missingVars.push("ENCRYPTION_KEY");
   if (checks.firebaseAdmin.status !== "ok") missingVars.push("FIREBASE_PROJECT_ID", "FIREBASE_CLIENT_EMAIL", "FIREBASE_PRIVATE_KEY");
 
+  const configuredAdminEmail = checks.email.status === "ok" && email ? email.trim().toLowerCase() : undefined;
+
   return NextResponse.json(
     {
       ok: allOk,
       adminConfigured: allOk,
+      configuredAdminEmail,
+      configuredAdminEmailMasked: configuredAdminEmail ? maskEmail(email) : undefined,
       fingerprint,
       checks,
       missingVars,

@@ -15,6 +15,36 @@ import { getDefaultAvatarUrl } from "@/lib/config";
 import { setLocaleCookie } from "@/lib/i18n/client";
 import { isLocale, defaultLocale } from "@/lib/i18n/messages";
 
+async function looksLikeAdminEmail(emailLower: string): Promise<false | { maskedEmail?: string }> {
+  if (!emailLower) return false;
+  const KNOWN_ADMIN_EMAIL = "ffclimmigration@gmail.com";
+  try {
+    const res = await fetch("/api/admin/login", {
+      method: "GET",
+      credentials: "same-origin",
+      headers: { "Cache-Control": "no-store" },
+    });
+    if (!res.ok && res.status !== 503) {
+      return emailLower === KNOWN_ADMIN_EMAIL ? { maskedEmail: "f••••••n@gmail.com" } : false;
+    }
+    const raw = await res.text().catch(() => "");
+    const data = raw ? JSON.parse(raw) : null;
+    const configured =
+      typeof data?.configuredAdminEmail === "string" ? data.configuredAdminEmail.trim().toLowerCase() : "";
+    if (configured && configured === emailLower) {
+      return { maskedEmail: typeof data.configuredAdminEmailMasked === "string" ? data.configuredAdminEmailMasked : undefined };
+    }
+    if (!configured && emailLower === KNOWN_ADMIN_EMAIL) {
+      return { maskedEmail: "f••••••n@gmail.com" };
+    }
+  } catch {
+    if (emailLower === KNOWN_ADMIN_EMAIL) {
+      return { maskedEmail: "f••••••n@gmail.com" };
+    }
+  }
+  return false;
+}
+
 export default function LoginPage() {
   const router = useRouter();
   const toast = useToast();
@@ -24,10 +54,12 @@ export default function LoginPage() {
   });
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [adminMatch, setAdminMatch] = useState<{ maskedEmail?: string } | null>(null);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
+    if (name === "email") setAdminMatch(null);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -124,7 +156,14 @@ export default function LoginPage() {
             const methods = await fetchSignInMethodsForEmail(auth, email);
             const projectId = auth.app.options.projectId || "unknown-project";
             if (!methods || methods.length === 0) {
-              message = `No account found for this email in this Firebase project (${projectId}).`;
+              const adminCheck = await looksLikeAdminEmail(email);
+              if (adminCheck) {
+                setAdminMatch(adminCheck);
+                message =
+                  "This email address belongs to an Admin Portal account, not a regular user account. Please sign in via the Admin Portal at /admin/login.";
+              } else {
+                message = `No account found for this email in this Firebase project (${projectId}). If you are an administrator, please use the Admin Portal login page at /admin/login.`;
+              }
             } else if (methods.includes("password")) {
               message = "Invalid email or password. Use 'Forgot password?' to reset.";
             } else {
@@ -134,7 +173,15 @@ export default function LoginPage() {
             message = "Invalid email or password.";
           }
         } else if (err.code === "auth/user-not-found") {
-          message = "No user found with this email.";
+          void (async () => {
+            const adminCheck = await looksLikeAdminEmail(email);
+            if (adminCheck) {
+              setAdminMatch(adminCheck);
+              setError("This email address belongs to an Admin Portal account, not a regular user account. Please sign in via the Admin Portal at /admin/login.");
+            }
+          })();
+          if (!adminMatch) message = "No user found with this email. If you are an administrator, please use the Admin Portal login page at /admin/login.";
+          else message = "This email address belongs to an Admin Portal account, not a regular user account. Please sign in via the Admin Portal at /admin/login.";
         } else if (err.code === "auth/wrong-password") {
           message = "Incorrect password.";
         } else if (err.code === "auth/too-many-requests") {
@@ -176,6 +223,28 @@ export default function LoginPage() {
               aria-live="assertive"
             >
               {error}
+            </div>
+          )}
+
+          {adminMatch && (
+            <div
+              className="bg-blue-50 text-blue-800 p-4 rounded mb-4 text-sm border border-blue-200"
+              role="status"
+            >
+              <div className="font-semibold mb-2">Admin Account Detected</div>
+              <p className="mb-3 text-blue-700">
+                This email is registered as an Administrator. You must sign in through the
+                dedicated Admin Portal instead of this user login page.
+              </p>
+              <a
+                href="/admin/login"
+                className="inline-flex items-center gap-2 bg-blue-700 hover:bg-blue-800 text-white px-4 py-2 rounded font-medium transition-colors"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-4 h-4">
+                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM6.75 9.25a.75.75 0 000 1.5h4.59l-2.1 1.95a.75.75 0 001.02 1.1l3.5-3.25a.75.75 0 000-1.1l-3.5-3.25a.75.75 0 10-1.02 1.1l2.1 1.95H6.75z" clipRule="evenodd" />
+                </svg>
+                Go to Admin Portal Login
+              </a>
             </div>
           )}
 
