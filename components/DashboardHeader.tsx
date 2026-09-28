@@ -119,7 +119,15 @@ export default function DashboardHeader({ onMobileMenuClick }: { onMobileMenuCli
           </div>
           <div className="h-10 w-10 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 overflow-hidden">
             {avatarUrl ? (
-              <img src={avatarUrl} alt="Profile" className="w-full h-full object-cover" />
+              <img
+                src={avatarUrl}
+                alt="Profile"
+                className="w-full h-full object-cover"
+                onError={(e) => {
+                  (e.currentTarget as HTMLImageElement).style.display = "none";
+                  setAvatarUrl("");
+                }}
+              />
             ) : initials ? (
               <span className="text-sm font-bold">{initials}</span>
             ) : (

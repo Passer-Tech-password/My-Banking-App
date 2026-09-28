@@ -12,6 +12,8 @@ import Footer from "@/components/Footer";
 import { useToast } from "@/components/ToastProvider";
 import { isAdminUserData, parseUserRole } from "@/lib/roles";
 import { getDefaultAvatarUrl } from "@/lib/config";
+import { setLocaleCookie } from "@/lib/i18n/client";
+import { isLocale, defaultLocale } from "@/lib/i18n/messages";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -42,92 +44,108 @@ export default function LoginPage() {
         router.push(`/verify-email?next=${encodeURIComponent("/dashboard")}`);
         return;
       }
-      try {
-        const userRef = doc(db, "users", cred.user.uid);
-        const snap = await getDoc(userRef);
-        if (!snap.exists()) {
+
+      const userRef = doc(db, "users", cred.user.uid);
+      const snap = await getDoc(userRef);
+      let preferredLanguage: string | null = null;
+      let isAdmin = false;
+
+      if (!snap.exists()) {
+        const displayName =
+          String(cred.user.displayName || "").trim() ||
+          String(cred.user.email || "").trim().split("@")[0] ||
+          "User";
+        const photoURL =
+          String(cred.user.photoURL || "").trim() ||
+          getDefaultAvatarUrl(displayName || email);
+        await setDoc(userRef, {
+          email: cred.user.email ?? email,
+          displayName,
+          photoURL,
+          role: "user",
+          blocked: false,
+          createdAt: serverTimestamp(),
+          updatedAt: serverTimestamp(),
+          balance: 0,
+        });
+      } else {
+        const data = snap.data() as unknown;
+        const rawLang = (data as any)?.language;
+        if (typeof rawLang === "string" && rawLang.trim() && isLocale(rawLang.trim())) {
+          preferredLanguage = rawLang.trim();
+        }
+        const hasPhotoURL = !!String((data as any)?.photoURL || "").trim();
+        if (!hasPhotoURL) {
           const displayName =
+            String((data as any)?.displayName || "").trim() ||
             String(cred.user.displayName || "").trim() ||
             String(cred.user.email || "").trim().split("@")[0] ||
             "User";
           const photoURL =
+            String((data as any)?.image || "").trim() ||
             String(cred.user.photoURL || "").trim() ||
             getDefaultAvatarUrl(displayName || email);
-          await setDoc(userRef, {
-            email: cred.user.email ?? email,
-            displayName,
-            photoURL,
-            role: "user",
-            blocked: false,
-            createdAt: serverTimestamp(),
-            updatedAt: serverTimestamp(),
-            balance: 0,
-          });
-        } else {
-          const data = snap.data() as unknown;
-          const hasPhotoURL = !!String((data as any)?.photoURL || "").trim();
-          if (!hasPhotoURL) {
-            const displayName =
-              String((data as any)?.displayName || "").trim() ||
-              String(cred.user.displayName || "").trim() ||
-              String(cred.user.email || "").trim().split("@")[0] ||
-              "User";
-            const photoURL =
-              String((data as any)?.image || "").trim() ||
-              String(cred.user.photoURL || "").trim() ||
-              getDefaultAvatarUrl(displayName || email);
-            await setDoc(userRef, { photoURL, updatedAt: serverTimestamp() }, { merge: true });
-          }
-          const blocked = (data as any)?.blocked;
-          const isBlocked = blocked === true || blocked === "true";
-          if (isBlocked) {
-            toast.error("Your account is restricted. Please contact support.");
-            await signOut(auth);
-            router.push("/blocked");
-            return;
-          }
-          const role = parseUserRole((data as { role?: unknown } | null)?.role);
-          if (role === "admin" || isAdminUserData(data)) {
-            router.push("/admin/dashboard");
-            return;
-          }
+          await setDoc(userRef, { photoURL, updatedAt: serverTimestamp() }, { merge: true });
         }
-      } catch (profileError) {
-        console.error("LOGIN PROFILE ERROR:", profileError);
-        toast.error("Signed in, but failed to load your profile. Please try again.");
-        await signOut(auth);
-        return;
-      }
-      toast.success("Signed in successfully");
-      router.push("/dashboard");
-    } catch (err: any) {
-      let message = "Invalid credentials. Please try again.";
-      if (err.code === "auth/invalid-credential") {
-        try {
-          const methods = await fetchSignInMethodsForEmail(auth, email);
-          const projectId = auth.app.options.projectId || "unknown-project";
-          if (!methods || methods.length === 0) {
-            message = `No account found for this email in this Firebase project (${projectId}).`;
-          } else if (methods.includes("password")) {
-            message = "Invalid email or password. Use 'Forgot password?' to reset.";
-          } else {
-            message = `This email uses a different sign-in method (${methods.join(", ")}).`;
-          }
-        } catch (methodsError) {
-          message = "Invalid email or password.";
+        const blocked = (data as any)?.blocked;
+        const isBlocked = blocked === true || blocked === "true";
+        if (isBlocked) {
+          toast.error("Your account is restricted. Please contact support.");
+          await signOut(auth);
+          router.push("/blocked");
+          return;
         }
-      } else if (err.code === "auth/user-not-found") {
-        message = "No user found with this email.";
-      } else if (err.code === "auth/wrong-password") {
-        message = "Incorrect password.";
-      } else if (err.code === "auth/too-many-requests") {
-        message = "Too many failed attempts. Please try again later.";
-      } else {
-        console.error("LOGIN ERROR:", err);
+        const role = parseUserRole((data as { role?: unknown } | null)?.role);
+        if (role === "admin" || isAdminUserData(data)) {
+          isAdmin = true;
+        }
       }
 
-      setError(message);
-      toast.error(message);
+      const targetLocale = preferredLanguage && isLocale(preferredLanguage)
+        ? preferredLanguage
+        : defaultLocale;
+      setLocaleCookie(targetLocale);
+      if (typeof document !== "undefined" && document.documentElement) {
+        document.documentElement.setAttribute("lang", targetLocale);
+      }
+      const dest = isAdmin ? "/admin/dashboard" : "/dashboard";
+      toast.success("Signed in successfully");
+      router.push(dest);
+    } catch (err: any) {
+      if (err && err.message && err.message === "LOGIN_PROFILE_ERROR_MARKER") {
+        toast.error("Signed in, but failed to load your profile. Please try again.");
+        try {
+          await signOut(auth);
+        } catch {}
+      } else {
+        let message = "Invalid credentials. Please try again.";
+        if (err.code === "auth/invalid-credential") {
+          try {
+            const methods = await fetchSignInMethodsForEmail(auth, email);
+            const projectId = auth.app.options.projectId || "unknown-project";
+            if (!methods || methods.length === 0) {
+              message = `No account found for this email in this Firebase project (${projectId}).`;
+            } else if (methods.includes("password")) {
+              message = "Invalid email or password. Use 'Forgot password?' to reset.";
+            } else {
+              message = `This email uses a different sign-in method (${methods.join(", ")}).`;
+            }
+          } catch (methodsError) {
+            message = "Invalid email or password.";
+          }
+        } else if (err.code === "auth/user-not-found") {
+          message = "No user found with this email.";
+        } else if (err.code === "auth/wrong-password") {
+          message = "Incorrect password.";
+        } else if (err.code === "auth/too-many-requests") {
+          message = "Too many failed attempts. Please try again later.";
+        } else {
+          console.error("LOGIN ERROR:", err);
+        }
+
+        setError(message);
+        toast.error(message);
+      }
     } finally {
       setLoading(false);
     }

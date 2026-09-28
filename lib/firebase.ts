@@ -24,8 +24,10 @@ const firebaseConfig = {
 
 const app = getApps().length > 0 ? getApp() : initializeApp(firebaseConfig);
 
-// Use initializeFirestore with long-polling to resolve connection issues in some environments
 export const db = initializeFirestore(app, {
   experimentalForceLongPolling: true,
+  experimentalAutoDetectLongPolling: false,
+  ignoreUndefinedProperties: true,
+  useFetchStreams: false,
 });
 export const auth = getAuth(app);

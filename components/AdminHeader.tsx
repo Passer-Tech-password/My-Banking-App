@@ -2,171 +2,175 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { onAuthStateChanged, signOut } from "firebase/auth";
-import { doc, onSnapshot, serverTimestamp, setDoc } from "firebase/firestore";
-import { auth, db } from "@/lib/firebase";
-import { toErrorInfo } from "@/lib/errorInfo";
 import { getDefaultAvatarUrl } from "@/lib/config";
 import {
   Bars3Icon,
   BellIcon,
   UserCircleIcon,
   ChevronDownIcon,
-  ArrowRightOnRectangleIcon
+  ArrowRightOnRectangleIcon,
 } from "@heroicons/react/24/outline";
 
-export default function AdminHeader({ onMobileMenuClick }: { onMobileMenuClick?: () => void }) {
+export default function AdminHeader({
+  onMobileMenuClick,
+}: {
+  onMobileMenuClick?: () => void;
+}) {
   const router = useRouter();
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [displayName, setDisplayName] = useState<string>("Administrator");
   const [avatarUrl, setAvatarUrl] = useState<string>("");
+  const [loading, setLoading] = useState(true);
 
   const handleLogout = async () => {
     try {
-      await signOut(auth);
-      router.push("/admin/login");
+      await fetch("/api/admin/logout", { method: "POST", credentials: "include" });
     } catch (error) {
-      console.error("Logout failed", error);
+      console.error("Logout API call failed", error);
+    }
+    if (typeof window !== "undefined") {
+      window.location.href = "/admin/login";
+    } else {
+      router.push("/admin/login");
+      router.refresh();
     }
   };
 
   useEffect(() => {
-    let profileUnsub: null | (() => void) = null;
-    const unsub = onAuthStateChanged(auth, async (user) => {
-      if (profileUnsub) {
-        profileUnsub();
-        profileUnsub = null;
-      }
-      if (!user) {
-        setDisplayName("Administrator");
-        setAvatarUrl("");
-        return;
-      }
-
-      const authName =
-        String(user.displayName || "").trim() ||
-        String(user.email || "").trim() ||
-        "Administrator";
-      const authImage = String(user.photoURL || "").trim();
-      setDisplayName(authName);
-      setAvatarUrl(authImage || getDefaultAvatarUrl(authName));
-
-      profileUnsub = onSnapshot(
-        doc(db, "users", user.uid),
-        (snap) => {
-          const data = snap.exists() ? (snap.data() as any) : null;
-          const name =
-            String(data?.displayName || "").trim() ||
-            authName;
-          const baseUrl =
-            String(data?.photoURL || "").trim() ||
-            String(data?.image || "").trim() ||
-            authImage;
-          const version = Number(data?.photoVersion || 0);
-          const imageRaw =
-            baseUrl && Number.isFinite(version) && version > 0
-              ? `${baseUrl}${baseUrl.includes("?") ? "&" : "?"}v=${encodeURIComponent(String(version))}`
-              : baseUrl;
-          const image = imageRaw || getDefaultAvatarUrl(name || authName);
-          setDisplayName(name);
-          setAvatarUrl(image);
-          const needsPhotoURL = !String(data?.photoURL || "").trim();
-          const needsDisplayName = !String(data?.displayName || "").trim();
-          if (snap.exists() && (needsPhotoURL || needsDisplayName)) {
-            setDoc(
-              doc(db, "users", user.uid),
-              { ...(needsDisplayName ? { displayName: name } : {}), ...(needsPhotoURL ? { photoURL: image } : {}), updatedAt: serverTimestamp() },
-              { merge: true },
-            ).catch((e) => console.error("Failed to backfill photoURL:", e));
+    let cancelled = false;
+    const controller = typeof AbortController !== "undefined" ? new AbortController() : null;
+    (async () => {
+      try {
+        const res = await fetch("/api/admin/session", {
+          method: "GET",
+          credentials: "include",
+          signal: controller?.signal ?? undefined,
+        });
+        if (res.ok) {
+          const data = (await res.json()) as {
+            ok?: boolean;
+            email?: string;
+          };
+          if (!cancelled && data?.ok && data.email) {
+            const email = data.email;
+            setDisplayName(email);
+            setAvatarUrl(getDefaultAvatarUrl(email));
           }
-        },
-        (error) => {
-          const { code, message } = toErrorInfo(error);
-          console.error("Firestore access error:", {
-            code,
-            message,
-          });
-          setDisplayName(authName);
-          setAvatarUrl(authImage || getDefaultAvatarUrl(authName));
-        },
-      );
-    });
-
+        }
+      } catch (error) {
+        if (cancelled) return;
+        const isAbort =
+          error instanceof DOMException && error.name === "AbortError";
+        const isFailedFetchNoisy =
+          error instanceof TypeError &&
+          /failed to fetch/i.test(error.message || "");
+        if (isAbort) return;
+        if (isFailedFetchNoisy) {
+          if (typeof window !== "undefined") {
+            if ((window as any).__adminSessionFetchWarned__) return;
+            (window as any).__adminSessionFetchWarned__ = true;
+          }
+          console.warn("Session check skipped (transient network).");
+          return;
+        }
+        console.error("Session check failed:", error);
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    })();
     return () => {
-      if (profileUnsub) profileUnsub();
-      unsub();
+      cancelled = true;
+      controller?.abort?.();
     };
   }, []);
 
   const initials = (displayName || "A")
-    .split(" ")
+    .split(/[@.\s]/)
     .filter(Boolean)
     .slice(0, 2)
     .map((p) => p[0]?.toUpperCase())
     .join("");
-  
+
   return (
-    <header className="sticky top-0 z-10 flex h-20 w-full bg-white shadow-sm border-b border-gray-100 items-center justify-between px-4 sm:px-6 lg:px-12">
-      {/* Left: Mobile Menu Button & Title */}
-      <div className="flex items-center gap-4">
-        <button 
+    <header className="sticky top-0 z-10 flex h-auto min-h-[5rem] w-full bg-white shadow-sm border-b border-gray-100 items-center justify-between px-3 sm:px-6 lg:px-12 py-3 gap-2 sm:gap-4 flex-wrap sm:flex-nowrap">
+      <div className="flex items-center gap-3 min-w-0 flex-shrink-0">
+        <button
           onClick={onMobileMenuClick}
-          className="lg:hidden p-2 text-gray-500 hover:text-blue-600 transition-colors"
+          className="lg:hidden p-2 text-gray-500 hover:text-blue-600 transition-colors rounded-md"
+          aria-label="Open admin navigation"
         >
           <Bars3Icon className="w-6 h-6" />
         </button>
-        <h1 className="text-xl font-semibold text-gray-800 hidden sm:block">
+        <h1 className="text-lg sm:text-xl font-semibold text-gray-800 hidden sm:block truncate">
           Admin Portal
         </h1>
+        <h2 className="text-base font-semibold text-gray-800 block sm:hidden truncate">
+          Admin
+        </h2>
       </div>
 
-      {/* Right: Actions & Profile */}
-      <div className="flex items-center gap-6">
-        {/* Notifications */}
-        <button className="relative p-2 text-gray-400 hover:text-blue-600 transition-colors">
+      <div className="flex items-center gap-2 sm:gap-6 flex-shrink-0 min-w-0">
+        <button
+          className="relative p-2 text-gray-400 hover:text-blue-600 transition-colors rounded-md"
+          aria-label="Notifications"
+        >
           <BellIcon className="w-6 h-6" />
-          <span className="absolute top-1 right-1 w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-white"></span>
+          <span className="absolute top-1.5 right-1.5 w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-white"></span>
         </button>
 
-        {/* User Profile */}
-        <div className="relative">
-          <button 
+        <div className="relative max-w-full">
+          <button
             onClick={() => setIsProfileOpen(!isProfileOpen)}
-            className="flex items-center gap-3 pl-6 border-l border-gray-100 focus:outline-none group"
+            className="flex items-center gap-2 sm:gap-3 pl-0 sm:pl-6 sm:border-l sm:border-gray-100 focus:outline-none group max-w-full"
           >
-            <div className="text-right hidden md:block">
-              <p className="text-sm font-medium text-gray-700 group-hover:text-blue-600 transition-colors">{displayName}</p>
-              <p className="text-xs text-gray-500">Super User</p>
+            <div className="text-right hidden md:block min-w-0 max-w-[16rem]">
+              <p className="text-sm font-medium text-gray-700 group-hover:text-blue-600 transition-colors truncate">
+                {loading ? "Loading..." : displayName}
+              </p>
+              <p className="text-xs text-gray-500">Administrator</p>
             </div>
-            <div className="h-10 w-10 bg-blue-50 rounded-full flex items-center justify-center text-blue-600 group-hover:bg-blue-100 transition-colors overflow-hidden">
+            <div className="h-10 w-10 flex-shrink-0 bg-blue-50 rounded-full flex items-center justify-center text-blue-600 group-hover:bg-blue-100 transition-colors overflow-hidden">
               {avatarUrl ? (
-                <img src={avatarUrl} alt="Profile" className="w-full h-full object-cover" />
+                <img
+                  src={avatarUrl}
+                  alt="Profile"
+                  className="w-full h-full object-cover"
+                  onError={(e) => {
+                    (e.currentTarget as HTMLImageElement).style.display = "none";
+                    setAvatarUrl("");
+                  }}
+                />
               ) : initials ? (
                 <span className="text-sm font-bold">{initials}</span>
               ) : (
                 <UserCircleIcon className="w-6 h-6" />
               )}
             </div>
-            <ChevronDownIcon className={`w-4 h-4 text-gray-400 transition-transform duration-200 ${isProfileOpen ? 'rotate-180' : ''}`} />
+            <ChevronDownIcon
+              className={`w-4 h-4 text-gray-400 transition-transform duration-200 flex-shrink-0 ${
+                isProfileOpen ? "rotate-180" : ""
+              }`}
+            />
           </button>
 
-          {/* Dropdown Menu */}
           {isProfileOpen && (
             <>
-              <div 
-                className="fixed inset-0 z-10" 
+              <div
+                className="fixed inset-0 z-10"
                 onClick={() => setIsProfileOpen(false)}
               ></div>
-              <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg py-1 border border-gray-100 ring-1 ring-black ring-opacity-5 z-20">
-                <div className="px-4 py-3 border-b border-gray-50 md:hidden">
-                  <p className="text-sm font-medium text-gray-900">{displayName}</p>
-                  <p className="text-xs text-gray-500">Super User</p>
+              <div className="absolute right-0 mt-2 w-full min-w-[14rem] max-w-[90vw] sm:min-w-[16rem] sm:max-w-[18rem] bg-white rounded-lg shadow-lg py-1 border border-gray-100 ring-1 ring-black ring-opacity-5 z-20">
+                <div className="px-4 py-3 border-b border-gray-50">
+                  <p className="text-sm font-medium text-gray-900 truncate">
+                    {loading ? "Loading..." : displayName}
+                  </p>
+                  <p className="text-xs text-gray-500">Administrator</p>
                 </div>
                 <button
                   onClick={handleLogout}
                   className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 flex items-center gap-2"
                 >
-                  <ArrowRightOnRectangleIcon className="w-4 h-4" />
+                  <ArrowRightOnRectangleIcon className="w-4 h-4 flex-shrink-0" />
                   Sign out
                 </button>
               </div>
