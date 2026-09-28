@@ -14,10 +14,12 @@ import {
   Cog6ToothIcon,
   ArrowRightOnRectangleIcon,
   XMarkIcon,
+  PaperAirplaneIcon,
 } from "@heroicons/react/24/outline";
 
 const navigation = [
   { name: "Dashboard", href: "/dashboard", icon: HomeIcon },
+  { name: "Send Funds", href: "/dashboard/transfer", icon: PaperAirplaneIcon },
   { name: "Transactions", href: "/dashboard/transactions", icon: BanknotesIcon },
   { name: "My Cards", href: "/dashboard/cards", icon: CreditCardIcon },
   { name: "Contacts", href: "/dashboard/contacts", icon: UserGroupIcon },
