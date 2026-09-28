@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 
@@ -10,6 +10,16 @@ interface FormDataState {
 }
 
 type TouchedState = Partial<Record<keyof FormDataState, boolean>>;
+
+interface HealthCheckInfo {
+  loaded: boolean;
+  allOk: boolean;
+  missingVars: string[];
+  checks: Record<string, { status: string; reason?: string; hint?: string; projectId?: string; minCharsRequired?: number }>;
+  vercelSteps: string[];
+  note?: string;
+  fingerprint?: string;
+}
 
 function validateEmail(email: string): string {
   if (!email.trim()) return "Email is required";
@@ -51,6 +61,46 @@ export default function AdminLoginPage() {
     password: "",
   }));
   const [showPassword, setShowPassword] = useState(false);
+  const [health, setHealth] = useState<HealthCheckInfo>({
+    loaded: false,
+    allOk: false,
+    missingVars: [],
+    checks: {},
+    vercelSteps: [],
+  });
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const res = await fetch("/api/admin/login", {
+          method: "GET",
+          credentials: "same-origin",
+          headers: { "Cache-Control": "no-store" },
+        });
+        const text = await res.text().catch(() => "");
+        const data = text ? JSON.parse(text) : null;
+        if (cancelled) return;
+        setHealth({
+          loaded: true,
+          allOk: Boolean(data?.adminConfigured ?? data?.ok),
+          missingVars: Array.isArray(data?.missingVars) ? data.missingVars : [],
+          checks: data?.checks && typeof data.checks === "object" ? (data.checks as any) : {},
+          vercelSteps: Array.isArray(data?.vercelSteps) ? data.vercelSteps : [],
+          note: typeof data?.note === "string" ? data.note : undefined,
+          fingerprint: typeof data?.fingerprint === "string" ? data.fingerprint : undefined,
+        });
+      } catch (e) {
+        if (!cancelled) {
+          setHealth((h) => ({ ...h, loaded: true }));
+          console.warn("[Admin Login] Health check fetch failed:", e);
+        }
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const emailError = touched.email ? validateEmail(formData.email) : "";
   const passwordError = touched.password ? validatePassword(formData.password) : "";
@@ -149,6 +199,119 @@ export default function AdminLoginPage() {
         </div>
 
         <div className="px-6 py-8">
+          {health.loaded && !health.allOk && (
+            <div
+              className="bg-amber-50 border border-amber-200 text-amber-800 px-4 py-4 rounded-lg mb-6 text-sm"
+              role="alert"
+              aria-live="assertive"
+            >
+              <div className="flex items-start gap-3">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5 flex-shrink-0 mt-0.5 text-amber-600">
+                  <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" />
+                  <line x1="12" y1="9" x2="12" y2="13" />
+                  <line x1="12" y1="17" x2="12.01" y2="17" />
+                </svg>
+                <div className="flex-1 space-y-3">
+                  <div className="font-semibold text-amber-900">
+                    Admin credentials are not configured on this server
+                  </div>
+                  <p className="text-amber-800 text-xs leading-relaxed">
+                    The admin email/password you type below will always be rejected until the server environment is configured.
+                    This is the reason you see &quot;Invalid email or password&quot; on submit or &quot;No account found for this email in this Firebase project&quot; if you tried logging in via the regular user sign-in page.
+                  </p>
+
+                  {health.missingVars.length > 0 && (
+                    <div>
+                      <div className="font-medium text-amber-900 text-xs mb-1">
+                        Missing or invalid variables ({health.missingVars.length}):
+                      </div>
+                      <ul className="space-y-1 text-xs font-mono break-all">
+                        {health.missingVars.map((v) => (
+                          <li key={v} className="bg-amber-100/60 border border-amber-200 rounded px-2 py-1 text-amber-900">
+                            {v}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+
+                  {health.vercelSteps.length > 0 && (
+                    <div>
+                      <div className="font-medium text-amber-900 text-xs mb-1">
+                        Fix on Vercel:
+                      </div>
+                      <ol className="list-decimal list-inside space-y-1 text-xs leading-relaxed text-amber-800">
+                        {health.vercelSteps.map((step, i) => (
+                          <li key={i}>{step}</li>
+                        ))}
+                      </ol>
+                    </div>
+                  )}
+
+                  {health.checks && Object.keys(health.checks).length > 0 && (
+                    <div>
+                      <div className="font-medium text-amber-900 text-xs mb-1">
+                        Per-check status:
+                      </div>
+                      <ul className="space-y-1 text-xs">
+                        {Object.entries(health.checks).map(([key, info]) => {
+                          const ok = info.status === "ok";
+                          return (
+                            <li
+                              key={key}
+                              className={`flex items-start gap-2 px-2 py-1 rounded border ${
+                                ok
+                                  ? "bg-green-50 border-green-200 text-green-800"
+                                  : "bg-amber-100/60 border-amber-200 text-amber-900"
+                              }`}
+                            >
+                              <span className="flex-shrink-0 font-medium">{ok ? "✓" : "✗"}</span>
+                              <span className="font-medium capitalize">
+                                {key.replace(/([A-Z])/g, " $1").trim()}
+                                {info.hint ? ` (${info.hint})` : ""}
+                                {info.status !== "ok" && info.reason ? ` — ${info.reason}` : ""}
+                                {info.projectId ? ` — project: ${info.projectId}` : ""}
+                              </span>
+                            </li>
+                          );
+                        })}
+                      </ul>
+                    </div>
+                  )}
+
+                  <p className="text-[11px] leading-relaxed text-amber-700">
+                    After setting variables, you <strong>must redeploy</strong> (or restart the local dev server).
+                    Environment variables are read only once at boot time. {health.fingerprint ? ` (fp: ${health.fingerprint})` : ""}
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {health.loaded && health.allOk && (
+            <div
+              className="bg-emerald-50 border border-emerald-200 text-emerald-800 px-4 py-3 rounded-lg mb-6 text-xs"
+              role="status"
+            >
+              <div className="flex items-start gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-4 h-4 flex-shrink-0 mt-0.5 text-emerald-600">
+                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                </svg>
+                <div>
+                  <span className="font-medium text-emerald-900">Server admin config OK.</span>
+                  {health.note ? ` ${health.note}` : ""}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {!health.loaded && (
+            <div className="bg-gray-50 border border-gray-200 text-gray-500 px-4 py-2 rounded-lg mb-6 text-xs flex items-center gap-2">
+              <span className="inline-block animate-spin rounded-full h-3 w-3 border-2 border-gray-300 border-t-gray-600" />
+              Checking server admin configuration…
+            </div>
+          )}
+
           {error && (
             <div
               className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-lg mb-6 text-sm"
