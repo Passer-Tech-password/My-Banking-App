@@ -199,8 +199,23 @@ export async function POST(req: NextRequest) {
       return jsonError(400, "Validation failed.", { fields: errors });
     }
 
-    const adminAuth = getFirebaseAdminAuth();
-    const adminDb = getFirebaseAdminDb();
+    let adminAuth: ReturnType<typeof getFirebaseAdminAuth>;
+    let adminDb: ReturnType<typeof getFirebaseAdminDb>;
+    try {
+      adminAuth = getFirebaseAdminAuth();
+      adminDb = getFirebaseAdminDb();
+    } catch (e) {
+      const missingVar = isMissingEnvError(e);
+      if (missingVar) {
+        return jsonError(500,
+          `Failed to initialize Firebase Admin for credential creation: server env ${missingVar} is not set. ` +
+          `Set ${missingVar} in .env.local, then fully restart the Next.js server (environment variables are loaded once at boot).`,
+        );
+      }
+      const msg = e instanceof Error ? e.message : String(e);
+      console.error("CREATE USER: Firebase Admin init failed:", e);
+      return jsonError(500, `Failed to initialize server authentication provider: ${msg}`);
+    }
 
     try {
       const MAX_ACCT_RETRIES = accountNumberRaw ? 1 : 8;
@@ -266,18 +281,75 @@ export async function POST(req: NextRequest) {
       uid = authUser.uid;
     } catch (e: any) {
       const code = typeof e?.code === "string" ? String(e.code) : "";
+      const rawMsg = e instanceof Error ? e.message : "";
+
       if (code === "auth/email-already-exists" || code === "auth/email-already-in-use") {
-        return jsonError(409, "A user with this login email already exists.", {
-          fields: { email: "Email is already registered." },
+        return jsonError(409, "A user with this login email already exists. Use a different email address.", {
+          fields: { email: "Email is already registered — choose a different address." },
         });
       }
       if (code === "auth/invalid-password") {
-        return jsonError(400, "Firebase rejected the password. Ensure it meets minimum length.", {
+        return jsonError(400, "Firebase rejected the password. Ensure it has 6+ characters with uppercase, lowercase, a number, and a special character.", {
           fields: { password: "Password does not meet provider requirements." },
         });
       }
-      console.error("CREATE USER: Firebase Auth create failed:", e);
-      return jsonError(500, "Failed to create user login credentials.");
+      if (code === "auth/weak-password") {
+        return jsonError(400, `Firebase rejected the password: ${rawMsg || "it is too weak"}. Use 6+ characters with uppercase, lowercase, a number, and a special character.`, {
+          fields: { password: rawMsg || "Choose a stronger password." },
+        });
+      }
+      if (code === "auth/invalid-email") {
+        return jsonError(400, "The login email address is improperly formatted.", {
+          fields: { email: rawMsg || "Email format is invalid." },
+        });
+      }
+      if (code === "auth/invalid-display-name") {
+        return jsonError(400, "The display name (customer name) was rejected by Firebase. Ensure it is a non-empty plain text string without unusual characters.", {
+          fields: { customerName: "Customer name is invalid." },
+        });
+      }
+      if (code === "auth/invalid-photo-url") {
+        return jsonError(400, "The profile photo URL is not a valid fully-qualified URL.", {
+          fields: { photoURL: "Photo URL must be a valid https:// URL or left blank." },
+        });
+      }
+      if (code === "auth/operation-not-allowed") {
+        return jsonError(500, "Firebase rejected the operation: Email/Password sign-in may not be enabled in the Firebase Console → Authentication → Sign-in method.");
+      }
+      if (code === "auth/quota-exceeded") {
+        return jsonError(503, "Firebase Auth reported a quota limit was exceeded. Wait a moment and try again, or review the Firebase Authentication free/paid tier quotas.");
+      }
+      if (code === "auth/too-many-requests") {
+        return jsonError(429, "Too many account creation requests in a short period. Wait 60 seconds and try again, or check Firebase Authentication quota limits in the Console.");
+      }
+      if (code === "auth/project-not-found") {
+        return jsonError(500, "Firebase Admin project was not found. Verify FIREBASE_PROJECT_ID matches the project ID in Firebase Console → Project settings, then restart the server.");
+      }
+      if (code === "auth/cancelled" || code === "auth/network-request-failed") {
+        return jsonError(502, "The credential creation request was interrupted on the server. Click Create Account again; this is usually a transient network issue.");
+      }
+      if (code === "auth/internal-error") {
+        const missingVar = isMissingEnvError(e);
+        if (missingVar) {
+          return jsonError(500,
+            `Firebase Auth internal error caused by missing env ${missingVar}. Set it and restart the server.`,
+          );
+        }
+        console.error("CREATE USER: Firebase Auth internal error [auth/internal-error]:", e);
+        return jsonError(500, `Firebase Auth internal error: ${rawMsg || "Check server logs or verify the Firebase Admin service-account credentials in .env.local."}`);
+      }
+      if (
+        code === "auth/invalid-credential" ||
+        code === "auth/invalid-config" ||
+        code === "auth/invalid-service-account"
+      ) {
+        console.error("CREATE USER: Firebase Admin credentials/config invalid:", e);
+        return jsonError(500, "Firebase Admin credentials are invalid. Verify FIREBASE_PROJECT_ID, FIREBASE_CLIENT_EMAIL, and FIREBASE_PRIVATE_KEY (with BEGIN/END PRIVATE KEY armor) in .env.local, then restart the server.");
+      }
+      console.error("CREATE USER: Firebase Auth create failed", { code, message: rawMsg }, e);
+      const prefix = code ? `(${code}) ` : "";
+      const detail = rawMsg ? ` — ${rawMsg}` : " — an unexpected Firebase Auth condition was encountered. See server logs for details.";
+      return jsonError(500, `Failed to create user login credentials ${prefix}${detail.trim()}.`);
     }
 
     try {

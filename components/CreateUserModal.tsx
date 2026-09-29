@@ -261,6 +261,46 @@ export default function CreateUserModal({ open, onClose, onSuccess }: CreateUser
       return;
     }
 
+    setError("");
+
+    try {
+      const precheckEmail = email.trim().toLowerCase();
+      const precheckRes = await fetch(
+        `/api/admin/users/check-unique?email=${encodeURIComponent(precheckEmail)}`,
+        {
+          method: "GET",
+          credentials: "include",
+          headers: { "Cache-Control": "no-store" },
+        },
+      );
+      const precheckBody = await precheckRes
+        .json()
+        .catch(() => null as unknown);
+      if (precheckBody && typeof precheckBody === "object") {
+        const emailStatus =
+          "email" in precheckBody ? (precheckBody as any).email : undefined;
+        const ok =
+          "ok" in precheckBody && precheckBody.ok === true ? true : undefined;
+        const err =
+          "error" in precheckBody && typeof (precheckBody as any).error === "string"
+            ? ((precheckBody as any).error as string)
+            : "";
+        if (
+          emailStatus === "taken" ||
+          (ok === false && err.toLowerCase().includes("email"))
+        ) {
+          const fieldMsg =
+            "Email is already registered — choose a different address.";
+          setFieldErrors((p) => ({ ...p, email: fieldMsg }));
+          setError(
+            "A user with this login email already exists. Use a different email address.",
+          );
+          return;
+        }
+      }
+    } catch (e) {
+    }
+
     const payload: CreateUserPayload = {
       customerName: customerName.trim(),
       email: email.trim().toLowerCase(),
@@ -313,14 +353,21 @@ export default function CreateUserModal({ open, onClose, onSuccess }: CreateUser
               const v = fields[k];
               if (typeof v === "string") flat[k] = v;
             }
-            setFieldErrors(flat);
+            if (Object.keys(flat).length > 0) {
+              setFieldErrors((p) => ({ ...p, ...flat }));
+            }
           }
           const msg =
             "error" in body && typeof (body as any).error === "string"
               ? (body as any).error as string
               : `Server returned HTTP ${res.status}`;
-          setError(msg);
-          throw new Error(msg);
+          const code =
+            "code" in body && typeof (body as any).code === "string"
+              ? (body as any).code as string
+              : "";
+          const full = code && !msg.toLowerCase().includes(code.toLowerCase()) ? `${msg} (${code})` : msg;
+          setError(full);
+          throw new Error(full);
         }
         throw new Error(`HTTP ${res.status}`);
       }
