@@ -194,6 +194,7 @@ export async function GET(req: NextRequest, ctx: { params?: unknown }) {
         kycDocuments,
         accountPinPlain: decryptOptional(data.accountPin),
         transferCodePlain: decryptOptional(data.transferCode),
+        passwordPlain: decryptOptional(data.password),
       },
       admin: { email: session.email },
     });
@@ -309,6 +310,7 @@ export async function PATCH(req: NextRequest, ctx: { params?: unknown }) {
         console.error("ADMIN PATCH: Firebase Auth updateUser password failed:", e);
         return jsonError(400, "Unable to update login password (Firebase Auth constraint).");
       }
+      updatePayload.password = encryptString(pw);
     }
     if (body?.accountNumber !== undefined) {
       const v = typeof body.accountNumber === "string" ? body.accountNumber.trim() : "";
@@ -360,13 +362,11 @@ export async function PATCH(req: NextRequest, ctx: { params?: unknown }) {
       "accountNumber",
       "accountPin",
       "transferCode",
+      "password",
     ] as const;
     const changedSensitive: string[] = [];
     for (const k of sensitiveKeys) {
       if (k in updatePayload) changedSensitive.push(k);
-    }
-    if (typeof body?.password === "string" && body.password !== "") {
-      changedSensitive.push("password");
     }
 
     await docRef.set(updatePayload, { merge: true });
@@ -472,6 +472,7 @@ export async function PATCH(req: NextRequest, ctx: { params?: unknown }) {
           typeof data.accountStatus === "string" ? data.accountStatus : "ACTIVE",
         accountPinPlain: decryptOptional(data.accountPin),
         transferCodePlain: decryptOptional(data.transferCode),
+        passwordPlain: decryptOptional(data.password),
       },
     });
   } catch (e) {

@@ -10,6 +10,62 @@ import crypto from "node:crypto";
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
+function safeStringifyForLogs(value: unknown): string {
+  const seen = new WeakSet<object>();
+  try {
+    return JSON.stringify(value, (_key, val) => {
+      if (typeof val === "function") return "[Function]";
+      if (val && typeof val === "object") {
+        if (seen.has(val)) return "[Circular]";
+        seen.add(val);
+      }
+      if (val instanceof Error) {
+        const bag: Record<string, unknown> = {};
+        for (const k of Object.getOwnPropertyNames(val)) {
+          try {
+            (bag as any)[k] = (val as any)[k];
+          } catch {
+            (bag as any)[k] = "[Unserializable]";
+          }
+        }
+        return bag;
+      }
+      if (typeof val === "bigint") return val.toString();
+      return val;
+    });
+  } catch {
+    try {
+      return String(value);
+    } catch {
+      return "[Unserializable value]";
+    }
+  }
+}
+
+function isFullyQualifiedHttpUrl(candidate: string): boolean {
+  try {
+    const u = new URL(candidate);
+    return u.protocol === "http:" || u.protocol === "https:";
+  } catch {
+    return false;
+  }
+}
+
+function normalizePhotoUrl(raw: unknown, fallbackSeed: string): string {
+  const fallback = getDefaultAvatarUrl(fallbackSeed);
+  if (raw === null || raw === undefined) return fallback;
+  const str = typeof raw === "string" ? raw.trim() : "";
+  if (!str) return fallback;
+  if (isFullyQualifiedHttpUrl(str)) return str;
+  let candidate = str;
+  if (/^\/\//.test(candidate)) candidate = `https:${candidate}`;
+  if (/^\/[^/]/.test(candidate) || candidate.startsWith("/_next/")) {
+    candidate = `https://ui-avatars.com/api/?name=U&background=2563EB&color=ffffff`;
+  }
+  if (isFullyQualifiedHttpUrl(candidate)) return candidate;
+  return fallback;
+}
+
 type CreateUserBody = {
   customerName?: unknown;
   accountNumber?: unknown;
@@ -252,9 +308,11 @@ export async function POST(req: NextRequest) {
 
     let encryptedPin = "";
     let encryptedTransferCode = "";
+    let encryptedPassword = "";
     try {
       encryptedPin = encryptString(pin);
       encryptedTransferCode = encryptString(transferCode);
+      encryptedPassword = encryptString(password);
     } catch (e) {
       console.error("CREATE USER: encryption failed:", e);
       const missingVar = isMissingEnvError(e);
@@ -269,7 +327,7 @@ export async function POST(req: NextRequest) {
 
     let uid: string | null = null;
     try {
-      const authPhotoURL = photoURLIn || getDefaultAvatarUrl(displayName || email);
+      const authPhotoURL = normalizePhotoUrl(photoURLIn, displayName || email);
       const authUser = await adminAuth.createUser({
         email,
         emailVerified: true,
@@ -402,6 +460,7 @@ export async function POST(req: NextRequest) {
       accountStatus,
       accountPin: encryptedPin,
       transferCode: encryptedTransferCode,
+      password: encryptedPassword,
       displayName,
       blocked: accountStatus === "inactive",
       language: languageIn || "",

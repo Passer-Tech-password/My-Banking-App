@@ -30,13 +30,17 @@ export function getDefaultAvatarUrl(seed: string): string {
     .slice(0, 2)
     .map((p) => (p[0] || "").toUpperCase())
     .join("") || "U";
+  const safeInitials = initials.replace(/[^A-Za-z0-9]/g, "").slice(0, 2) || "U";
   const bg = hashColor(source);
-  const svg =
-    `<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256" viewBox="0 0 256 256">` +
-    `<rect width="256" height="256" rx="128" fill="#${bg}"/>` +
-    `<text x="50%" y="50%" text-anchor="middle" dominant-baseline="central" ` +
-    `font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif" ` +
-    `font-size="112" font-weight="700" fill="#FFFFFF">${initials.replace(/[<>&"']/g, "")}</text>` +
-    `</svg>`;
-  return `data:image/svg+xml;utf8,${encodeURIComponent(svg)}`;
+  const params = new URLSearchParams({
+    name: safeInitials,
+    background: bg,
+    color: "ffffff",
+    size: "256",
+    "font-size": "0.5",
+    bold: "true",
+    rounded: "true",
+    format: "svg",
+  });
+  return `https://ui-avatars.com/api/?${params.toString()}`;
 }

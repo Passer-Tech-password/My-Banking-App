@@ -287,7 +287,7 @@ export default function CreateUserModal({ open, onClose, onSuccess }: CreateUser
             : "";
         if (
           emailStatus === "taken" ||
-          (ok === false && err.toLowerCase().includes("email"))
+          (!ok && err.toLowerCase().includes("email"))
         ) {
           const fieldMsg =
             "Email is already registered — choose a different address.";
