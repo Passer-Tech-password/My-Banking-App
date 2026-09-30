@@ -186,6 +186,13 @@ export default function LoginPage() {
           message = "Incorrect password.";
         } else if (err.code === "auth/too-many-requests") {
           message = "Too many failed attempts. Please try again later.";
+        } else if (err.code === "auth/network-request-failed") {
+          const projectId = auth.app.options.projectId || "unknown-project";
+          message =
+            `Login request could not reach Firebase Authentication (project: ${projectId}). ` +
+            "Check your network connection, ensure browser extensions/ad blockers are not blocking " +
+            "*.googleapis.com or *.firebaseapp.com, verify the authorized domain list in Firebase Console, " +
+            "and confirm the page protocol (HTTPS in production). ";
         } else {
           console.error("LOGIN ERROR:", err);
         }
