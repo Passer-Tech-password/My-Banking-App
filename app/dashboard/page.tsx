@@ -498,18 +498,7 @@ export default function DashboardPage() {
   }, [router]);
 
   const scrollToTransfer = () => {
-    console.log("scrollToTransfer called, ref state:", transferWidgetRef.current ? "exists" : "null");
-    if (transferWidgetRef.current) {
-      transferWidgetRef.current.scrollIntoView({ behavior: "smooth", block: "center" });
-    } else {
-      const el = document.getElementById("transfer-widget");
-      console.log("Fallback search for transfer-widget:", el ? "found" : "not found");
-      if (el) {
-        el.scrollIntoView({ behavior: "smooth", block: "center" });
-      } else {
-        toast.error("Transfer section not found. Please scroll down.");
-      }
-    }
+    router.push("/dashboard/transfer");
   };
 
   const applyForVirtualCard = async () => {

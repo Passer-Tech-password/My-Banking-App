@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { onAuthStateChanged, User } from "firebase/auth";
 import { auth, db } from "@/lib/firebase";
@@ -70,6 +70,13 @@ export default function UserTransferPage() {
   const [transferCode, setTransferCode] = useState("");
   const [reference, setReference] = useState("");
 
+  const [lookupStatus, setLookupStatus] = useState<
+    { kind: "idle" | "loading" | "success" | "error"; accountName?: string; message?: string }
+  >({ kind: "idle" });
+  const [recipientNameConfirmed, setRecipientNameConfirmed] = useState(false);
+  const pendingLookupRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const lookupRequestRef = useRef<number>(0);
+
   const [showPin, setShowPin] = useState(false);
   const [showTransferCode, setShowTransferCode] = useState(false);
   const [submitting, setSubmitting] = useState(false);
@@ -135,6 +142,68 @@ export default function UserTransferPage() {
 
   const balance = useMemo(() => Number(profile?.balance ?? 0) || 0, [profile]);
 
+  const runLookup = async (accountNumber: string, requestId: number) => {
+    if (!/^\d{10}$/.test(accountNumber) || !authUser) {
+      setLookupStatus({ kind: "idle" });
+      setRecipientNameConfirmed(false);
+      return;
+    }
+    try {
+      setLookupStatus({ kind: "loading" });
+      const token = await authUser.getIdToken();
+      const res = await fetch("/api/user/lookup-account", {
+        method: "POST",
+        credentials: "same-origin",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ accountNumber }),
+      });
+      if (requestId !== lookupRequestRef.current) return;
+      const text = await res.text().catch(() => "");
+      const data: any = text ? JSON.parse(text) : null;
+      if (!res.ok || !data?.ok) {
+        const msg =
+          typeof data?.message === "string"
+            ? data.message
+            : "Unable to verify this account number.";
+        setLookupStatus({ kind: "error", message: msg });
+        setRecipientNameConfirmed(false);
+        return;
+      }
+      setLookupStatus({ kind: "success", accountName: String(data.accountName || "") });
+      setRecipientNameConfirmed((prev) => (prev ? prev : false));
+    } catch (e) {
+      if (requestId !== lookupRequestRef.current) return;
+      console.error("Transfer UI: account lookup error:", e);
+      setLookupStatus({ kind: "error", message: "Network error while looking up account." });
+      setRecipientNameConfirmed(false);
+    }
+  };
+
+  useEffect(() => {
+    if (!/^\d{10}$/.test(recipientAccountNumber)) {
+      if (pendingLookupRef.current) {
+        clearTimeout(pendingLookupRef.current);
+        pendingLookupRef.current = null;
+      }
+      lookupRequestRef.current += 1;
+      setLookupStatus({ kind: "idle" });
+      setRecipientNameConfirmed(false);
+      return;
+    }
+    if (pendingLookupRef.current) clearTimeout(pendingLookupRef.current);
+    const acct = recipientAccountNumber;
+    pendingLookupRef.current = setTimeout(() => {
+      lookupRequestRef.current += 1;
+      void runLookup(acct, lookupRequestRef.current);
+    }, 250);
+    return () => {
+      if (pendingLookupRef.current) clearTimeout(pendingLookupRef.current);
+    };
+  }, [recipientAccountNumber, authUser]);
+
   const fieldErrors = useMemo(() => {
     const errs: Record<string, string> = {};
     if (touched.recipientAccountNumber) {
@@ -161,6 +230,8 @@ export default function UserTransferPage() {
     profile != null &&
     notEligible == null &&
     !submitting &&
+    lookupStatus.kind === "success" &&
+    recipientNameConfirmed === true &&
     !validateAccountNumber(recipientAccountNumber) &&
     !validateAmount(amount, balance) &&
     !validatePin(pin) &&
@@ -200,11 +271,19 @@ export default function UserTransferPage() {
     }
     if (!canSubmit) {
       const firstErr =
-        fieldErrors.recipientAccountNumber ||
-        fieldErrors.amount ||
-        fieldErrors.pin ||
-        fieldErrors.transferCode ||
-        "Please correct the highlighted fields.";
+        (lookupStatus.kind !== "success" && /^\d{10}$/.test(recipientAccountNumber.trim()))
+          ? lookupStatus.kind === "loading"
+            ? "Please wait while we verify the recipient account."
+            : lookupStatus.kind === "error"
+              ? `Account verification failed: ${lookupStatus.message || "Please verify the account number."}`
+              : "Please verify the recipient account before submitting."
+          : !recipientNameConfirmed && lookupStatus.kind === "success"
+            ? "Please confirm that the displayed account name matches your intended recipient."
+            : fieldErrors.recipientAccountNumber ||
+              fieldErrors.amount ||
+              fieldErrors.pin ||
+              fieldErrors.transferCode ||
+              "Please correct the highlighted fields.";
       setStatus({ kind: "error", message: firstErr });
       return;
     }
@@ -300,6 +379,7 @@ export default function UserTransferPage() {
       setTransferCode("");
       setReference("");
       setTouched({});
+      setRecipientNameConfirmed(false);
     } catch (err) {
       console.error("Transfer UI: submit error:", err);
       setStatus({
@@ -436,6 +516,59 @@ export default function UserTransferPage() {
                   >
                     {fieldErrors.recipientAccountNumber}
                   </p>
+                )}
+
+                {lookupStatus.kind === "loading" && (
+                  <div className="mt-3 rounded-lg border border-blue-200 bg-blue-50 px-3 py-2 flex items-center gap-2 text-sm text-blue-800">
+                    <span className="inline-block h-4 w-4 border-b-2 border-blue-600 rounded-full animate-spin" />
+                    Verifying account…
+                  </div>
+                )}
+
+                {lookupStatus.kind === "error" && (
+                  <div
+                    role="alert"
+                    className="mt-3 rounded-lg border border-red-200 bg-red-50 px-3 py-2 flex items-start gap-2 text-sm text-red-800"
+                  >
+                    <ExclamationTriangleIcon className="w-4 h-4 flex-shrink-0 mt-0.5 text-red-500" />
+                    <div>
+                      <div className="font-medium">Recipient account could not be verified.</div>
+                      <div className="text-red-700">
+                        {lookupStatus.message || "Please check the 10-digit account number."}
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {lookupStatus.kind === "success" && lookupStatus.accountName && (
+                  <div className="mt-3 rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3 space-y-3">
+                    <div className="flex items-start gap-3">
+                      <div className="flex h-9 w-9 rounded-full bg-emerald-100 flex items-center justify-center flex-shrink-0">
+                        <CheckCircleIcon className="w-5 h-5 text-emerald-600" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="text-xs font-semibold text-emerald-900">
+                          Recipient Account Name
+                        </div>
+                        <div className="text-base font-bold text-emerald-900 break-words">
+                          {lookupStatus.accountName}
+                        </div>
+                      </div>
+                    </div>
+                    <label className="flex items-start gap-2 text-sm text-emerald-900 select-none cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={recipientNameConfirmed}
+                        onChange={(e) => setRecipientNameConfirmed(e.target.checked)}
+                        className="mt-0.5 h-4 w-4 rounded border-gray-300 text-emerald-600 focus:ring-emerald-500 flex-shrink-0"
+                      />
+                      <span>
+                        I confirm that{" "}
+                        <span className="font-semibold">{lookupStatus.accountName}</span>{" "}
+                        is the intended recipient for this transfer.
+                      </span>
+                    </label>
+                  </div>
                 )}
               </div>
 
