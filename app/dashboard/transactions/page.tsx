@@ -8,8 +8,10 @@ import { Transaction } from "@/lib/Transaction";
 import { ArrowUpRightIcon, ArrowDownLeftIcon, FunnelIcon, ArrowDownTrayIcon } from "@heroicons/react/24/outline";
 import { useRouter } from "next/navigation";
 import { useToast } from "@/components/ToastProvider";
+import { useTranslation } from "@/lib/i18n/useTranslation";
 
 export default function TransactionsPage() {
+  const { t } = useTranslation();
   const router = useRouter();
   const toast = useToast();
   const [transactions, setTransactions] = useState<Transaction[]>([]);
@@ -76,7 +78,7 @@ export default function TransactionsPage() {
 
     try {
       setExporting(true);
-      const headers = ["Date", "Description", "Type", "Amount", "Status", "Reference"];
+      const headers = [t("transactions.csvDate"), t("transactions.csvDescription"), t("transactions.csvType"), t("transactions.csvAmount"), t("transactions.csvStatus"), t("transactions.csvReference")];
       const sanitize = (str: any) => {
         if (!str && str !== 0) return '""';
         return `"${String(str).replace(/"/g, '""').replace(/^([=+\-@\t\r])/, "'$1")}"`;
@@ -103,7 +105,7 @@ export default function TransactionsPage() {
       document.body.removeChild(link);
     } catch (error) {
       console.error("Export failed:", error);
-      toast.error("Export failed. Please try again.");
+      toast.error(t("common.networkErrorTryAgain"));
     } finally {
       setExporting(false);
     }
@@ -120,8 +122,8 @@ export default function TransactionsPage() {
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Transactions</h1>
-          <p className="text-sm text-gray-500">View and filter your transaction history.</p>
+          <h1 className="text-2xl font-bold text-gray-900">{t("transactions.title")}</h1>
+          <p className="text-sm text-gray-500">{t("transactions.subtitle")}</p>
         </div>
         
         <div className="flex flex-col sm:flex-row gap-3">
@@ -135,7 +137,7 @@ export default function TransactionsPage() {
             ) : (
               <ArrowDownTrayIcon className="w-4 h-4" />
             )}
-            {exporting ? "Exporting..." : "Export CSV"}
+            {exporting ? t("transactions.exporting") : t("transactions.exportCSV")}
           </button>
 
           <div className="flex items-center gap-2 bg-white border border-gray-200 rounded-lg p-1">
@@ -145,7 +147,7 @@ export default function TransactionsPage() {
                 filter === "all" ? "bg-blue-50 text-blue-700" : "text-gray-600 hover:bg-gray-50"
               }`}
             >
-              All
+              {t("transactions.filterAll")}
             </button>
             <button
               onClick={() => setFilter("deposit")}
@@ -153,7 +155,7 @@ export default function TransactionsPage() {
                 filter === "deposit" ? "bg-green-50 text-green-700" : "text-gray-600 hover:bg-gray-50"
               }`}
             >
-              Deposits
+              {t("transactions.filterDeposit")}
             </button>
             <button
               onClick={() => setFilter("withdrawal")}
@@ -161,7 +163,7 @@ export default function TransactionsPage() {
                 filter === "withdrawal" ? "bg-red-50 text-red-700" : "text-gray-600 hover:bg-gray-50"
               }`}
             >
-              Withdrawals
+              {t("transactions.filterWithdrawal")}
             </button>
           </div>
         </div>
@@ -169,9 +171,9 @@ export default function TransactionsPage() {
 
       <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
         {loading && transactions.length === 0 ? (
-          <div className="p-8 text-center text-gray-500">Loading transactions...</div>
+          <div className="p-8 text-center text-gray-500">{t("transactions.loading")}</div>
         ) : transactions.length === 0 ? (
-          <div className="p-8 text-center text-gray-500">No transactions found.</div>
+          <div className="p-8 text-center text-gray-500">{t("transactions.empty")}</div>
         ) : (
           <div className="divide-y divide-gray-100">
             {transactions.map((tx) => (
@@ -187,7 +189,7 @@ export default function TransactionsPage() {
                     )}
                   </div>
                   <div>
-                    <p className="font-medium text-gray-900">{tx.description || "Transaction"}</p>
+                    <p className="font-medium text-gray-900">{tx.description || t("transactions.title")}</p>
                     <p className="text-sm text-gray-500">{new Date(tx.date).toLocaleDateString()} • {new Date(tx.date).toLocaleTimeString()}</p>
                   </div>
                 </div>
@@ -207,7 +209,7 @@ export default function TransactionsPage() {
               onClick={loadMore}
               className="text-sm font-medium text-blue-600 hover:text-blue-700"
             >
-              Load More
+              {t("transactions.loadMore")}
             </button>
           </div>
         )}

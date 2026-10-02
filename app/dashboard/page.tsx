@@ -24,6 +24,7 @@ import { Card } from "@/lib/Card";
 import { useToast } from "@/components/ToastProvider";
 import { toErrorInfo } from "@/lib/errorInfo";
 import { getDefaultAvatarUrl } from "@/lib/config";
+import { useTranslation } from "@/lib/i18n/useTranslation";
 import { 
   PlusIcon, 
   MinusIcon, 
@@ -35,6 +36,7 @@ import {
 export default function DashboardPage() {
   const router = useRouter();
   const toast = useToast();
+  const { t } = useTranslation();
   const [userId, setUserId] = useState<string | null>(null);
   const [balance, setBalance] = useState(0);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
@@ -99,7 +101,7 @@ export default function DashboardPage() {
   // Auth check + load user data
   useEffect(() => {
     const hour = new Date().getHours();
-    setGreeting(hour < 12 ? "Good morning" : hour < 18 ? "Good afternoon" : "Good evening");
+    setGreeting(hour < 12 ? t("dashboard.greetingMorning") : hour < 18 ? t("dashboard.greetingAfternoon") : t("dashboard.greetingEvening"));
 
     let isMounted = true;
     let txUnsub: null | (() => void) = null;
@@ -323,7 +325,7 @@ export default function DashboardPage() {
               message: e.message,
               name: e.name
             });
-            setCardRequestError("Failed to load card request status.");
+            setCardRequestError(t("dashboard.cardRequestFailed"));
           },
         );
 
@@ -504,11 +506,11 @@ export default function DashboardPage() {
   const applyForVirtualCard = async () => {
     const user = auth.currentUser;
     if (!user) {
-      toast.error("You must be signed in.");
+      toast.error(t("dashboard.youMustBeSignedIn"));
       return;
     }
     if (cardRequestStatus === "pending") {
-      toast.info("You already have a pending card request.");
+      toast.info(t("dashboard.pendingCardRequest"));
       return;
     }
     try {
@@ -516,7 +518,7 @@ export default function DashboardPage() {
       setCardRequestError(null);
       const email = String(user.email || "").trim().toLowerCase();
       if (!email) {
-        toast.error("Your account has no email.");
+        toast.error(t("dashboard.accountNoEmail"));
         return;
       }
       const existingPendingQ = query(
@@ -529,7 +531,7 @@ export default function DashboardPage() {
       if (!existingPendingSnap.empty) {
         setCardRequestStatus("pending");
         setCardRequestId(existingPendingSnap.docs[0]!.id);
-        toast.info("You already have a pending card request.");
+        toast.info(t("dashboard.pendingCardRequest"));
         return;
       }
       const ref = doc(collection(db, "cardRequests"));
@@ -542,12 +544,12 @@ export default function DashboardPage() {
       });
       setCardRequestStatus("pending");
       setCardRequestId(ref.id);
-      toast.success("Virtual card request submitted.");
+      toast.success(t("dashboard.cardRequestSubmitted"));
     } catch (e) {
       const info = toErrorInfo(e);
       console.error("Create card request failed:", info);
-      setCardRequestError("Failed to submit card request.");
-      toast.error(`Failed to submit card request (${info.code || "unknown"}).`);
+      setCardRequestError(t("dashboard.cardRequestFailed"));
+      toast.error(`${t("dashboard.cardRequestFailed")} (${info.code || "unknown"}).`);
     } finally {
       setCardRequestLoading(false);
     }
@@ -638,8 +640,8 @@ export default function DashboardPage() {
     try {
       setTransferLoading(true);
       const amount = parseFloat(transferAmount);
-      if (isNaN(amount) || amount <= 0) throw new Error("Invalid amount");
-      if (amount > balance) throw new Error("Insufficient funds");
+      if (isNaN(amount) || amount <= 0) throw new Error(t("dashboard.quickTransfer.invalidAmount"));
+      if (amount > balance) throw new Error(t("dashboard.quickTransfer.insufficientFunds"));
 
       if (dailyTransferLimit > 0) {
         const start = new Date();
@@ -663,7 +665,7 @@ export default function DashboardPage() {
           spent += Number(d.data()?.amount || 0);
         });
         if (spent + amount > dailyTransferLimit) {
-          throw new Error(`Daily transfer limit exceeded ($${dailyTransferLimit.toFixed(2)})`);
+          throw new Error(t("dashboard.quickTransfer.dailyLimitExceeded", { limit: `$${dailyTransferLimit.toFixed(2)}` }));
         }
       }
 
@@ -672,7 +674,7 @@ export default function DashboardPage() {
       const usersSnap = await getDocs(usersQ);
       
       if (usersSnap.empty) {
-        toast.error("User not found");
+        toast.error(t("dashboard.quickTransfer.userNotFound"));
         return;
       }
 
@@ -681,7 +683,7 @@ export default function DashboardPage() {
       const recipientName = (recipientDoc.data() as any)?.name || recipientEmail;
 
       if (recipientId === userId) {
-        toast.error("Cannot transfer to yourself");
+        toast.error(t("dashboard.quickTransfer.selfTransfer"));
         return;
       }
 
@@ -696,13 +698,13 @@ export default function DashboardPage() {
         if (!senderDoc.exists() || !receiverDoc.exists()) throw new Error("User error");
 
         if (senderDoc.data().blocked === true) {
-          throw new Error("Your account is blocked. Please contact support.");
+          throw new Error(t("dashboard.quickTransfer.accountBlocked"));
         }
 
         const senderBalance = senderDoc.data().balance || 0;
         const receiverBalance = receiverDoc.data().balance || 0;
 
-        if (senderBalance < amount) throw new Error("Insufficient funds");
+        if (senderBalance < amount) throw new Error(t("dashboard.quickTransfer.insufficientFunds"));
 
         transaction.update(senderRef, { balance: senderBalance - amount });
         transaction.update(receiverRef, { balance: receiverBalance + amount });
@@ -752,7 +754,7 @@ export default function DashboardPage() {
 
       setRecipientEmail("");
       setTransferAmount("");
-      toast.success("Transfer successful!");
+      toast.success(t("dashboard.quickTransfer.success"));
       
       // Send email notification
       if (senderTxId) {
@@ -778,7 +780,7 @@ export default function DashboardPage() {
 
     } catch (error) {
       console.error("Transfer error:", error);
-      toast.error(error instanceof Error ? error.message : "Transfer failed");
+      toast.error(error instanceof Error ? error.message : t("dashboard.quickTransfer.failed"));
     } finally {
       setTransferLoading(false);
     }
@@ -793,14 +795,14 @@ export default function DashboardPage() {
       if (!snap.empty) {
         const d = snap.docs[0]!;
         setMainCard({ id: d.id, ...(d.data() as any) } as Card);
-        toast.success("Cards refreshed");
+        toast.success(t("cards.refreshed"));
       } else {
         setMainCard(null);
-        toast.info("No cards found");
+        toast.info(t("cards.noCardsFound"));
       }
     } catch (e) {
       console.error("Manual cards refresh error:", e);
-      toast.error("Failed to refresh cards");
+      toast.error(t("cards.refreshFailed"));
     } finally {
       setRefreshingCards(false);
     }
@@ -809,7 +811,7 @@ export default function DashboardPage() {
   const deposit = async () => {
     const amount = parseFloat(depositValue);
     if (isNaN(amount) || amount <= 0) {
-      toast.error("Enter a valid deposit amount");
+      toast.error(t("dashboard.deposit.invalidAmount"));
       return;
     }
     if (!userId) return;
@@ -817,7 +819,7 @@ export default function DashboardPage() {
       const userRef = doc(db, "users", userId);
       const userDoc = await getDoc(userRef);
       if (userDoc.exists() && userDoc.data().blocked === true) {
-        toast.error("Your account is blocked. Please contact support.");
+        toast.error(t("dashboard.deposit.accountBlocked"));
         return;
       }
 
@@ -841,20 +843,20 @@ export default function DashboardPage() {
       setDepositRoutingNumber("");
       setDepositNarration("");
       setDepositBankName("");
-      toast.info("Your deposit has been successfully processed. Just wait for the admin approval.");
+      toast.info(t("dashboard.deposit.success"));
       
       // Email for deposit request
       sendEmail("deposit", amount, "pending", reqRef.id);
     } catch (e) {
       console.error("Deposit request failed:", e);
-      toast.error("Deposit request failed");
+      toast.error(t("dashboard.deposit.failed"));
     }
   };
 
   const withdraw = async () => {
     const amount = parseFloat(withdrawValue);
     if (isNaN(amount) || amount <= 0) {
-      toast.error("Enter a valid withdrawal amount");
+      toast.error(t("dashboard.withdraw.invalidAmount"));
       return;
     }
     if (!userId) return;
@@ -870,11 +872,11 @@ export default function DashboardPage() {
         if (!userDoc.exists()) throw new Error("User does not exist!");
 
         if (userDoc.data().blocked === true) {
-          throw new Error("Your account is blocked. Please contact support.");
+          throw new Error(t("dashboard.withdraw.accountBlocked"));
         }
 
         const currentBalance = userDoc.data().balance || 0;
-        if (currentBalance < amount) throw new Error("Insufficient funds");
+        if (currentBalance < amount) throw new Error(t("dashboard.withdraw.insufficientFunds"));
 
         transaction.update(userRef, { balance: currentBalance - amount });
 
@@ -915,7 +917,7 @@ export default function DashboardPage() {
       setWithdrawRoutingNumber("");
       setWithdrawNarration("");
       setWithdrawBankName("");
-      toast.success("Your withdrawal has been successfully completed.");
+      toast.success(t("dashboard.withdraw.success"));
 
       // Send email for completed request
       if (txRef.id) {
@@ -923,7 +925,7 @@ export default function DashboardPage() {
       }
     } catch (e) {
       console.error("Withdrawal request failed:", e);
-      toast.error(e instanceof Error ? e.message : "Withdrawal request failed");
+      toast.error(e instanceof Error ? e.message : t("dashboard.withdraw.failed"));
     } finally {
       setWithdrawLoading(false);
     }
@@ -931,10 +933,10 @@ export default function DashboardPage() {
 
   const exportStatement = () => {
     if (transactions.length === 0) {
-      toast.info("No transactions to export");
+      toast.info(t("dashboard.export.noTxs"));
       return;
     }
-    const headers = ["Date", "Description", "Type", "Amount", "Status", "Reference"];
+    const headers = [t("dashboard.export.csvDate"), t("dashboard.export.csvDescription"), t("dashboard.export.csvType"), t("dashboard.export.csvAmount"), t("dashboard.export.csvStatus"), t("dashboard.export.csvReference")];
     const sanitize = (str: any) => {
       if (!str && str !== 0) return '""';
       return `"${String(str).replace(/"/g, '""').replace(/^([=+\-@\t\r])/, "'$1")}"`;
@@ -981,8 +983,8 @@ export default function DashboardPage() {
             </div>
           )}
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
-            <p className="text-sm text-gray-500">{greeting || "Welcome back"}, {userName || "User"}</p>
+            <h1 className="text-2xl font-bold text-gray-900">{t("dashboard.title")}</h1>
+            <p className="text-sm text-gray-500">{greeting || t("dashboard.welcomeBack")}, {userName || "User"}</p>
           </div>
         </div>
         <div className="flex items-center gap-3">
@@ -991,31 +993,31 @@ export default function DashboardPage() {
             className="bg-white border border-gray-300 text-gray-700 px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-50 transition-colors flex items-center gap-2"
           >
             <PlusIcon className="w-4 h-4 text-green-600" />
-            Deposit
+            {t("dashboard.deposit")}
           </button>
           <button 
             onClick={() => setWithdrawOpen(true)}
             className="bg-white border border-gray-300 text-gray-700 px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-50 transition-colors flex items-center gap-2"
           >
             <MinusIcon className="w-4 h-4 text-red-600" />
-            Withdraw
+            {t("dashboard.withdraw")}
           </button>
           <button
             onClick={() => router.push(cardRequestStatus === "none" ? "/apply-card" : "/track-card")}
             className="bg-white border border-gray-300 text-gray-700 px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-50 transition-colors"
           >
             {cardRequestStatus === "approved"
-              ? "Manage Virtual Card"
+              ? t("dashboard.manageVirtualCard")
               : cardRequestStatus === "pending"
-                ? "Track Virtual Card"
-                : "Get Virtual Card"}
+                ? t("dashboard.trackVirtualCard")
+                : t("dashboard.getVirtualCard")}
           </button>
           <button 
             onClick={scrollToTransfer}
             className="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors shadow-sm flex items-center gap-2"
           >
             <ArrowUpRightIcon className="w-4 h-4" />
-            New Transfer
+            {t("dashboard.newTransfer")}
           </button>
         </div>
       </div>
@@ -1028,43 +1030,43 @@ export default function DashboardPage() {
 
       {cardRequestStatus === "rejected" && (
         <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
-          Your virtual card request was rejected.
+          {t("dashboard.status.rejected")}
         </div>
       )}
 
       {cardRequestStatus === "pending" && (
         <div className="bg-yellow-50 border border-yellow-200 text-yellow-800 px-4 py-3 rounded-lg">
-          Your virtual card request is under review{cardRequestId ? ` (ID: ${cardRequestId.slice(0, 8)}…)` : ""}.
+          {t("dashboard.status.pending", { idSuffix: cardRequestId ? ` (ID: ${cardRequestId.slice(0, 8)}\u2026)` : "" })}
         </div>
       )}
 
       {cardRequestStatus === "approved" && !mainCard && (
         <div className="bg-green-50 border border-green-200 text-green-800 px-4 py-3 rounded-lg">
-          Your virtual card request is approved. Your card is being provisioned and will appear in My Cards shortly.
+          {t("dashboard.status.approved")}
         </div>
       )}
 
       <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
-        <h2 className="text-lg font-semibold text-gray-900">Virtual Card Policy & Usage</h2>
+        <h2 className="text-lg font-semibold text-gray-900">{t("dashboard.cardPolicy.title")}</h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
           <div className="bg-gray-50 border border-gray-100 rounded-xl p-4">
-            <div className="text-sm font-semibold text-gray-900">Policy</div>
+            <div className="text-sm font-semibold text-gray-900">{t("dashboard.cardPolicy.policy")}</div>
             <ul className="text-sm text-gray-600 list-disc pl-5 space-y-1 mt-2">
-              <li>Issued only after admin approval.</li>
-              <li>Never share card details or OTP codes.</li>
-              <li>Report suspicious activity immediately.</li>
+              <li>{t("dashboard.cardPolicy.policy1")}</li>
+              <li>{t("dashboard.cardPolicy.policy2")}</li>
+              <li>{t("dashboard.cardPolicy.policy3")}</li>
             </ul>
           </div>
           <div className="bg-gray-50 border border-gray-100 rounded-xl p-4">
-            <div className="text-sm font-semibold text-gray-900">Usage</div>
+            <div className="text-sm font-semibold text-gray-900">{t("dashboard.cardPolicy.usage")}</div>
             <p className="text-sm text-gray-600 mt-2">
-              Use your virtual card for online payments and subscriptions. Verify merchant URLs before paying.
+              {t("dashboard.cardPolicy.usageText")}
             </p>
           </div>
           <div className="bg-gray-50 border border-gray-100 rounded-xl p-4">
-            <div className="text-sm font-semibold text-gray-900">Verification</div>
+            <div className="text-sm font-semibold text-gray-900">{t("dashboard.cardPolicy.verification")}</div>
             <p className="text-sm text-gray-600 mt-2">
-              Apply via Get Virtual Card. Status updates in real-time on your dashboard.
+              {t("dashboard.cardPolicy.verificationText")}
             </p>
           </div>
         </div>
@@ -1093,21 +1095,21 @@ export default function DashboardPage() {
             )}
 
             <div className="relative z-10">
-              <p className="text-blue-100 text-sm font-medium mb-1">Total Balance</p>
+              <p className="text-blue-100 text-sm font-medium mb-1">{t("dashboard.balance.totalBalance")}</p>
               <h2 className="text-4xl font-bold mb-6">
                 ${(balance || 0).toLocaleString('en-US', { minimumFractionDigits: 2 })}
               </h2>
               
               <div className="flex items-center gap-8">
                 <div>
-                  <p className="text-blue-200 text-xs mb-1">Income</p>
+                  <p className="text-blue-200 text-xs mb-1">{t("dashboard.balance.income")}</p>
                   <p className="font-semibold text-lg flex items-center gap-1">
                     <ArrowUpRightIcon className="w-4 h-4 text-green-300" />
                     ${income.toLocaleString('en-US', { minimumFractionDigits: 2 })}
                   </p>
                 </div>
                 <div>
-                  <p className="text-blue-200 text-xs mb-1">Expenses</p>
+                  <p className="text-blue-200 text-xs mb-1">{t("dashboard.balance.expenses")}</p>
                   <p className="font-semibold text-lg flex items-center gap-1">
                     <ArrowUpRightIcon className="w-4 h-4 text-red-300 rotate-90" />
                     ${expense.toLocaleString('en-US', { minimumFractionDigits: 2 })}
@@ -1117,7 +1119,7 @@ export default function DashboardPage() {
               
               <div className="mt-6 pt-4 border-t border-blue-500/30">
                 <div className="flex justify-between items-center text-xs text-blue-200 mb-2">
-                  <span>Monthly Budget</span>
+                  <span>{t("dashboard.balance.monthlyBudget")}</span>
                   <span>
                     {monthlyBudget > 0 ? Math.min(Math.round((monthExpense / monthlyBudget) * 100), 100) : 0}%
                   </span>
@@ -1145,7 +1147,7 @@ export default function DashboardPage() {
               <div className="w-10 h-10 bg-green-50 rounded-full flex items-center justify-center text-green-600 group-hover:bg-green-100 transition-colors">
                 <PlusIcon className="w-6 h-6" />
               </div>
-              <span className="text-sm font-medium text-gray-700">Deposit</span>
+              <span className="text-sm font-medium text-gray-700">{t("dashboard.actions.deposit")}</span>
             </button>
             
             <button 
@@ -1155,7 +1157,7 @@ export default function DashboardPage() {
               <div className="w-10 h-10 bg-red-50 rounded-full flex items-center justify-center text-red-600 group-hover:bg-red-100 transition-colors">
                 <MinusIcon className="w-6 h-6" />
               </div>
-              <span className="text-sm font-medium text-gray-700">Withdraw</span>
+              <span className="text-sm font-medium text-gray-700">{t("dashboard.actions.withdraw")}</span>
             </button>
             
             <button 
@@ -1165,13 +1167,13 @@ export default function DashboardPage() {
               <div className="w-10 h-10 bg-blue-50 rounded-full flex items-center justify-center text-blue-600 group-hover:bg-blue-100 transition-colors">
                 <ArrowUpRightIcon className="w-6 h-6" />
               </div>
-              <span className="text-sm font-medium text-gray-700">Transfer</span>
+              <span className="text-sm font-medium text-gray-700">{t("dashboard.actions.transfer")}</span>
             </button>
              <Link href="/dashboard/requests" className="bg-white p-4 rounded-xl border border-gray-100 shadow-sm hover:shadow-md transition-all flex flex-col items-center justify-center gap-2 group">
               <div className="w-10 h-10 bg-purple-50 rounded-full flex items-center justify-center text-purple-600">
                 <span className="font-bold text-lg">...</span>
               </div>
-              <span className="text-sm font-medium text-gray-700">More</span>
+              <span className="text-sm font-medium text-gray-700">{t("dashboard.actions.more")}</span>
             </Link>
           </div>
 
@@ -1179,12 +1181,12 @@ export default function DashboardPage() {
             <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50">
               <div className="bg-white rounded-xl shadow-xl w-full max-w-md overflow-hidden">
                 <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between bg-gray-50">
-                  <h3 className="text-lg font-semibold text-gray-900">Make a Deposit</h3>
+                  <h3 className="text-lg font-semibold text-gray-900">{t("dashboard.depositModal.title")}</h3>
                   <button onClick={() => setDepositOpen(false)} className="text-gray-400 hover:text-gray-600">×</button>
                 </div>
                 <div className="p-6 space-y-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Amount</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">{t("dashboard.depositModal.amount")}</label>
                     <input
                       type="number"
                       min="1"
@@ -1196,63 +1198,63 @@ export default function DashboardPage() {
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Payment Method</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">{t("dashboard.depositModal.paymentMethod")}</label>
                     <select
                       value={depositMethod}
                       onChange={(e) => setDepositMethod(e.target.value)}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
                     >
-                      <option>Bank Transfer</option>
-                      <option>Wire Transfer</option>
-                      <option>Mobile Money</option>
-                      <option>Crypto</option>
+                      <option>{t("dashboard.depositModal.bankTransfer")}</option>
+                      <option>{t("dashboard.depositModal.wireTransfer")}</option>
+                      <option>{t("dashboard.depositModal.mobileMoney")}</option>
+                      <option>{t("dashboard.depositModal.crypto")}</option>
                     </select>
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Bank Name</label>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">{t("dashboard.depositModal.bankName")}</label>
                       <input
                         type="text"
                         value={depositBankName}
                         onChange={(e) => setDepositBankName(e.target.value)}
                         className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                        placeholder="Enter bank name"
+                        placeholder={t("dashboard.depositModal.bankNamePlaceholder")}
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Routine number</label>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">{t("dashboard.depositModal.routingNumber")}</label>
                       <input
                         type="text"
                         value={depositRoutingNumber}
                         onChange={(e) => setDepositRoutingNumber(e.target.value)}
                         className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                        placeholder="Enter routine number"
+                        placeholder={t("dashboard.depositModal.routingNumberPlaceholder")}
                       />
                     </div>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Narration</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">{t("dashboard.depositModal.narration")}</label>
                     <input
                       type="text"
                       value={depositNarration}
                       onChange={(e) => setDepositNarration(e.target.value)}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                      placeholder="Enter narration"
+                      placeholder={t("dashboard.depositModal.narrationPlaceholder")}
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Notes (Optional)</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">{t("dashboard.depositModal.notes")}</label>
                     <textarea
                       value={depositNote}
                       onChange={(e) => setDepositNote(e.target.value)}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
                       rows={2}
-                      placeholder="Reference number, etc."
+                      placeholder={t("dashboard.depositModal.notesPlaceholder")}
                     />
                   </div>
                   <div className="flex justify-end gap-2 pt-2">
-                    <button onClick={() => setDepositOpen(false)} className="px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 rounded-lg">Cancel</button>
-                    <button onClick={deposit} className="px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg">Submit Deposit</button>
+                    <button onClick={() => setDepositOpen(false)} className="px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 rounded-lg">{t("dashboard.depositModal.cancel")}</button>
+                    <button onClick={deposit} className="px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg">{t("dashboard.depositModal.submit")}</button>
                   </div>
                 </div>
               </div>
@@ -1263,12 +1265,12 @@ export default function DashboardPage() {
             <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50">
               <div className="bg-white rounded-xl shadow-xl w-full max-w-md overflow-hidden">
                 <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between bg-gray-50">
-                  <h3 className="text-lg font-semibold text-gray-900">Withdraw Funds</h3>
+                  <h3 className="text-lg font-semibold text-gray-900">{t("dashboard.withdrawModal.title")}</h3>
                   <button onClick={() => setWithdrawOpen(false)} className="text-gray-400 hover:text-gray-600">×</button>
                 </div>
                 <div className="p-6 space-y-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Amount</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">{t("dashboard.withdrawModal.amount")}</label>
                     <input
                       type="number"
                       min="1"
@@ -1280,68 +1282,68 @@ export default function DashboardPage() {
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Withdrawal Method</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">{t("dashboard.withdrawModal.method")}</label>
                     <select
                       value={withdrawMethod}
                       onChange={(e) => setWithdrawMethod(e.target.value)}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
                     >
-                      <option>Bank Transfer</option>
-                      <option>Wire Transfer</option>
-                      <option>Mobile Money</option>
-                      <option>Crypto</option>
+                      <option>{t("dashboard.depositModal.bankTransfer")}</option>
+                      <option>{t("dashboard.depositModal.wireTransfer")}</option>
+                      <option>{t("dashboard.depositModal.mobileMoney")}</option>
+                      <option>{t("dashboard.depositModal.crypto")}</option>
                     </select>
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Bank Name</label>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">{t("dashboard.withdrawModal.bankName")}</label>
                       <input
                         type="text"
                         value={withdrawBankName}
                         onChange={(e) => setWithdrawBankName(e.target.value)}
                         className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                        placeholder="Enter bank name"
+                        placeholder={t("dashboard.withdrawModal.bankNamePlaceholder")}
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Routine number</label>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">{t("dashboard.withdrawModal.routingNumber")}</label>
                       <input
                         type="text"
                         value={withdrawRoutingNumber}
                         onChange={(e) => setWithdrawRoutingNumber(e.target.value)}
                         className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                        placeholder="Enter routine number"
+                        placeholder={t("dashboard.withdrawModal.routingNumberPlaceholder")}
                       />
                     </div>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Narration</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">{t("dashboard.withdrawModal.narration")}</label>
                     <input
                       type="text"
                       value={withdrawNarration}
                       onChange={(e) => setWithdrawNarration(e.target.value)}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                      placeholder="Enter narration"
+                      placeholder={t("dashboard.withdrawModal.narrationPlaceholder")}
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Account Details / Notes</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">{t("dashboard.withdrawModal.accountDetailsNotes")}</label>
                     <textarea
                       value={withdrawNote}
                       onChange={(e) => setWithdrawNote(e.target.value)}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
                       rows={2}
-                      placeholder="Account number, bank name, etc."
+                      placeholder={t("dashboard.withdrawModal.accountDetailsNotesPlaceholder")}
                     />
                   </div>
                   <div className="flex justify-end gap-2 pt-2">
-                    <button onClick={() => setWithdrawOpen(false)} className="px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 rounded-lg">Cancel</button>
+                    <button onClick={() => setWithdrawOpen(false)} className="px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 rounded-lg">{t("dashboard.withdrawModal.cancel")}</button>
                     <button 
                       onClick={withdraw} 
                       disabled={withdrawLoading}
                       className="px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed"
                     >
-                      {withdrawLoading ? "Processing..." : "Submit Withdrawal"}
+                      {withdrawLoading ? t("dashboard.withdrawModal.processing") : t("dashboard.withdrawModal.submit")}
                     </button>
                   </div>
                 </div>
@@ -1351,24 +1353,24 @@ export default function DashboardPage() {
           {/* Recent Transactions Table */}
           <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
             <div className="p-4 sm:p-6 border-b border-gray-100 flex items-center justify-between">
-              <h3 className="font-semibold text-gray-900">Recent Transactions</h3>
-              <Link href="/dashboard/transactions" className="text-sm text-blue-600 hover:text-blue-700 font-medium">View All</Link>
+              <h3 className="font-semibold text-gray-900">{t("dashboard.recentTransactions")}</h3>
+              <Link href="/dashboard/transactions" className="text-sm text-blue-600 hover:text-blue-700 font-medium">{t("dashboard.viewAll")}</Link>
             </div>
             <div className="overflow-x-auto">
               <table className="w-full text-left text-sm text-gray-600">
                 <thead className="bg-gray-50 text-xs uppercase text-gray-500 font-semibold">
                   <tr>
-                    <th className="px-4 sm:px-6 py-4">Transaction</th>
-                    <th className="px-4 sm:px-6 py-4">Date</th>
-                    <th className="px-4 sm:px-6 py-4">Status</th>
-                    <th className="px-4 sm:px-6 py-4 text-right">Amount</th>
+                    <th className="px-4 sm:px-6 py-4">{t("dashboard.table.transaction")}</th>
+                    <th className="px-4 sm:px-6 py-4">{t("dashboard.table.date")}</th>
+                    <th className="px-4 sm:px-6 py-4">{t("dashboard.table.status")}</th>
+                    <th className="px-4 sm:px-6 py-4 text-right">{t("dashboard.table.amount")}</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-100">
                   {transactions.length === 0 ? (
                     <tr>
                       <td colSpan={4} className="px-4 sm:px-6 py-8 text-center text-gray-500">
-                        No transactions found
+                        {t("dashboard.noTransactions")}
                       </td>
                     </tr>
                   ) : (
@@ -1390,7 +1392,7 @@ export default function DashboardPage() {
                             tx.status === "completed" ? "bg-green-100 text-green-800" : 
                             tx.status === "pending" ? "bg-yellow-100 text-yellow-800" : "bg-red-100 text-red-800"
                           }`}>
-                            {tx.status || "Completed"}
+                            {tx.status || t("transactions.statusCompleted")}
                           </span>
                         </td>
                         <td className={`px-4 sm:px-6 py-4 text-right font-semibold whitespace-nowrap ${
@@ -1413,24 +1415,24 @@ export default function DashboardPage() {
           {/* My Cards Preview */}
           <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
             <div className="flex items-center justify-between mb-6">
-              <h3 className="font-semibold text-gray-900">My Cards</h3>
+              <h3 className="font-semibold text-gray-900">{t("cards.title")}</h3>
               <div className="flex gap-3 items-center">
                 <button 
                   onClick={refreshCards}
                   disabled={refreshingCards}
                   className="text-xs text-blue-600 hover:text-blue-800 flex items-center gap-1 disabled:opacity-50"
-                  title="Refresh card data"
+                  title={t("dashboard.refreshCardData")}
                 >
                   <svg className={`w-3.5 h-3.5 ${refreshingCards ? 'animate-spin' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
                   </svg>
-                  {refreshingCards ? '...' : 'Refresh'}
+                  {refreshingCards ? '...' : t("cards.refresh")}
                 </button>
                 <Link
                   href="/dashboard/cards"
                   className="text-blue-600 hover:text-blue-700 text-sm font-medium"
                 >
-                  Manage Cards
+                  {t("dashboard.manageCards")}
                 </Link>
               </div>
             </div>
@@ -1446,16 +1448,16 @@ export default function DashboardPage() {
                      <div className="w-8 h-5 bg-yellow-400/80 rounded-sm"></div>
                    </div>
                    <div className="mb-4 relative z-10">
-                     <p className="text-xs opacity-70 mb-1">Card Number</p>
+                     <p className="text-xs opacity-70 mb-1">{t("dashboard.cardPreview.cardNumber")}</p>
                      <p className="font-mono text-lg tracking-wider">{mainCard.number}</p>
                    </div>
                    <div className="flex justify-between items-end relative z-10">
                      <div>
-                       <p className="text-xs opacity-70 mb-1">Card Holder</p>
+                       <p className="text-xs opacity-70 mb-1">{t("dashboard.cardPreview.cardHolder")}</p>
                        <p className="font-medium text-sm uppercase">{mainCard.holder}</p>
                      </div>
                      <div>
-                       <p className="text-xs opacity-70 mb-1">Expires</p>
+                       <p className="text-xs opacity-70 mb-1">{t("dashboard.cardPreview.expires")}</p>
                        <p className="font-medium text-sm">{mainCard.expires}</p>
                      </div>
                    </div>
@@ -1463,8 +1465,8 @@ export default function DashboardPage() {
 
                 <div className="space-y-3">
                   <div className="flex items-center justify-between text-sm">
-                    <span className="text-gray-600">Card Status</span>
-                    <span className="text-green-600 font-medium bg-green-50 px-2 py-1 rounded">Active</span>
+                    <span className="text-gray-600">{t("dashboard.cardPreview.cardStatus")}</span>
+                    <span className="text-green-600 font-medium bg-green-50 px-2 py-1 rounded">{t("dashboard.cardPreview.active")}</span>
                   </div>
                 </div>
               </>
@@ -1472,22 +1474,22 @@ export default function DashboardPage() {
               <div className="text-center py-8 bg-gray-50 rounded-xl border border-dashed border-gray-200">
                 <p className="text-gray-700 mb-1">
                   {cardRequestStatus === "pending"
-                    ? "Your request is under review."
+                    ? t("dashboard.cardPreview.pendingMessage")
                     : cardRequestStatus === "rejected"
-                      ? "Your request was rejected."
+                      ? t("dashboard.cardPreview.rejectedMessage")
                       : cardRequestStatus === "approved"
-                        ? "Your virtual card is being provisioned."
-                        : "Apply for a virtual card to access My Cards."}
+                        ? t("dashboard.cardPreview.provisioning")
+                        : t("dashboard.cardPreview.noCard")}
                 </p>
                 <Link
                   href={cardRequestStatus === "none" ? "/apply-card" : "/track-card"}
                   className="text-blue-600 font-medium"
                 >
                   {cardRequestStatus === "none"
-                    ? "Apply for Card"
+                    ? t("dashboard.cardPreview.apply")
                     : cardRequestStatus === "rejected"
-                      ? "Re-Apply"
-                      : "Track Request"}
+                      ? t("dashboard.cardPreview.reapply")
+                      : t("dashboard.cardPreview.track")}
                 </Link>
               </div>
             )}
@@ -1495,14 +1497,14 @@ export default function DashboardPage() {
 
           <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="font-semibold text-gray-900">Activity Feed</h3>
+              <h3 className="font-semibold text-gray-900">{t("dashboard.activityFeed")}</h3>
               <Link href="/dashboard/transactions" className="text-sm text-blue-600 hover:text-blue-700 font-medium">
-                View All
+                {t("dashboard.viewAll")}
               </Link>
             </div>
 
             {transactions.length === 0 ? (
-              <div className="text-sm text-gray-500">No activity yet.</div>
+              <div className="text-sm text-gray-500">{t("dashboard.noActivity")}</div>
             ) : (
               <div className="space-y-3">
                 {transactions.slice(0, 6).map((tx, idx) => {
@@ -1541,14 +1543,14 @@ export default function DashboardPage() {
 
           {/* Quick Transfer Widget */}
            <div ref={transferWidgetRef} id="transfer-widget" className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-             <h3 className="font-semibold text-gray-900 mb-4">Quick Transfer</h3>
+             <h3 className="font-semibold text-gray-900 mb-4">{t("dashboard.quickTransfer.title")}</h3>
              
              {savedContacts.length > 0 && (
                <div className="mb-4">
                  <div className="flex items-center justify-between mb-2">
-                   <p className="text-xs font-medium text-gray-500">Saved</p>
+                   <p className="text-xs font-medium text-gray-500">{t("dashboard.quickTransfer.saved")}</p>
                    <Link href="/dashboard/contacts" className="text-xs font-medium text-blue-600 hover:text-blue-700">
-                     Manage
+                     {t("dashboard.quickTransfer.manage")}
                    </Link>
                  </div>
                  <div className="flex items-center gap-3 overflow-x-auto pb-2 scrollbar-none">
@@ -1580,7 +1582,7 @@ export default function DashboardPage() {
              {/* Recent Contacts */}
              {recentContacts.length > 0 && (
                <div className="mb-4">
-                  <p className="text-xs font-medium text-gray-500 mb-2">Recent</p>
+                  <p className="text-xs font-medium text-gray-500 mb-2">{t("dashboard.quickTransfer.recent")}</p>
                   <div className="flex items-center gap-3 overflow-x-auto pb-2 scrollbar-none">
                     {recentContacts.map((email) => (
                        <button 
@@ -1601,11 +1603,11 @@ export default function DashboardPage() {
 
              <form onSubmit={handleQuickTransfer} className="space-y-4">
                <div>
-                 <label className="text-xs font-medium text-gray-700 mb-1 block">Recipient Email</label>
+                 <label className="text-xs font-medium text-gray-700 mb-1 block">{t("dashboard.quickTransfer.recipientEmail")}</label>
                  <input
                    type="email"
                    required
-                   placeholder="friend@example.com"
+                   placeholder={t("dashboard.quickTransfer.recipientEmailPlaceholder")}
                    value={recipientEmail}
                    onChange={(e) => setRecipientEmail(e.target.value)}
                    className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-blue-500"
@@ -1631,7 +1633,7 @@ export default function DashboardPage() {
                  disabled={transferLoading || !recipientEmail || !transferAmount}
                  className="w-full bg-blue-600 text-white py-3 rounded-xl font-semibold hover:bg-blue-700 transition-colors shadow-lg shadow-blue-200 disabled:opacity-50 disabled:cursor-not-allowed"
                >
-                 {transferLoading ? "Sending..." : "Send Money"}
+                 {transferLoading ? t("dashboard.quickTransfer.sending") : t("dashboard.quickTransfer.sendMoney")}
                </button>
              </form>
           </div>

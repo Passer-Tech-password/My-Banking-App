@@ -8,11 +8,13 @@ import { auth } from "@/lib/firebase";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { useToast } from "@/components/ToastProvider";
+import { useTranslation } from "@/lib/i18n/useTranslation";
 
 export default function VerifyEmailClient() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const toast = useToast();
+  const { t } = useTranslation();
   const [loading, setLoading] = useState(true);
   const [sending, setSending] = useState(false);
   const [checking, setChecking] = useState(false);
@@ -68,7 +70,7 @@ export default function VerifyEmailClient() {
     const user = auth.currentUser;
     if (!user) return;
     if (!canResend) {
-      toast.info(`Please wait ${formatRemaining(remainingMs)} before resending.`);
+      toast.info(t("verify.stillWaiting"));
       return;
     }
     try {
@@ -77,7 +79,7 @@ export default function VerifyEmailClient() {
       const nextAt = Date.now() + RESEND_COOLDOWN_MS;
       setResendAvailableAt(nextAt);
       window.localStorage.setItem(cooldownKey, String(nextAt));
-      toast.success("Verification email sent. Check your inbox.");
+      toast.success(t("verify.resent"));
     } catch (error) {
       console.error(error);
       const code = (error as any)?.code;
@@ -85,11 +87,11 @@ export default function VerifyEmailClient() {
         const nextAt = Date.now() + TOO_MANY_REQUESTS_COOLDOWN_MS;
         setResendAvailableAt(nextAt);
         window.localStorage.setItem(cooldownKey, String(nextAt));
-        toast.error("Too many requests. Please wait a few minutes and try again.");
+        toast.error(t("login.tooManyAttempts"));
       } else if (code) {
-        toast.error(`Failed to send verification email (${code}).`);
+        toast.error(t("common.error"));
       } else {
-        toast.error("Failed to send verification email.");
+        toast.error(t("common.error"));
       }
     } finally {
       setSending(false);
@@ -103,14 +105,14 @@ export default function VerifyEmailClient() {
       setChecking(true);
       await user.reload();
       if (user.emailVerified) {
-        toast.success("Email verified. Welcome!");
+        toast.success(t("verify.verified"));
         router.replace(nextTarget);
         return;
       }
-      toast.info("Email not verified yet. Please check your inbox.");
+      toast.info(t("verify.stillWaiting"));
     } catch (error) {
       console.error(error);
-      toast.error("Failed to check verification status.");
+      toast.error(t("common.error"));
     } finally {
       setChecking(false);
     }
@@ -122,7 +124,7 @@ export default function VerifyEmailClient() {
       router.push("/login");
     } catch (error) {
       console.error(error);
-      toast.error("Failed to sign out.");
+      toast.error(t("common.error"));
     }
   };
 
@@ -139,10 +141,10 @@ export default function VerifyEmailClient() {
       <Navbar />
       <div className="min-h-screen bg-gray-50 flex items-center justify-center px-6 py-12">
         <div className="w-full max-w-md bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-          <h1 className="text-2xl font-bold text-gray-900 mb-2">Verify your email</h1>
+          <h1 className="text-2xl font-bold text-gray-900 mb-2">{t("verify.title")}</h1>
           <p className="text-sm text-gray-600 mb-6">
-            We sent a verification link to <span className="font-medium text-gray-900">{email || "your email"}</span>.
-            Open your inbox and click the link to activate your account.
+            {t("verify.subtitle")}{" "}
+            <span className="font-medium text-gray-900">{email || t("profile.email")}</span>.
           </p>
 
           <div className="space-y-3">
@@ -153,10 +155,10 @@ export default function VerifyEmailClient() {
               className="w-full bg-blue-700 text-white py-2 rounded font-medium hover:bg-blue-800 transition-colors disabled:opacity-70"
             >
               {sending
-                ? "Sending..."
+                ? t("verify.resending")
                 : canResend
-                  ? "Resend verification email"
-                  : `Resend available in ${formatRemaining(remainingMs)}`}
+                  ? t("verify.resend")
+                  : t("verify.stillWaiting")}
             </button>
             <button
               type="button"
@@ -164,16 +166,16 @@ export default function VerifyEmailClient() {
               disabled={checking}
               className="w-full bg-white border border-gray-300 text-gray-800 py-2 rounded font-medium hover:bg-gray-50 transition-colors disabled:opacity-70"
             >
-              {checking ? "Checking..." : "I verified, continue"}
+              {checking ? t("verify.checking") : t("verify.verified")}
             </button>
           </div>
 
           <div className="mt-6 text-sm text-gray-600 flex items-center justify-between">
             <Link href="/contact-us" className="text-blue-700 hover:underline">
-              Need help?
+              {t("contact.getInTouch")}
             </Link>
             <button onClick={handleSignOut} className="text-red-600 hover:underline">
-              Sign out
+              {t("sidebar.signOut")}
             </button>
           </div>
         </div>

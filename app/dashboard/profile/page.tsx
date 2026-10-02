@@ -10,10 +10,12 @@ import { useToast } from "@/components/ToastProvider";
 import { getDefaultAvatarUrl } from "@/lib/config";
 import ImageUpload from "@/components/ImageUpload";
 import { stripQueryParam } from "@/lib/url";
+import { useTranslation } from "@/lib/i18n/useTranslation";
 
 export default function ProfilePage() {
   const router = useRouter();
   const toast = useToast();
+  const { t } = useTranslation();
   const [loading, setLoading] = useState(true);
   const [editing, setEditing] = useState(false);
   const [formData, setFormData] = useState({
@@ -86,7 +88,7 @@ export default function ProfilePage() {
         }),
       });
       if (res.status === 401) {
-        toast.error("Session expired. Please login again.");
+        toast.error(t("profile.sessionExpiredLogin"));
         await signOut(auth);
         router.push("/login");
         return;
@@ -100,15 +102,15 @@ export default function ProfilePage() {
         }
       })() as any;
       if (!res.ok) {
-        toast.error(String(data?.message || raw || "Failed to update profile. Please try again."));
+        toast.error(String(data?.message || raw || t("profile.toast.failedGeneric")));
         return;
       }
 
       setEditing(false);
-      toast.success("Profile updated");
+      toast.success(t("profile.toast.updated"));
     } catch (error) {
       console.error("Error updating profile:", error);
-      toast.error(error instanceof Error ? error.message : "Failed to update profile. Please try again.");
+      toast.error(error instanceof Error ? error.message : t("profile.toast.failedGeneric"));
     } finally {
       setLoading(false);
     }
@@ -126,8 +128,8 @@ export default function ProfilePage() {
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">My Profile</h1>
-          <p className="text-sm text-gray-500">Manage your personal information.</p>
+          <h1 className="text-2xl font-bold text-gray-900">{t("profile.title")}</h1>
+          <p className="text-sm text-gray-500">{t("profile.subtitle")}</p>
         </div>
         {!editing ? (
           <button
@@ -135,7 +137,7 @@ export default function ProfilePage() {
             className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
           >
             <PencilIcon className="w-4 h-4" />
-            Edit Profile
+            {t("profile.edit")}
           </button>
         ) : (
           <div className="flex gap-2">
@@ -143,14 +145,14 @@ export default function ProfilePage() {
               onClick={() => setEditing(false)}
               className="px-4 py-2 bg-white border border-gray-200 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
             >
-              Cancel
+              {t("profile.cancelEdit")}
             </button>
             <button
               onClick={handleSave}
               className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors"
             >
               <CheckIcon className="w-4 h-4" />
-              Save Changes
+              {t("profile.save")}
             </button>
           </div>
         )}
@@ -168,7 +170,7 @@ export default function ProfilePage() {
               ) : (
                 <div className="w-24 h-24 rounded-full overflow-hidden bg-blue-100 flex items-center justify-center text-blue-600 border-2 border-gray-100">
                   {formData.photoURL ? (
-                    <img src={formData.photoURL} alt="Profile" className="w-full h-full object-cover" />
+                    <img src={formData.photoURL} alt={t("dashboard.modal.altProfile")} className="w-full h-full object-cover" />
                   ) : (
                     <UserCircleIcon className="w-12 h-12" />
                   )}
@@ -176,14 +178,14 @@ export default function ProfilePage() {
               )}
             </div>
             <div>
-              <h2 className="text-xl font-bold text-gray-900">{formData.displayName || "User"}</h2>
+              <h2 className="text-xl font-bold text-gray-900">{formData.displayName || t("profile.notSet")}</h2>
               <p className="text-gray-500">{formData.email}</p>
             </div>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-1">
-              <label className="text-sm font-medium text-gray-700">Display Name</label>
+              <label className="text-sm font-medium text-gray-700">{t("profile.displayName")}</label>
               {editing ? (
                 <input
                   type="text"
@@ -192,44 +194,44 @@ export default function ProfilePage() {
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 />
               ) : (
-                <p className="text-gray-900 font-medium py-2">{formData.displayName || "Not set"}</p>
+                <p className="text-gray-900 font-medium py-2">{formData.displayName || t("profile.notSet")}</p>
               )}
             </div>
 
             <div className="space-y-1">
-              <label className="text-sm font-medium text-gray-700">Email Address</label>
+              <label className="text-sm font-medium text-gray-700">{t("profile.email")}</label>
               <p className="text-gray-900 font-medium py-2 bg-gray-50 px-3 rounded-lg border border-transparent">
                 {formData.email}
               </p>
             </div>
 
             <div className="space-y-1">
-              <label className="text-sm font-medium text-gray-700">Phone Number</label>
+              <label className="text-sm font-medium text-gray-700">{t("profile.phone")}</label>
               {editing ? (
                 <input
                   type="tel"
                   value={formData.phone}
                   onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                  placeholder="+1 (555) 000-0000"
+                  placeholder={t("profile.phonePlaceholder")}
                 />
               ) : (
-                <p className="text-gray-900 font-medium py-2">{formData.phone || "Not set"}</p>
+                <p className="text-gray-900 font-medium py-2">{formData.phone || t("profile.notSet")}</p>
               )}
             </div>
 
             <div className="space-y-1 md:col-span-2">
-              <label className="text-sm font-medium text-gray-700">Address</label>
+              <label className="text-sm font-medium text-gray-700">{t("profile.address")}</label>
               {editing ? (
                 <textarea
                   value={formData.address}
                   onChange={(e) => setFormData({ ...formData, address: e.target.value })}
                   rows={3}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                  placeholder="123 Main St, City, Country"
+                  placeholder={t("profile.addressPlaceholder")}
                 />
               ) : (
-                <p className="text-gray-900 font-medium py-2 whitespace-pre-line">{formData.address || "Not set"}</p>
+                <p className="text-gray-900 font-medium py-2 whitespace-pre-line">{formData.address || t("profile.notSet")}</p>
               )}
             </div>
           </div>

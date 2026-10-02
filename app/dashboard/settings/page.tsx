@@ -6,9 +6,11 @@ import { auth, db } from "@/lib/firebase";
 import { onAuthStateChanged } from "firebase/auth";
 import { useRouter } from "next/navigation";
 import { BellIcon, ShieldCheckIcon, MoonIcon, BanknotesIcon } from "@heroicons/react/24/outline";
+import { useTranslation } from "@/lib/i18n/useTranslation";
 
 export default function SettingsPage() {
   const router = useRouter();
+  const { t } = useTranslation();
   const [loading, setLoading] = useState(true);
   const [settings, setSettings] = useState({
     notifications: true,

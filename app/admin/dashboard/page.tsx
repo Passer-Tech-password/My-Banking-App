@@ -9,8 +9,10 @@ import {
   ClockIcon,
   ArrowRightOnRectangleIcon,
 } from "@heroicons/react/24/outline";
+import { useTranslation } from "@/lib/i18n/useTranslation";
 
 export default function AdminDashboardPage() {
+  const { t } = useTranslation();
   const router = useRouter();
   const [email, setEmail] = useState<string>("");
   const [sessionIssuedAt, setSessionIssuedAt] = useState<string>("");
@@ -42,7 +44,7 @@ export default function AdminDashboardPage() {
           headers: { "Cache-Control": "no-store" },
         });
         if (!res.ok) {
-          if (!cancelled) setError("Session not authenticated");
+          if (!cancelled) setError(t("admin.common.error"));
           if (!cancelled && typeof window !== "undefined") {
             window.location.href = "/admin/login";
           }
@@ -60,7 +62,7 @@ export default function AdminDashboardPage() {
             const exp = new Date(now.getTime() + 2 * 60 * 60 * 1000);
             setSessionExpiresAt(exp.toLocaleString());
           } else {
-            setError("Session verification failed");
+            setError(t("admin.common.error"));
             if (typeof window !== "undefined") {
               window.location.href = "/admin/login";
             }
@@ -69,7 +71,7 @@ export default function AdminDashboardPage() {
       } catch (err) {
         console.error("Session API error:", err);
         if (!cancelled) {
-          setError("Failed to verify session");
+          setError(t("admin.common.error"));
           if (typeof window !== "undefined") {
             window.location.href = "/admin/login";
           }
@@ -96,14 +98,14 @@ export default function AdminDashboardPage() {
       <div className="max-w-xl mx-auto">
         <div className="bg-red-50 border border-red-200 rounded-xl p-6 text-center">
           <h2 className="text-lg font-semibold text-red-700 mb-2">
-            Session Error
+            {t("admin.common.error")}
           </h2>
           <p className="text-sm text-red-600 mb-4">{error}</p>
           <button
             onClick={handleLogout}
             className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
           >
-            Return to Login
+            {t("admin.header.logout")}
           </button>
         </div>
       </div>
@@ -112,28 +114,28 @@ export default function AdminDashboardPage() {
 
   const stats = [
     {
-      label: "Authenticated",
+      label: t("admin.dashboard.activeUsers"),
       value: "Yes",
       icon: ShieldCheckIcon,
       color: "text-green-600",
       bg: "bg-green-50",
     },
     {
-      label: "Admin Role",
+      label: t("admin.dashboard.totalUsers"),
       value: "Super User",
       icon: UserGroupIcon,
       color: "text-blue-600",
       bg: "bg-blue-50",
     },
     {
-      label: "Session Duration",
+      label: t("admin.dashboard.todayTransfers"),
       value: "2 hours",
       icon: ClockIcon,
       color: "text-indigo-600",
       bg: "bg-indigo-50",
     },
     {
-      label: "Secure Channel",
+      label: t("admin.dashboard.totalBalance"),
       value: "HTTPS",
       icon: BanknotesIcon,
       color: "text-purple-600",
@@ -146,12 +148,12 @@ export default function AdminDashboardPage() {
       <div className="bg-gradient-to-r from-blue-900 to-blue-700 rounded-xl p-6 sm:p-8 text-white shadow-lg">
         <div className="flex items-start justify-between gap-4">
           <div>
-            <p className="text-blue-200 text-sm mb-1">Welcome back,</p>
+            <p className="text-blue-200 text-sm mb-1">{t("admin.header.welcome")}</p>
             <h1 className="text-2xl sm:text-3xl font-bold break-all">
-              {email || "Administrator"}
+              {email || t("admin.dashboard.title")}
             </h1>
             <p className="text-blue-200 mt-2 text-sm">
-              You have successfully signed in to the Admin Portal.
+              {t("admin.sidebar.overview")}
             </p>
           </div>
           <div className="hidden sm:flex flex-shrink-0 w-16 h-16 rounded-full bg-white/10 items-center justify-center">
@@ -180,38 +182,38 @@ export default function AdminDashboardPage() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
           <div className="p-6 border-b border-gray-100">
-            <h2 className="text-lg font-bold text-gray-900">Session Details</h2>
+            <h2 className="text-lg font-bold text-gray-900">{t("admin.dashboard.title")}</h2>
             <p className="text-sm text-gray-500">
-              Current authentication context
+              {t("admin.sidebar.overview")}
             </p>
           </div>
           <div className="p-6 space-y-4 text-sm">
             <div className="flex justify-between items-start gap-4">
-              <span className="text-gray-500 flex-shrink-0">Admin Email</span>
+              <span className="text-gray-500 flex-shrink-0">{t("admin.header.welcome")}</span>
               <span className="text-gray-900 font-medium text-right break-all">
                 {email}
               </span>
             </div>
             <div className="flex justify-between items-start gap-4">
-              <span className="text-gray-500 flex-shrink-0">Authenticated At</span>
+              <span className="text-gray-500 flex-shrink-0">{t("admin.dashboard.recentUsers")}</span>
               <span className="text-gray-900 font-medium text-right">
                 {sessionIssuedAt}
               </span>
             </div>
             <div className="flex justify-between items-start gap-4">
-              <span className="text-gray-500 flex-shrink-0">Session Expires</span>
+              <span className="text-gray-500 flex-shrink-0">{t("admin.dashboard.pendingRequests")}</span>
               <span className="text-gray-900 font-medium text-right">
                 {sessionExpiresAt}
               </span>
             </div>
             <div className="flex justify-between items-start gap-4">
-              <span className="text-gray-500 flex-shrink-0">Cookie Flags</span>
+              <span className="text-gray-500 flex-shrink-0">{t("admin.users.tableStatus")}</span>
               <span className="text-gray-900 font-medium text-right">
                 HttpOnly, SameSite=Lax
               </span>
             </div>
             <div className="flex justify-between items-start gap-4">
-              <span className="text-gray-500 flex-shrink-0">Signing</span>
+              <span className="text-gray-500 flex-shrink-0">{t("admin.login.signIn")}</span>
               <span className="text-gray-900 font-medium text-right">
                 HMAC-SHA256
               </span>
@@ -221,9 +223,9 @@ export default function AdminDashboardPage() {
 
         <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
           <div className="p-6 border-b border-gray-100">
-            <h2 className="text-lg font-bold text-gray-900">Security Features</h2>
+            <h2 className="text-lg font-bold text-gray-900">{t("admin.dashboard.noRecentActivity")}</h2>
             <p className="text-sm text-gray-500">
-              Protections enabled for this portal
+              {t("admin.dashboard.viewAll")}
             </p>
           </div>
           <div className="p-6 space-y-3 text-sm">
@@ -268,7 +270,7 @@ export default function AdminDashboardPage() {
           className="inline-flex items-center justify-center gap-2 px-5 py-3 bg-red-600 hover:bg-red-700 text-white font-medium rounded-lg transition-colors shadow-sm"
         >
           <ArrowRightOnRectangleIcon className="w-5 h-5" />
-          Sign Out
+          {t("admin.sidebar.logout")}
         </button>
       </div>
     </div>

@@ -1,4 +1,4 @@
- "use client";
+"use client";
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
@@ -9,10 +9,12 @@ import { onAuthStateChanged } from "firebase/auth";
 import { collection, doc, getDocs, limit, orderBy, query, serverTimestamp, setDoc, where } from "firebase/firestore";
 import { useToast } from "@/components/ToastProvider";
 import { CardRequest } from "@/lib/CardRequest";
+import { useTranslation } from "@/lib/i18n/useTranslation";
 
 export default function ApplyCardPage() {
   const router = useRouter();
   const toast = useToast();
+  const { t } = useTranslation();
   const [authChecking, setAuthChecking] = useState(true);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -46,7 +48,7 @@ export default function ApplyCardPage() {
         }
       } catch (e) {
         console.error("Check existing card request failed:", e);
-        setError("Failed to check your card request status.");
+        setError(t("common.networkErrorTryAgain"));
       } finally {
         setAuthChecking(false);
       }
@@ -57,11 +59,11 @@ export default function ApplyCardPage() {
   const submitRequest = async () => {
     const user = auth.currentUser;
     if (!user) {
-      toast.error("Please sign in first.");
+      toast.error(t("dashboard.youMustBeSignedIn"));
       return;
     }
     if (status === "pending") {
-      toast.info("You already have a pending request.");
+      toast.info(t("dashboard.pendingCardRequest"));
       return;
     }
     try {
@@ -69,7 +71,7 @@ export default function ApplyCardPage() {
       setError(null);
       const email = String(user.email || "").trim().toLowerCase();
       if (!email) {
-        toast.error("Your account has no email.");
+        toast.error(t("dashboard.accountNoEmail"));
         return;
       }
       const pendingQ = query(
@@ -82,7 +84,7 @@ export default function ApplyCardPage() {
       if (!pendingSnap.empty) {
         setStatus("pending");
         setRequestId(pendingSnap.docs[0]!.id);
-        toast.info("You already have a pending request.");
+        toast.info(t("dashboard.pendingCardRequest"));
         return;
       }
       const ref = doc(collection(db, "cardRequests"));
@@ -96,12 +98,12 @@ export default function ApplyCardPage() {
       await setDoc(ref, req.toFirestore());
       setStatus("pending");
       setRequestId(ref.id);
-      toast.success("Your request has been submitted.");
+      toast.success(t("dashboard.cardRequestSubmitted"));
       router.push("/dashboard");
     } catch (e) {
       console.error("Submit card request failed:", e);
-      setError("Failed to submit card request.");
-      toast.error("Submission failed. Please try again.");
+      setError(t("dashboard.cardRequestFailed"));
+      toast.error(t("dashboard.cardRequestFailed"));
     } finally {
       setLoading(false);
     }
@@ -120,9 +122,9 @@ export default function ApplyCardPage() {
       <Navbar />
       <div className="flex-1 px-6 py-12">
         <div className="max-w-2xl mx-auto bg-white rounded-xl shadow-sm border border-gray-100 p-6 sm:p-8">
-          <h1 className="text-2xl font-bold text-gray-900 mb-2">Apply for Virtual Card</h1>
+          <h1 className="text-2xl font-bold text-gray-900 mb-2">{t("applyCard.title")}</h1>
           <p className="text-sm text-gray-600 mb-6">
-            Submit a request to get your Aurora Bank virtual card. You will be notified once an admin reviews your application.
+            {t("applyCard.subtitle")}
           </p>
 
           {error && (
@@ -134,17 +136,17 @@ export default function ApplyCardPage() {
           <div className="space-y-3">
             {status === "approved" && (
               <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-lg">
-                Your request is already approved. View your card in the dashboard.
+                {t("dashboard.status.approved")}
               </div>
             )}
             {status === "rejected" && (
               <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
-                Your request was rejected.
+                {t("dashboard.status.rejected")}
               </div>
             )}
             {status === "pending" && (
               <div className="bg-yellow-50 border border-yellow-200 text-yellow-700 px-4 py-3 rounded-lg">
-                Your request is under review{requestId ? ` (ID: ${requestId})` : ""}.
+                {t("dashboard.status.pending", { idSuffix: requestId ? ` (ID: ${requestId})` : "" })}
               </div>
             )}
           </div>
@@ -156,36 +158,36 @@ export default function ApplyCardPage() {
               disabled={loading || status === "pending" || status === "approved"}
               className="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors disabled:opacity-60"
             >
-              {status === "pending" ? "Awaiting approval" : loading ? "Submitting..." : "Submit Request"}
+              {status === "pending" ? t("cards.requestPending") : loading ? t("common.processing") : t("common.submit")}
             </button>
             <button
               type="button"
               onClick={() => router.push("/dashboard")}
               className="bg-white border border-gray-300 text-gray-700 px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-50 transition-colors"
             >
-              Back to Dashboard
+              {t("sidebar.dashboard")}
             </button>
           </div>
 
           <div className="mt-10 grid grid-cols-1 gap-6">
             <div className="bg-gray-50 border border-gray-100 rounded-xl p-5">
-              <h2 className="text-lg font-semibold text-gray-900">Card Policy</h2>
+              <h2 className="text-lg font-semibold text-gray-900">{t("dashboard.cardPolicy.title")}</h2>
               <ul className="text-sm text-gray-600 list-disc pl-5 space-y-1 mt-2">
-                <li>Card access is reviewed and approved by an administrator.</li>
-                <li>Never share your card details or verification codes.</li>
-                <li>Report suspicious activity immediately.</li>
+                <li>{t("dashboard.cardPolicy.policy1")}</li>
+                <li>{t("dashboard.cardPolicy.policy2")}</li>
+                <li>{t("dashboard.cardPolicy.policy3")}</li>
               </ul>
             </div>
             <div className="bg-gray-50 border border-gray-100 rounded-xl p-5">
-              <h2 className="text-lg font-semibold text-gray-900">Card Usage</h2>
+              <h2 className="text-lg font-semibold text-gray-900">{t("dashboard.cardPolicy.usage")}</h2>
               <p className="text-sm text-gray-600 mt-2">
-                Use your virtual card for online payments and subscriptions. Verify merchant URLs and keep your device secure.
+                {t("dashboard.cardPolicy.usageText")}
               </p>
             </div>
             <div className="bg-gray-50 border border-gray-100 rounded-xl p-5">
-              <h2 className="text-lg font-semibold text-gray-900">Verification</h2>
+              <h2 className="text-lg font-semibold text-gray-900">{t("dashboard.cardPolicy.verification")}</h2>
               <p className="text-sm text-gray-600 mt-2">
-                After submitting, the request moves to pending. Once approved, your virtual card becomes available in the dashboard.
+                {t("dashboard.cardPolicy.verificationText")}
               </p>
             </div>
           </div>

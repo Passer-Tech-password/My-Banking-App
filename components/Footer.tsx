@@ -30,7 +30,7 @@ export default function Footer({ locale }: { locale?: Locale }) {
           {/* Logo */}
           <div>
             <Link href="/" className="flex items-center gap-2 mb-6">
-               <span className="font-bold text-2xl text-white">Aurora Bank</span>
+               <span className="font-bold text-2xl text-white">{t("common.brandName")}</span>
             </Link>
             <p className="text-sm leading-relaxed text-gray-400">
               {t("footer.about")}
@@ -89,7 +89,7 @@ export default function Footer({ locale }: { locale?: Locale }) {
                 setFeedback(null);
                 const emailTrimmed = email.trim().toLowerCase();
                 if (!emailTrimmed || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailTrimmed)) {
-                  setFeedback({ type: "error", message: "Enter a valid email." });
+                  setFeedback({ type: "error", message: t("footer.subscribe.invalidEmail") });
                   return;
                 }
                 try {
@@ -108,18 +108,18 @@ export default function Footer({ locale }: { locale?: Locale }) {
                     }
                   })() as any;
                   if (!res.ok) {
-                    setFeedback({ type: "error", message: String(data?.message || raw || "Subscription failed.") });
+                    setFeedback({ type: "error", message: String(data?.message || raw || t("footer.subscribe.failed")) });
                     return;
                   }
                   if (data?.alreadySubscribed === true) {
-                    setFeedback({ type: "info", message: "You are already subscribed." });
+                    setFeedback({ type: "info", message: t("footer.subscribe.alreadySubscribed") });
                   } else {
-                    setFeedback({ type: "success", message: "Subscribed successfully." });
+                    setFeedback({ type: "success", message: t("footer.subscribe.success") });
                   }
                   setEmail("");
                 } catch (err) {
                   console.error("Subscribe error:", err);
-                  setFeedback({ type: "error", message: "Subscription failed. Please try again." });
+                  setFeedback({ type: "error", message: t("footer.subscribe.failedTryAgain") });
                 } finally {
                   setSubmitting(false);
                 }

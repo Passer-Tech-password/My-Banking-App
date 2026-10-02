@@ -13,7 +13,8 @@ import { useToast } from "@/components/ToastProvider";
 import { isAdminUserData, parseUserRole } from "@/lib/roles";
 import { getDefaultAvatarUrl } from "@/lib/config";
 import { setLocaleCookie } from "@/lib/i18n/client";
-import { isLocale, defaultLocale } from "@/lib/i18n/messages";
+import { isLocale, defaultLocale, type Locale } from "@/lib/i18n/messages";
+import { useTranslation } from "@/lib/i18n/useTranslation";
 
 async function looksLikeAdminEmail(emailLower: string): Promise<false | { maskedEmail?: string }> {
   if (!emailLower) return false;
@@ -48,6 +49,7 @@ async function looksLikeAdminEmail(emailLower: string): Promise<false | { masked
 export default function LoginPage() {
   const router = useRouter();
   const toast = useToast();
+  const { t } = useTranslation();
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -72,7 +74,7 @@ export default function LoginPage() {
     try {
       const cred = await signInWithEmailAndPassword(auth, email, formData.password);
       if (!cred.user.emailVerified) {
-        toast.info("Please verify your email to continue.");
+        toast.info(t("login.verifyEmail"));
         router.push(`/verify-email?next=${encodeURIComponent("/dashboard")}`);
         return;
       }
@@ -105,6 +107,7 @@ export default function LoginPage() {
         const rawLang = (data as any)?.language;
         if (typeof rawLang === "string" && rawLang.trim() && isLocale(rawLang.trim())) {
           preferredLanguage = rawLang.trim();
+          setLocaleCookie(preferredLanguage as Locale);
         }
         const hasPhotoURL = !!String((data as any)?.photoURL || "").trim();
         if (!hasPhotoURL) {
@@ -122,7 +125,7 @@ export default function LoginPage() {
         const blocked = (data as any)?.blocked;
         const isBlocked = blocked === true || blocked === "true";
         if (isBlocked) {
-          toast.error("Your account is restricted. Please contact support.");
+          toast.error(t("blocked.subtitle"));
           await signOut(auth);
           router.push("/blocked");
           return;
@@ -141,16 +144,16 @@ export default function LoginPage() {
         document.documentElement.setAttribute("lang", targetLocale);
       }
       const dest = isAdmin ? "/admin/dashboard" : "/dashboard";
-      toast.success("Signed in successfully");
+      toast.success(t("login.toast.signedIn"));
       router.push(dest);
     } catch (err: any) {
       if (err && err.message && err.message === "LOGIN_PROFILE_ERROR_MARKER") {
-        toast.error("Signed in, but failed to load your profile. Please try again.");
+        toast.error(t("login.error.signedInProfileFailed"));
         try {
           await signOut(auth);
         } catch {}
       } else {
-        let message = "Invalid credentials. Please try again.";
+        let message = t("login.error.invalidCredentialsGeneric");
         if (err.code === "auth/invalid-credential") {
           try {
             const methods = await fetchSignInMethodsForEmail(auth, email);
@@ -159,40 +162,35 @@ export default function LoginPage() {
               const adminCheck = await looksLikeAdminEmail(email);
               if (adminCheck) {
                 setAdminMatch(adminCheck);
-                message =
-                  "This email address belongs to an Admin Portal account, not a regular user account. Please sign in via the Admin Portal at /admin/login.";
+                message = t("login.error.noAccountAdminHint");
               } else {
-                message = `No account found for this email in this Firebase project (${projectId}). If you are an administrator, please use the Admin Portal login page at /admin/login.`;
+                message = t("login.error.noAccountProjectHint", { projectId });
               }
             } else if (methods.includes("password")) {
-              message = "Invalid email or password. Use 'Forgot password?' to reset.";
+              message = t("login.error.wrongPasswordHint");
             } else {
-              message = `This email uses a different sign-in method (${methods.join(", ")}).`;
+              message = t("login.error.differentMethodHint", { methods: methods.join(", ") });
             }
           } catch (methodsError) {
-            message = "Invalid email or password.";
+            message = t("login.invalidCredentials");
           }
         } else if (err.code === "auth/user-not-found") {
           void (async () => {
             const adminCheck = await looksLikeAdminEmail(email);
             if (adminCheck) {
               setAdminMatch(adminCheck);
-              setError("This email address belongs to an Admin Portal account, not a regular user account. Please sign in via the Admin Portal at /admin/login.");
+              setError(t("login.error.noAccountAdminHint"));
             }
           })();
-          if (!adminMatch) message = "No user found with this email. If you are an administrator, please use the Admin Portal login page at /admin/login.";
-          else message = "This email address belongs to an Admin Portal account, not a regular user account. Please sign in via the Admin Portal at /admin/login.";
+          if (!adminMatch) message = t("login.error.userNotFoundAdmin");
+          else message = t("login.error.noAccountAdminHint");
         } else if (err.code === "auth/wrong-password") {
-          message = "Incorrect password.";
+          message = t("login.invalidCredentials");
         } else if (err.code === "auth/too-many-requests") {
-          message = "Too many failed attempts. Please try again later.";
+          message = t("login.tooManyAttempts");
         } else if (err.code === "auth/network-request-failed") {
           const projectId = auth.app.options.projectId || "unknown-project";
-          message =
-            `Login request could not reach Firebase Authentication (project: ${projectId}). ` +
-            "Check your network connection, ensure browser extensions/ad blockers are not blocking " +
-            "*.googleapis.com or *.firebaseapp.com, verify the authorized domain list in Firebase Console, " +
-            "and confirm the page protocol (HTTPS in production). ";
+          message = t("login.error.networkAuth", { projectId });
         } else {
           console.error("LOGIN ERROR:", err);
         }
@@ -213,14 +211,13 @@ export default function LoginPage() {
         <div className="flex flex-col justify-center px-6 md:px-12 py-12">
           {/* Logo */}
           <div className="mb-6">
-            <img src="/logo.svg" alt="Aurora Bank logo" className="h-12 w-auto" />
+            <img src="/logo.svg" alt={t("common.altLogo")} className="h-12 w-auto" />
           </div>
 
-          <h2 className="text-2xl font-semibold mb-2">Sign-In</h2>
+          <h2 className="text-2xl font-semibold mb-2">{t("login.title")}</h2>
 
           <p className="text-sm text-gray-600 mb-6 border-l-4 border-blue-600 pl-3">
-            Access your Aurora Bank online banking panel using your
-            registered email address and password.
+            {t("login.welcomeBack")}
           </p>
 
           {error && (
@@ -238,10 +235,9 @@ export default function LoginPage() {
               className="bg-blue-50 text-blue-800 p-4 rounded mb-4 text-sm border border-blue-200"
               role="status"
             >
-              <div className="font-semibold mb-2">Admin Account Detected</div>
+              <div className="font-semibold mb-2">{t("login.adminDetected.title")}</div>
               <p className="mb-3 text-blue-700">
-                This email is registered as an Administrator. You must sign in through the
-                dedicated Admin Portal instead of this user login page.
+                {t("login.adminDetected.body")}
               </p>
               <a
                 href="/admin/login"
@@ -250,7 +246,7 @@ export default function LoginPage() {
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-4 h-4">
                   <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM6.75 9.25a.75.75 0 000 1.5h4.59l-2.1 1.95a.75.75 0 001.02 1.1l3.5-3.25a.75.75 0 000-1.1l-3.5-3.25a.75.75 0 10-1.02 1.1l2.1 1.95H6.75z" clipRule="evenodd" />
                 </svg>
-                Go to Admin Portal Login
+                {t("login.adminDetected.button")}
               </a>
             </div>
           )}
@@ -258,11 +254,11 @@ export default function LoginPage() {
           <form onSubmit={handleSubmit} className="space-y-4 max-w-sm">
             {/* Email */}
             <div>
-              <label className="text-sm font-medium">Email Address</label>
+              <label className="text-sm font-medium">{t("login.email")}</label>
               <input
                 type="email"
                 name="email"
-                placeholder="Enter your Email Address"
+                placeholder={t("login.emailPlaceholder")}
                 className="input mt-1 w-full px-4 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:outline-none"
                 onChange={handleChange}
                 value={formData.email}
@@ -274,18 +270,18 @@ export default function LoginPage() {
             {/* Password */}
             <div>
               <div className="flex justify-between items-center">
-                <label className="text-sm font-medium">Password</label>
+                <label className="text-sm font-medium">{t("login.password")}</label>
                 <Link
                   href="/forgot-password"
                   className="text-xs text-blue-600 hover:underline"
                 >
-                  Forgot password?
+                  {t("login.forgotPassword")}
                 </Link>
               </div>
               <input
                 type="password"
                 name="password"
-                placeholder="Enter your password"
+                placeholder="••••••••"
                 className="input mt-1 w-full px-4 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:outline-none"
                 onChange={handleChange}
                 value={formData.password}
@@ -300,7 +296,7 @@ export default function LoginPage() {
               disabled={loading}
               className="w-full bg-blue-700 text-white py-2 rounded font-medium hover:bg-blue-800 transition-colors disabled:opacity-70"
             >
-              {loading ? "Signing in..." : "Continue"}
+              {loading ? t("login.submitting") : t("login.submit")}
             </button>
 
             {/* Open Account */}
@@ -308,7 +304,7 @@ export default function LoginPage() {
               href="/register"
               className="block text-center bg-red-600 text-white py-2 rounded text-sm"
             >
-              Open an Account
+              {t("login.registerHere")}
             </Link>
           </form>
         </div>
@@ -316,12 +312,9 @@ export default function LoginPage() {
         {/* RIGHT SECTION */}
         <div className="hidden md:flex items-center justify-center bg-gray-100 px-10">
           <div className="max-w-md text-center">
-            <h3 className="font-semibold mb-3">Protect your online banking.</h3>
+            <h3 className="font-semibold mb-3">{t("login.rightPanel.title")}</h3>
             <p className="text-sm text-gray-600">
-              We have security measures in place to safeguard your money,
-              because we are committed to providing you with a secure banking
-              experience. When we come across any hoaxes or scams that target
-              customers, we will raise them to your attention.
+              {t("login.rightPanel.body")}
             </p>
 
             {/* Dots Indicator */}

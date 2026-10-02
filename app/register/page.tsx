@@ -11,10 +11,12 @@ import { auth, db } from "@/lib/firebase";
 import { doc, setDoc, serverTimestamp } from "firebase/firestore";
 import { useToast } from "@/components/ToastProvider";
 import ImageUpload from "@/components/ImageUpload";
+import { useTranslation } from "@/lib/i18n/useTranslation";
 
 export default function RegisterPage() {
   const router = useRouter();
   const toast = useToast();
+  const { t } = useTranslation();
   const initialFormData = {
     firstName: "",
     middleName: "",
@@ -64,10 +66,10 @@ export default function RegisterPage() {
     try {
       const email = formData.email.trim().toLowerCase();
       if (!formData.firstName || !formData.lastName || !email || !formData.password) {
-        throw new Error("Please fill in all required fields");
+        throw new Error(t("register.validation.requiredFields"));
       }
       if (formData.password !== formData.confirmPassword) {
-          throw new Error("Passwords do not match");
+          throw new Error(t("register.passwordsDoNotMatch"));
       }
 
       // 1. Create User in Firebase Auth
@@ -133,12 +135,12 @@ export default function RegisterPage() {
       );
 
       await sendEmailVerification(userCredential.user);
-      toast.success("Account created. Please verify your email to continue.");
+      toast.success(t("register.toast.created"));
       router.push(`/verify-email?next=${encodeURIComponent("/dashboard")}`);
 
     } catch (error) {
       console.error("Error creating user:", error);
-      toast.error(error instanceof Error ? error.message : "An error occurred");
+      toast.error(error instanceof Error ? error.message : t("register.toast.errorGeneric"));
     } finally {
       setLoading(false);
     }
@@ -154,16 +156,15 @@ export default function RegisterPage() {
         >
           {/* Header */}
           <h2 className="text-lg font-semibold text-blue-800 mb-4">
-            Kindly provide the information required below to enable us create an
-            account for you with Aurora Bank.
+            {t("register.heading")}
           </h2>
 
           {/* Personal Details */}
-          <h3 className="font-semibold mb-3">Personal Details</h3>
+          <h3 className="font-semibold mb-3">{t("register.section.personal")}</h3>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="flex flex-col gap-2 md:col-span-1">
-              <span className="text-sm font-medium text-gray-700">Profile Photo</span>
+              <span className="text-sm font-medium text-gray-700">{t("register.field.profilePhoto")}</span>
               <ImageUpload
                 value={formData.profileImage}
                 onChange={(src) => setFormData((prev) => ({ ...prev, profileImage: src }))}
@@ -172,7 +173,7 @@ export default function RegisterPage() {
             </div>
             <input
               name="firstName"
-              placeholder="First Name"
+              placeholder={t("register.firstNamePlaceholder")}
               className="input"
               onChange={handleChange}
               value={formData.firstName}
@@ -180,14 +181,14 @@ export default function RegisterPage() {
             />
             <input
               name="middleName"
-              placeholder="Middle Name"
+              placeholder={t("register.field.middleName")}
               className="input"
               onChange={handleChange}
               value={formData.middleName}
             />
             <input
               name="lastName"
-              placeholder="Last Name"
+              placeholder={t("register.lastNamePlaceholder")}
               className="input"
               onChange={handleChange}
               value={formData.lastName}
@@ -198,21 +199,21 @@ export default function RegisterPage() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
             <input
               name="address"
-              placeholder="Address"
+              placeholder={t("register.field.address")}
               className="input"
               onChange={handleChange}
               value={formData.address}
             />
             <input
               name="state"
-              placeholder="State / Region"
+              placeholder={t("register.field.state")}
               className="input"
               onChange={handleChange}
               value={formData.state}
             />
             <input
               name="city"
-              placeholder="City"
+              placeholder={t("register.field.city")}
               className="input"
               onChange={handleChange}
               value={formData.city}
@@ -222,7 +223,7 @@ export default function RegisterPage() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
             <input
               name="zipCode"
-              placeholder="Zip Code"
+              placeholder={t("register.field.zipCode")}
               className="input"
               onChange={handleChange}
               value={formData.zipCode}
@@ -236,7 +237,7 @@ export default function RegisterPage() {
             />
             <input
               name="mobile"
-              placeholder="Mobile Number"
+              placeholder={t("register.field.mobile")}
               className="input"
               onChange={handleChange}
               value={formData.mobile}
@@ -246,7 +247,7 @@ export default function RegisterPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
             <input
               name="phone"
-              placeholder="Phone Number"
+              placeholder={t("register.field.phone")}
               className="input"
               onChange={handleChange}
               value={formData.phone}
@@ -254,7 +255,7 @@ export default function RegisterPage() {
             <input
               type="email"
               name="email"
-              placeholder="Email Address"
+              placeholder={t("register.emailPlaceholder")}
               className="input"
               onChange={handleChange}
               value={formData.email}
@@ -263,7 +264,7 @@ export default function RegisterPage() {
           </div>
 
           {/* Banking Details */}
-          <h3 className="font-semibold mt-6 mb-3">Banking Details</h3>
+          <h3 className="font-semibold mt-6 mb-3">{t("register.section.banking")}</h3>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <select
@@ -273,9 +274,9 @@ export default function RegisterPage() {
               value={formData.accountType}
               required
             >
-              <option value="">Choose account type</option>
-              <option>Savings</option>
-              <option>Current</option>
+              <option value="">{t("register.select.accountType")}</option>
+              <option>{t("register.select.accountType.savings")}</option>
+              <option>{t("register.select.accountType.current")}</option>
             </select>
 
             <select
@@ -285,15 +286,15 @@ export default function RegisterPage() {
               value={formData.currency}
               required
             >
-              <option value="">Choose account currency</option>
-              <option>NGN</option>
-              <option>USD</option>
-              <option>EUR</option>
+              <option value="">{t("register.select.currency")}</option>
+              <option>{t("register.select.currency.ngn")}</option>
+              <option>{t("register.select.currency.usd")}</option>
+              <option>{t("register.select.currency.eur")}</option>
             </select>
 
             <input
               name="ssnPin"
-              placeholder="SSN PIN"
+              placeholder={t("register.field.ssnPin")}
               className="input"
               onChange={handleChange}
               value={formData.ssnPin}
@@ -304,7 +305,7 @@ export default function RegisterPage() {
             <input
               type="password"
               name="password"
-              placeholder="Password"
+              placeholder={t("register.passwordPlaceholder")}
               className="input"
               onChange={handleChange}
               value={formData.password}
@@ -313,7 +314,7 @@ export default function RegisterPage() {
             <input
               type="password"
               name="confirmPassword"
-              placeholder="Confirm Password"
+              placeholder={t("register.confirmPasswordPlaceholder")}
               className="input"
               onChange={handleChange}
               value={formData.confirmPassword}
@@ -322,7 +323,7 @@ export default function RegisterPage() {
 
             <div className="flex items-center gap-3">
               <div className="w-16 h-16 bg-gray-200 rounded-full flex items-center justify-center">
-                <span className="text-xs text-gray-500">Photo</span>
+                <span className="text-xs text-gray-500">{t("register.field.passportPhoto")}</span>
               </div>
               <input
                 key={fileInputKey}
@@ -340,21 +341,21 @@ export default function RegisterPage() {
               disabled={loading}
               className="bg-blue-600 text-white px-4 py-2 rounded disabled:opacity-70"
             >
-              {loading ? "Submitting..." : "Submit"}
+              {loading ? t("register.button.submitting") : t("register.button.submit")}
             </button>
             <button
               type="button"
               onClick={handleReset}
               className="bg-red-500 text-white px-4 py-2 rounded"
             >
-              Reset
+              {t("register.button.reset")}
             </button>
             <button
               type="button"
               className="text-blue-600 underline"
               onClick={() => router.back()}
             >
-              ← Back
+              {t("register.button.back")}
             </button>
           </div>
         </form>

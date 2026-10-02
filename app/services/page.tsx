@@ -183,7 +183,7 @@ export default async function ServicesPage() {
         </div>
       </section>
 
-      <Footer />
+      <Footer locale={locale} />
     </main>
   );
 }

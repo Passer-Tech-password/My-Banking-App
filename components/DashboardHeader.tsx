@@ -6,6 +6,7 @@ import { doc, onSnapshot, serverTimestamp, setDoc } from "firebase/firestore";
 import { auth, db } from "@/lib/firebase";
 import { toErrorInfo } from "@/lib/errorInfo";
 import { getDefaultAvatarUrl } from "@/lib/config";
+import { useTranslation } from "@/lib/i18n/useTranslation";
 import {
   Bars3Icon,
   BellIcon,
@@ -13,6 +14,7 @@ import {
 } from "@heroicons/react/24/outline";
 
 export default function DashboardHeader({ onMobileMenuClick }: { onMobileMenuClick?: () => void }) {
+  const { t } = useTranslation();
   const [displayName, setDisplayName] = useState<string>("");
   const [avatarUrl, setAvatarUrl] = useState<string>("");
 
@@ -99,7 +101,7 @@ export default function DashboardHeader({ onMobileMenuClick }: { onMobileMenuCli
           <Bars3Icon className="w-6 h-6" />
         </button>
         <h1 className="text-xl font-semibold text-gray-800 hidden sm:block">
-          Overview
+          {t("header.overview")}
         </h1>
       </div>
 
@@ -114,8 +116,8 @@ export default function DashboardHeader({ onMobileMenuClick }: { onMobileMenuCli
         {/* User Profile */}
         <div className="flex items-center gap-3 pl-6 border-l border-gray-100">
           <div className="text-right hidden md:block">
-            <p className="text-sm font-medium text-gray-700">{displayName ? displayName.split(" ")[0] : "My Account"}</p>
-            <p className="text-xs text-gray-500">Member</p>
+            <p className="text-sm font-medium text-gray-700">{displayName ? displayName.split(" ")[0] : t("header.myAccount")}</p>
+            <p className="text-xs text-gray-500">{t("header.member")}</p>
           </div>
           <div className="h-10 w-10 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 overflow-hidden">
             {avatarUrl ? (

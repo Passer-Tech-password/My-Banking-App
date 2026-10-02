@@ -1,15 +1,13 @@
+"use client";
+
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import Link from "next/link";
 import { UserGroupIcon, BuildingOfficeIcon, GlobeAmericasIcon } from "@heroicons/react/24/outline";
-import { cookies } from "next/headers";
-import { getLocaleFromCookies } from "@/lib/i18n/server";
-import { createTranslator } from "@/lib/i18n/messages";
+import { useTranslation } from "@/lib/i18n/useTranslation";
 
-export default async function AboutPage() {
-  const cookieStore = await cookies();
-  const locale = getLocaleFromCookies(cookieStore);
-  const t = createTranslator(locale);
+export default function AboutPage() {
+  const { t, locale } = useTranslation();
 
   return (
     <main className="w-full min-h-screen flex flex-col bg-white">
@@ -97,8 +95,8 @@ export default async function AboutPage() {
               </div>
               <div className="bg-blue-600 p-6 rounded-2xl text-white">
                 <h3 className="text-4xl font-bold mb-2">10+</h3>
-                <p className="text-blue-100">Years of Service</p>
-                <p className="text-blue-200 text-sm mt-2">Serving thousands of happy customers.</p>
+                <p className="text-blue-100">{t("about.stat.yearsOfService")}</p>
+                <p className="text-blue-200 text-sm mt-2">{t("about.stat.servingCustomers")}</p>
               </div>
             </div>
           </div>
@@ -111,7 +109,7 @@ export default async function AboutPage() {
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center divide-x divide-gray-800">
             <div>
               <div className="text-4xl font-bold text-blue-400 mb-2">2M+</div>
-              <div className="text-gray-400">Users Worldwide</div>
+              <div className="text-gray-400">{t("about.stat.usersWorldwide")}</div>
             </div>
             <div>
               <div className="text-4xl font-bold text-blue-400 mb-2">$5B+</div>
@@ -129,7 +127,7 @@ export default async function AboutPage() {
         </div>
       </section>
 
-      <Footer />
+      <Footer locale={locale} />
     </main>
   );
 }

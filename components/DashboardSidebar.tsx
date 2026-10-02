@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { signOut } from "firebase/auth";
 import { auth } from "@/lib/firebase";
 import { useRouter } from "next/navigation";
+import { useTranslation } from "@/lib/i18n/useTranslation";
 import {
   HomeIcon,
   BanknotesIcon,
@@ -17,14 +18,14 @@ import {
   PaperAirplaneIcon,
 } from "@heroicons/react/24/outline";
 
-const navigation = [
-  { name: "Dashboard", href: "/dashboard", icon: HomeIcon },
-  { name: "Send Funds", href: "/dashboard/transfer", icon: PaperAirplaneIcon },
-  { name: "Transactions", href: "/dashboard/transactions", icon: BanknotesIcon },
-  { name: "My Cards", href: "/dashboard/cards", icon: CreditCardIcon },
-  { name: "Contacts", href: "/dashboard/contacts", icon: UserGroupIcon },
-  { name: "Profile", href: "/dashboard/profile", icon: UserCircleIcon },
-  { name: "Settings", href: "/dashboard/settings", icon: Cog6ToothIcon },
+const navKeys = [
+  { key: "sidebar.dashboard", href: "/dashboard", icon: HomeIcon },
+  { key: "sidebar.transfer", href: "/dashboard/transfer", icon: PaperAirplaneIcon },
+  { key: "sidebar.transactions", href: "/dashboard/transactions", icon: BanknotesIcon },
+  { key: "sidebar.cards", href: "/dashboard/cards", icon: CreditCardIcon },
+  { key: "sidebar.contacts", href: "/dashboard/contacts", icon: UserGroupIcon },
+  { key: "sidebar.profile", href: "/dashboard/profile", icon: UserCircleIcon },
+  { key: "sidebar.settings", href: "/dashboard/settings", icon: Cog6ToothIcon },
 ];
 
 interface DashboardSidebarProps {
@@ -35,6 +36,7 @@ interface DashboardSidebarProps {
 export default function DashboardSidebar({ mobile, onClose }: DashboardSidebarProps) {
   const pathname = usePathname();
   const router = useRouter();
+  const { t } = useTranslation();
 
   const handleLogout = async () => {
     try {
@@ -66,11 +68,12 @@ export default function DashboardSidebar({ mobile, onClose }: DashboardSidebarPr
 
       {/* Navigation */}
       <nav className="flex-1 px-4 py-6 space-y-2 overflow-y-auto">
-        {navigation.map((item) => {
+        {navKeys.map((item) => {
           const isActive = pathname === item.href;
+          const name = t(item.key);
           return (
             <Link
-              key={item.name}
+              key={item.href}
               href={item.href}
               onClick={mobile ? onClose : undefined}
               className={`flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-lg transition-all duration-200 ${
@@ -80,7 +83,7 @@ export default function DashboardSidebar({ mobile, onClose }: DashboardSidebarPr
               }`}
             >
               <item.icon className={`w-5 h-5 ${isActive ? "text-white" : "text-slate-500 group-hover:text-white"}`} />
-              {item.name}
+              {name}
             </Link>
           );
         })}
@@ -93,7 +96,7 @@ export default function DashboardSidebar({ mobile, onClose }: DashboardSidebarPr
           className="flex items-center gap-3 w-full px-4 py-3 text-sm font-medium text-red-400 hover:text-red-300 hover:bg-slate-800 rounded-lg transition-colors"
         >
           <ArrowRightOnRectangleIcon className="w-5 h-5" />
-          Sign Out
+          {t("sidebar.signOut")}
         </button>
       </div>
     </div>

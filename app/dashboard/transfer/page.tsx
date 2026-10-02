@@ -7,6 +7,8 @@ import { auth, db } from "@/lib/firebase";
 import { doc, onSnapshot } from "firebase/firestore";
 import { ArrowRightIcon, CheckCircleIcon, ExclamationTriangleIcon, InformationCircleIcon } from "@heroicons/react/24/outline";
 import { useToast } from "@/components/ToastProvider";
+import { useTranslation } from "@/lib/i18n/useTranslation";
+import TransferReceipt, { type TransferReceiptData } from "@/components/TransferReceipt";
 
 interface SenderProfile {
   accountNumber?: string;
@@ -22,42 +24,16 @@ type StatusKind = "idle" | "info" | "success" | "error";
 
 function formatCurrency(n: number): string {
   const v = Number.isFinite(n) ? n : 0;
-  return `$${v.toLocaleString("en-US", {
-    minimumFractionDigits: 2,
+  return `USD ${v.toLocaleString("en-US", {
+    minimumFractionDigits: 0,
     maximumFractionDigits: 2,
   })}`;
-}
-
-function validateAccountNumber(v: string): string {
-  if (!v.trim()) return "Recipient account number is required.";
-  if (!/^\d{10}$/.test(v.trim())) return "Recipient account number must be exactly 10 digits.";
-  return "";
-}
-
-function validateAmount(v: string, balance: number): string {
-  if (!v.trim()) return "Amount is required.";
-  const n = Number(v);
-  if (!Number.isFinite(n)) return "Amount must be a number.";
-  if (n <= 0) return "Amount must be greater than zero.";
-  if (balance > 0 && n > balance + 0.0001) return "Amount exceeds your available balance.";
-  return "";
-}
-
-function validatePin(v: string): string {
-  if (!v) return "PIN is required.";
-  if (!/^\d{6}$/.test(v)) return "PIN must be exactly 6 digits.";
-  return "";
-}
-
-function validateTransferCode(v: string): string {
-  if (!v) return "Transfer code is required.";
-  if (!/^\d{6}$/.test(v)) return "Transfer code must be exactly 6 digits.";
-  return "";
 }
 
 export default function UserTransferPage() {
   const router = useRouter();
   const toast = useToast();
+  const { t } = useTranslation();
 
   const [authUser, setAuthUser] = useState<User | null>(null);
   const [profile, setProfile] = useState<SenderProfile | null>(null);
@@ -85,6 +61,34 @@ export default function UserTransferPage() {
     kind: "idle",
     message: "",
   });
+  const [completedReceipt, setCompletedReceipt] = useState<TransferReceiptData | null>(null);
+
+  const validateAccountNumber = (v: string): string => {
+    if (!v.trim()) return t("transfer.recipientAccountRequired");
+    if (!/^\d{10}$/.test(v.trim())) return t("transfer.recipientAccountInvalid");
+    return "";
+  };
+
+  const validateAmount = (v: string, bal: number): string => {
+    if (!v.trim()) return t("transfer.amountRequired");
+    const n = Number(v);
+    if (!Number.isFinite(n)) return t("transfer.amountInvalid");
+    if (n <= 0) return t("transfer.amountMustBePositive");
+    if (bal > 0 && n > bal + 0.0001) return t("transfer.amountExceedsBalance");
+    return "";
+  };
+
+  const validatePin = (v: string): string => {
+    if (!v) return t("transfer.pinRequired");
+    if (!/^\d{6}$/.test(v)) return t("transfer.pinInvalid");
+    return "";
+  };
+
+  const validateTransferCode = (v: string): string => {
+    if (!v) return t("transfer.transferCodeRequired");
+    if (!/^\d{6}$/.test(v)) return t("transfer.transferCodeInvalid");
+    return "";
+  };
 
   useEffect(() => {
     let cancelled = false;
@@ -105,9 +109,7 @@ export default function UserTransferPage() {
           if (cancelled) return;
           if (!snap.exists()) {
             setProfile(null);
-            setNotEligible(
-              "Your user profile has not been provisioned yet. Please refresh or contact support.",
-            );
+            setNotEligible(t("transfer.profileNotProvisioned"));
             setLoading(false);
             return;
           }
@@ -117,9 +119,7 @@ export default function UserTransferPage() {
           const hasPin = !!String(data?.accountPin || "");
           const hasTc = !!String(data?.transferCode || "");
           if (!hasAcct || !hasPin || !hasTc) {
-            setNotEligible(
-              "Fund transfers are available only for accounts created through the Admin Portal with a registered account number, PIN, and transfer code. Self-registered accounts are not eligible for this feature.",
-            );
+            setNotEligible(t("transfer.notEligible.body"));
           } else {
             setNotEligible(null);
           }
@@ -128,7 +128,7 @@ export default function UserTransferPage() {
         (e) => {
           if (cancelled) return;
           console.error("Transfer page: profile stream error:", e);
-          setNotEligible("Failed to load your account profile. Please refresh the page.");
+          setNotEligible(t("transfer.profileFailed"));
           setLoading(false);
         },
       );
@@ -138,7 +138,7 @@ export default function UserTransferPage() {
       authUnsub();
       if (profileUnsub) profileUnsub();
     };
-  }, [router]);
+  }, [router, t]);
 
   const balance = useMemo(() => Number(profile?.balance ?? 0) || 0, [profile]);
 
@@ -167,7 +167,7 @@ export default function UserTransferPage() {
         const msg =
           typeof data?.message === "string"
             ? data.message
-            : "Unable to verify this account number.";
+            : t("transfer.recipientVerificationFailedBody");
         setLookupStatus({ kind: "error", message: msg });
         setRecipientNameConfirmed(false);
         return;
@@ -177,7 +177,7 @@ export default function UserTransferPage() {
     } catch (e) {
       if (requestId !== lookupRequestRef.current) return;
       console.error("Transfer UI: account lookup error:", e);
-      setLookupStatus({ kind: "error", message: "Network error while looking up account." });
+      setLookupStatus({ kind: "error", message: t("common.networkError") });
       setRecipientNameConfirmed(false);
     }
   };
@@ -245,6 +245,11 @@ export default function UserTransferPage() {
     if (!submitting) setStatus({ kind: "idle", message: "" });
   };
 
+  const handleNewTransaction = () => {
+    setCompletedReceipt(null);
+    setStatus({ kind: "idle", message: "" });
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setTouched({
@@ -256,16 +261,14 @@ export default function UserTransferPage() {
     });
     setStatus({ kind: "idle", message: "" });
     if (!authUser || !profile) {
-      setStatus({ kind: "error", message: "Not signed in." });
+      setStatus({ kind: "error", message: t("transfer.notSignedIn") });
       return;
     }
     const hasAcct = /^\d{10}$/.test(String(profile.accountNumber || ""));
     if (!hasAcct || notEligible) {
       setStatus({
         kind: "error",
-        message:
-          notEligible ||
-          "Your account is not eligible for transfers. Contact the administrator.",
+        message: notEligible || t("transfer.accountNotEligible"),
       });
       return;
     }
@@ -273,17 +276,17 @@ export default function UserTransferPage() {
       const firstErr =
         (lookupStatus.kind !== "success" && /^\d{10}$/.test(recipientAccountNumber.trim()))
           ? lookupStatus.kind === "loading"
-            ? "Please wait while we verify the recipient account."
+            ? t("transfer.waitVerify")
             : lookupStatus.kind === "error"
-              ? `Account verification failed: ${lookupStatus.message || "Please verify the account number."}`
-              : "Please verify the recipient account before submitting."
+              ? `${t("common.lookupFailed")}: ${lookupStatus.message || t("transfer.pleaseVerify")}`
+              : t("transfer.pleaseVerify")
           : !recipientNameConfirmed && lookupStatus.kind === "success"
-            ? "Please confirm that the displayed account name matches your intended recipient."
+            ? t("transfer.confirmRecipient")
             : fieldErrors.recipientAccountNumber ||
               fieldErrors.amount ||
               fieldErrors.pin ||
               fieldErrors.transferCode ||
-              "Please correct the highlighted fields.";
+              t("transfer.correctFields");
       setStatus({ kind: "error", message: firstErr });
       return;
     }
@@ -314,7 +317,7 @@ export default function UserTransferPage() {
         const msg: string =
           typeof data?.message === "string"
             ? data.message
-            : "Transfer request was declined. Please try again.";
+            : t("transfer.declined");
         switch (code) {
           case "invalid_pin":
           case "invalid_transfer_code":
@@ -328,7 +331,7 @@ export default function UserTransferPage() {
           case "recipient_not_found":
             setStatus({
               kind: "error",
-              message: `${msg} Please verify the 10-digit recipient account number and try again.`,
+              message: `${msg} ${t("common.verifyAccountNumber")}`,
             });
             break;
           case "self_transfer":
@@ -343,9 +346,9 @@ export default function UserTransferPage() {
           case "unauthorized":
             setStatus({
               kind: "error",
-              message: "Your session has expired. Please sign in again.",
+              message: t("transfer.sessionExpired"),
             });
-            toast.error("Session expired.");
+            toast.error(t("common.sessionExpired"));
             setTimeout(() => router.push("/login"), 800);
             break;
           case "invalid_request":
@@ -365,13 +368,22 @@ export default function UserTransferPage() {
         return;
       }
 
-      setStatus({
-        kind: "success",
-        message:
-          `Transfer of ${typeof data?.amountFormatted === "string" ? data.amountFormatted : formatCurrency(Number(amount))} ` +
-          `to account ${recipientAccountNumber.trim()} completed successfully.`,
+      const receiptAmount = typeof data?.amountFormatted === "string"
+        ? data.amountFormatted
+        : formatCurrency(Number(amount));
+
+      toast.success(t("common.transferCompleted"));
+
+      setCompletedReceipt({
+        amountFormatted: receiptAmount,
+        recipientName: String(data?.recipientName || ""),
+        transferId: String(data?.transferId || ""),
+        reference: typeof data?.reference === "string" ? data.reference : undefined,
+        dateISO: String(data?.date || new Date().toISOString()),
+        balanceFormatted: typeof data?.balanceFormatted === "string"
+          ? data.balanceFormatted
+          : formatCurrency(Number(data?.balance ?? balance)),
       });
-      toast.success("Transfer completed successfully.");
 
       setRecipientAccountNumber("");
       setAmount("");
@@ -380,14 +392,14 @@ export default function UserTransferPage() {
       setReference("");
       setTouched({});
       setRecipientNameConfirmed(false);
+      setStatus({ kind: "idle", message: "" });
     } catch (err) {
       console.error("Transfer UI: submit error:", err);
       setStatus({
         kind: "error",
-        message:
-          "A network error occurred while submitting the transfer. Please check your connection and try again.",
+        message: t("transfer.networkError"),
       });
-      toast.error("Network error. Please try again.");
+      toast.error(t("common.networkErrorTryAgain"));
     } finally {
       setSubmitting(false);
     }
@@ -428,7 +440,7 @@ export default function UserTransferPage() {
             onClick={handleSuccessBannerDismiss}
             className="text-xs text-emerald-700 hover:underline flex-shrink-0"
           >
-            Dismiss
+            {t("transfer.dismiss")}
           </button>
         )}
       </div>
@@ -442,21 +454,27 @@ export default function UserTransferPage() {
         : "border-gray-200 focus:border-blue-500 focus:ring-blue-100"
     }`;
 
+  if (completedReceipt) {
+    return (
+      <div className="space-y-6">
+        <TransferReceipt receipt={completedReceipt} onNewTransaction={handleNewTransaction} />
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-gray-900">Send Funds</h1>
+        <h1 className="text-2xl font-bold text-gray-900">{t("transfer.title")}</h1>
         <p className="text-sm text-gray-500 mt-1">
-          Transfer money instantly using the recipient&apos;s 10-digit account number. You must
-          confirm your identity with your account PIN and transfer code before the transfer is
-          processed.
+          {t("transfer.subtitle")}
         </p>
       </div>
 
       {loading ? (
         <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-8 text-center text-gray-500">
           <span className="inline-block h-5 w-5 border-b-2 border-gray-600 rounded-full animate-spin align-middle mr-2" />
-          Loading your account…
+          {t("dashboard.loadingYourAccount")}
         </div>
       ) : notEligible ? (
         <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-8 max-w-2xl">
@@ -464,7 +482,7 @@ export default function UserTransferPage() {
             <ExclamationTriangleIcon className="w-5 h-5 text-amber-500 flex-shrink-0 mt-0.5" />
             <div>
               <div className="font-semibold text-amber-900 mb-1">
-                Transfer feature is not available for this account
+                {t("transfer.notEligible.title")}
               </div>
               <p className="text-sm text-amber-800 leading-relaxed">{notEligible}</p>
             </div>
@@ -484,9 +502,9 @@ export default function UserTransferPage() {
                     htmlFor="recipientAccountNumber"
                     className="block text-sm font-medium text-gray-700"
                   >
-                    Recipient Account Number
+                    {t("transfer.recipientAccountNumber")}
                   </label>
-                  <span className="text-xs text-gray-500">10 digits</span>
+                  <span className="text-xs text-gray-500">{t("transfer.recipientAccountTenDigits")}</span>
                 </div>
                 <input
                   id="recipientAccountNumber"
@@ -494,7 +512,7 @@ export default function UserTransferPage() {
                   type="text"
                   inputMode="numeric"
                   autoComplete="off"
-                  placeholder="e.g. 1234567890"
+                  placeholder={t("transfer.recipientAccountPlaceholder")}
                   value={recipientAccountNumber}
                   onChange={(e) => {
                     const v = e.target.value.replace(/\D/g, "").slice(0, 10);
@@ -521,7 +539,7 @@ export default function UserTransferPage() {
                 {lookupStatus.kind === "loading" && (
                   <div className="mt-3 rounded-lg border border-blue-200 bg-blue-50 px-3 py-2 flex items-center gap-2 text-sm text-blue-800">
                     <span className="inline-block h-4 w-4 border-b-2 border-blue-600 rounded-full animate-spin" />
-                    Verifying account…
+                    {t("transfer.verifyingAccount")}
                   </div>
                 )}
 
@@ -532,9 +550,9 @@ export default function UserTransferPage() {
                   >
                     <ExclamationTriangleIcon className="w-4 h-4 flex-shrink-0 mt-0.5 text-red-500" />
                     <div>
-                      <div className="font-medium">Recipient account could not be verified.</div>
+                      <div className="font-medium">{t("transfer.recipientVerificationFailedTitle")}</div>
                       <div className="text-red-700">
-                        {lookupStatus.message || "Please check the 10-digit account number."}
+                        {lookupStatus.message || t("transfer.recipientVerificationFailedBody")}
                       </div>
                     </div>
                   </div>
@@ -548,7 +566,7 @@ export default function UserTransferPage() {
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="text-xs font-semibold text-emerald-900">
-                          Recipient Account Name
+                          {t("transfer.recipientNameLabel")}
                         </div>
                         <div className="text-base font-bold text-emerald-900 break-words">
                           {lookupStatus.accountName}
@@ -563,9 +581,7 @@ export default function UserTransferPage() {
                         className="mt-0.5 h-4 w-4 rounded border-gray-300 text-emerald-600 focus:ring-emerald-500 flex-shrink-0"
                       />
                       <span>
-                        I confirm that{" "}
-                        <span className="font-semibold">{lookupStatus.accountName}</span>{" "}
-                        is the intended recipient for this transfer.
+                        {t("transfer.recipientConfirmLabel", { name: lookupStatus.accountName })}
                       </span>
                     </label>
                   </div>
@@ -575,10 +591,10 @@ export default function UserTransferPage() {
               <div>
                 <div className="flex items-center justify-between mb-2">
                   <label htmlFor="amount" className="block text-sm font-medium text-gray-700">
-                    Amount (USD)
+                    {t("transfer.amount")}
                   </label>
                   <span className="text-xs text-gray-500">
-                    Available: <span className="font-medium text-gray-700">{formatCurrency(balance)}</span>
+                    {t("transfer.available")} <span className="font-medium text-gray-700">{formatCurrency(balance)}</span>
                   </span>
                 </div>
                 <div className="relative">
@@ -617,14 +633,14 @@ export default function UserTransferPage() {
                 <div>
                   <div className="flex items-center justify-between mb-2">
                     <label htmlFor="pin" className="block text-sm font-medium text-gray-700">
-                      Account PIN
+                      {t("transfer.pin")}
                     </label>
                     <button
                       type="button"
                       onClick={() => setShowPin((v) => !v)}
                       className="text-xs text-blue-700 hover:underline"
                     >
-                      {showPin ? "Hide" : "Show"}
+                      {showPin ? t("transfer.hide") : t("transfer.show")}
                     </button>
                   </div>
                   <input
@@ -633,7 +649,7 @@ export default function UserTransferPage() {
                     type={showPin ? "text" : "password"}
                     inputMode="numeric"
                     autoComplete="off"
-                    placeholder="6-digit PIN"
+                    placeholder={t("transfer.pinPlaceholder")}
                     value={pin}
                     onChange={(e) => {
                       const v = e.target.value.replace(/\D/g, "").slice(0, 6);
@@ -659,14 +675,14 @@ export default function UserTransferPage() {
                       htmlFor="transferCode"
                       className="block text-sm font-medium text-gray-700"
                     >
-                      Transfer Code
+                      {t("transfer.transferCode")}
                     </label>
                     <button
                       type="button"
                       onClick={() => setShowTransferCode((v) => !v)}
                       className="text-xs text-blue-700 hover:underline"
                     >
-                      {showTransferCode ? "Hide" : "Show"}
+                      {showTransferCode ? t("transfer.hide") : t("transfer.show")}
                     </button>
                   </div>
                   <input
@@ -675,7 +691,7 @@ export default function UserTransferPage() {
                     type={showTransferCode ? "text" : "password"}
                     inputMode="numeric"
                     autoComplete="off"
-                    placeholder="6-digit transfer code"
+                    placeholder={t("transfer.transferCodePlaceholder")}
                     value={transferCode}
                     onChange={(e) => {
                       const v = e.target.value.replace(/\D/g, "").slice(0, 6);
@@ -703,7 +719,7 @@ export default function UserTransferPage() {
                   htmlFor="reference"
                   className="block text-sm font-medium text-gray-700 mb-2"
                 >
-                  Reference / Note <span className="text-gray-400 font-normal">(optional)</span>
+                  {t("transfer.reference")} <span className="text-gray-400 font-normal">{t("transfer.referenceOptional")}</span>
                 </label>
                 <input
                   id="reference"
@@ -711,7 +727,7 @@ export default function UserTransferPage() {
                   type="text"
                   maxLength={200}
                   autoComplete="off"
-                  placeholder="e.g. Rent, Invoice #123, Gift"
+                  placeholder={t("transfer.referencePlaceholder")}
                   value={reference}
                   onChange={(e) => setReference(e.target.value)}
                   className={inputClass(false)}
@@ -728,12 +744,12 @@ export default function UserTransferPage() {
                 {submitting ? (
                   <>
                     <span className="inline-block h-5 w-5 border-b-2 border-white rounded-full animate-spin" />
-                    Processing Transfer…
+                    {t("transfer.processing")}
                   </>
                 ) : (
                   <>
                     <ArrowRightIcon className="w-5 h-5" />
-                    Send Transfer
+                    {t("transfer.submit")}
                   </>
                 )}
               </button>
@@ -743,17 +759,17 @@ export default function UserTransferPage() {
           <aside className="space-y-6">
             <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-6">
               <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wide">
-                Your Account
+                {t("transfer.accountInfo.title")}
               </h2>
               <dl className="mt-4 space-y-3 text-sm">
                 <div className="flex justify-between">
-                  <dt className="text-gray-500">Account Number</dt>
+                  <dt className="text-gray-500">{t("transfer.accountInfo.accountNumber")}</dt>
                   <dd className="font-mono text-gray-900">
                     {profile?.accountNumber ? String(profile.accountNumber) : "—"}
                   </dd>
                 </div>
                 <div className="flex justify-between">
-                  <dt className="text-gray-500">Available Balance</dt>
+                  <dt className="text-gray-500">{t("transfer.accountInfo.availableBalance")}</dt>
                   <dd className="font-semibold text-gray-900">{formatCurrency(balance)}</dd>
                 </div>
               </dl>
@@ -762,12 +778,12 @@ export default function UserTransferPage() {
             <div className="bg-blue-50 border border-blue-200 rounded-xl p-6 text-sm text-blue-800">
               <div className="font-semibold mb-2 flex items-center gap-2">
                 <InformationCircleIcon className="w-5 h-5" />
-                Security
+                {t("transfer.security.title")}
               </div>
               <ul className="list-disc list-inside space-y-1 text-blue-700">
-                <li>Your 6-digit PIN and 6-digit Transfer Code are always required.</li>
-                <li>Ensure the recipient account number is correct before submitting.</li>
-                <li>Transfers are processed immediately and cannot be reversed.</li>
+                <li>{t("transfer.security.note1")}</li>
+                <li>{t("transfer.security.note2")}</li>
+                <li>{t("transfer.security.note3")}</li>
               </ul>
             </div>
           </aside>

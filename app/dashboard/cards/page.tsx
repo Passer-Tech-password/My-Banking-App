@@ -8,8 +8,10 @@ import { useRouter } from "next/navigation";
 import { CreditCardIcon, ClipboardDocumentIcon } from "@heroicons/react/24/outline";
 import { Card } from "@/lib/Card";
 import { useToast } from "@/components/ToastProvider";
+import { useTranslation } from "@/lib/i18n/useTranslation";
 
 export default function CardsPage() {
+  const { t } = useTranslation();
   const router = useRouter();
   const toast = useToast();
   const [loading, setLoading] = useState(true);
@@ -29,10 +31,10 @@ export default function CardsPage() {
         fetchedCards.push({ id: doc.id, ...doc.data() } as Card);
       });
       setCards(fetchedCards);
-      toast.success("Cards refreshed");
+      toast.success(t("cards.refreshed"));
     } catch (err) {
       console.error("Refresh error:", err);
-      toast.error("Failed to refresh cards");
+      toast.error(t("cards.refreshFailed"));
     } finally {
       setRefreshing(false);
     }
@@ -125,8 +127,8 @@ export default function CardsPage() {
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">My Cards</h1>
-          <p className="text-sm text-gray-500">Manage your payment methods.</p>
+          <h1 className="text-2xl font-bold text-gray-900">{t("cards.title")}</h1>
+          <p className="text-sm text-gray-500">{t("cards.subtitle")}</p>
         </div>
         <div className="flex gap-2">
           <button
@@ -137,14 +139,14 @@ export default function CardsPage() {
             <svg className={`w-4 h-4 ${refreshing ? 'animate-spin' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
             </svg>
-            {refreshing ? "Refreshing..." : "Refresh"}
+            {refreshing ? t("cards.refreshing") : t("cards.refresh")}
           </button>
           <button
             onClick={() => router.push(cardRequestStatus === "none" ? "/apply-card" : "/track-card")}
             className="flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-lg text-sm font-medium hover:bg-indigo-700 transition-colors shadow-sm"
           >
             <CreditCardIcon className="w-4 h-4" />
-            {cardRequestStatus === "approved" ? "Manage Virtual Card" : cardRequestStatus === "pending" ? "Track Request" : "Get Virtual Card"}
+            {cardRequestStatus === "approved" ? t("dashboard.manageVirtualCard") : cardRequestStatus === "pending" ? t("dashboard.trackVirtualCard") : t("dashboard.getVirtualCard")}
           </button>
         </div>
       </div>
@@ -155,20 +157,20 @@ export default function CardsPage() {
             <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4 text-gray-400">
               <CreditCardIcon className="w-8 h-8" />
             </div>
-            <h3 className="text-lg font-medium text-gray-900 mb-1">Virtual card not available</h3>
+            <h3 className="text-lg font-medium text-gray-900 mb-1">{t("cards.noneYet")}</h3>
             <p className="text-gray-500 mb-6">
               {cardRequestStatus === "pending"
-                ? "Your request is under review."
+                ? t("cards.requestPendingBody")
                 : cardRequestStatus === "rejected"
-                  ? "Your request was rejected."
-                  : "Apply for a virtual card to access My Cards."}
+                  ? t("cards.requestRejectedBody")
+                  : t("cards.noneYet")}
             </p>
             <button
               type="button"
               onClick={() => router.push(cardRequestStatus === "none" ? "/apply-card" : "/track-card")}
               className="px-4 py-2 bg-indigo-600 text-white rounded-lg text-sm font-medium hover:bg-indigo-700 transition-colors shadow-sm"
             >
-              {cardRequestStatus === "pending" ? "Track Request" : cardRequestStatus === "rejected" ? "Re-Apply" : "Apply for Virtual Card"}
+              {cardRequestStatus === "pending" ? t("dashboard.trackVirtualCard") : cardRequestStatus === "rejected" ? t("cards.applyNow") : t("cards.applyNow")}
             </button>
           </div>
         )}
@@ -187,10 +189,10 @@ export default function CardsPage() {
                 <button 
                   onClick={() => {
                     navigator.clipboard.writeText(card.number);
-                    toast.success("Card number copied");
+                    toast.success(t("cards.copied"));
                   }}
                   className="p-1.5 bg-white/10 rounded-lg hover:bg-white/20 transition-colors"
-                  title="Copy Number"
+                  title={t("cards.copyNumber")}
                 >
                   <ClipboardDocumentIcon className="w-4 h-4" />
                 </button>
@@ -210,11 +212,11 @@ export default function CardsPage() {
 
             <div className="flex justify-between items-end relative z-10">
               <div>
-                <p className="text-[10px] uppercase opacity-70 tracking-wider mb-0.5">Card Holder</p>
+                <p className="text-[10px] uppercase opacity-70 tracking-wider mb-0.5">{t("cards.cardHolder")}</p>
                 <p className="font-medium text-sm uppercase tracking-wide">{card.holder}</p>
               </div>
               <div className="text-right">
-                <p className="text-[10px] uppercase opacity-70 tracking-wider mb-0.5">Expires</p>
+                <p className="text-[10px] uppercase opacity-70 tracking-wider mb-0.5">{t("cards.expiry")}</p>
                 <p className="font-medium text-sm tracking-wide">{card.expires}</p>
               </div>
             </div>
@@ -226,9 +228,9 @@ export default function CardsPage() {
             <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4 text-gray-400">
               <CreditCardIcon className="w-8 h-8" />
             </div>
-            <h3 className="text-lg font-medium text-gray-900 mb-1">No cards added</h3>
+            <h3 className="text-lg font-medium text-gray-900 mb-1">{t("cards.noCardsFound")}</h3>
             <p className="text-gray-500 mb-6">
-              Add a virtual or existing card to manage your payments and track activity.
+              {t("cards.noneYet")}
             </p>
             <div className="flex flex-col sm:flex-row gap-3 justify-center">
               <button
@@ -236,7 +238,7 @@ export default function CardsPage() {
                 onClick={() => router.push(cardRequestStatus === "none" ? "/apply-card" : "/track-card")}
                 className="px-4 py-2 bg-indigo-600 text-white rounded-lg text-sm font-medium hover:bg-indigo-700 transition-colors shadow-sm"
               >
-                Get Virtual Card
+                {t("dashboard.getVirtualCard")}
               </button>
             </div>
           </div>

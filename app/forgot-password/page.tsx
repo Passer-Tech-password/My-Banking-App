@@ -7,9 +7,11 @@ import { auth } from "@/lib/firebase";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { useToast } from "@/components/ToastProvider";
+import { useTranslation } from "@/lib/i18n/useTranslation";
 
 export default function ForgotPasswordPage() {
   const toast = useToast();
+  const { t } = useTranslation();
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -21,11 +23,11 @@ export default function ForgotPasswordPage() {
     try {
       setLoading(true);
       await sendPasswordResetEmail(auth, normalizedEmail);
-      toast.success("Password reset email sent. Check your inbox.");
+      toast.success(t("forgot.success"));
       setEmail("");
     } catch (error: any) {
       console.error(error);
-      toast.error("Failed to send reset email. Please try again.");
+      toast.error(t("forgot.failed"));
     } finally {
       setLoading(false);
     }
@@ -36,14 +38,14 @@ export default function ForgotPasswordPage() {
       <Navbar />
       <div className="min-h-screen bg-gray-50 flex items-center justify-center px-6 py-12">
         <div className="w-full max-w-md bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-          <h1 className="text-2xl font-bold text-gray-900 mb-2">Reset password</h1>
+          <h1 className="text-2xl font-bold text-gray-900 mb-2">{t("forgot.title")}</h1>
           <p className="text-sm text-gray-600 mb-6">
-            Enter your email address and we’ll send you a link to reset your password.
+            {t("forgot.subtitle")}
           </p>
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="text-sm font-medium text-gray-700">Email Address</label>
+              <label className="text-sm font-medium text-gray-700">{t("forgot.email")}</label>
               <input
                 type="email"
                 value={email}
@@ -51,7 +53,7 @@ export default function ForgotPasswordPage() {
                 autoComplete="email"
                 required
                 className="mt-1 w-full px-4 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:outline-none"
-                placeholder="you@example.com"
+                placeholder={t("forgot.emailPlaceholder")}
               />
             </div>
 
@@ -60,16 +62,16 @@ export default function ForgotPasswordPage() {
               disabled={loading}
               className="w-full bg-blue-700 text-white py-2 rounded font-medium hover:bg-blue-800 transition-colors disabled:opacity-70"
             >
-              {loading ? "Sending..." : "Send reset email"}
+              {loading ? t("forgot.submitting") : t("forgot.submit")}
             </button>
           </form>
 
           <div className="mt-6 text-sm text-gray-600 flex items-center justify-between">
             <Link href="/login" className="text-blue-700 hover:underline">
-              Back to login
+              {t("forgot.backToLogin")}
             </Link>
             <Link href="/register" className="text-blue-700 hover:underline">
-              Create account
+              {t("login.registerHere")}
             </Link>
           </div>
         </div>

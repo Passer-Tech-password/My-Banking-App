@@ -385,15 +385,15 @@ export async function POST(req: NextRequest) {
       ok: true as const,
       transferId: txId,
       amount,
-      amountFormatted: `$${amount.toLocaleString("en-US", {
-        minimumFractionDigits: 2,
+      amountFormatted: `USD ${amount.toLocaleString("en-US", {
+        minimumFractionDigits: 0,
         maximumFractionDigits: 2,
       })}`,
       recipientAccountNumber,
       recipientName,
       balance: Math.round(updatedBalance * 100) / 100,
-      balanceFormatted: `$${updatedBalance.toLocaleString("en-US", {
-        minimumFractionDigits: 2,
+      balanceFormatted: `USD ${updatedBalance.toLocaleString("en-US", {
+        minimumFractionDigits: 0,
         maximumFractionDigits: 2,
       })}`,
       reference: referenceNote || null,

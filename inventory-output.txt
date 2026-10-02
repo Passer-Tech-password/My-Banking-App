@@ -1,0 +1,4640 @@
+﻿
+============================================================
+  FINAL INVENTORY: 31 FILES SCANNED (STRICT LIST)
+============================================================
+
+--- TOTAL COUNTS ---
+  Total entries (file + literal pairs) : 581
+  Unique de-duplicated literals       : 521
+  Unique de-duplicated suggested keys : 574
+
+--- FILE-BY-FILE BREAKDOWN ---
+    25  app/admin/dashboard/page.tsx
+    19  app/admin/login/page.tsx
+     3  app/admin/requests/page.tsx
+     3  app/admin/transactions/page.tsx
+    99  app/admin/users/[uid]/page.tsx
+    19  app/admin/users/page.tsx
+    18  app/apply-card/page.tsx
+     1  app/blocked/page.tsx
+    27  app/dashboard/cards/page.tsx
+    13  app/dashboard/contacts/page.tsx
+   110  app/dashboard/page.tsx
+    11  app/dashboard/profile/page.tsx
+    11  app/dashboard/requests/page.tsx
+    14  app/dashboard/settings/page.tsx
+     9  app/dashboard/transactions/page.tsx
+    41  app/dashboard/transfer/page.tsx
+     6  app/forgot-password/page.tsx
+    22  app/login/page.tsx
+    22  app/register/page.tsx
+     4  app/track-card/page.tsx
+    12  app/verify-email/VerifyEmailClient.tsx
+     6  components/AdminHeader.tsx
+     1  components/AdminSidebar.tsx
+    60  components/CreateUserModal.tsx
+     3  components/DashboardHeader.tsx
+     3  components/DashboardSidebar.tsx
+    10  components/FundUserModal.tsx
+     9  components/UserTable.tsx
+
+
+============================================================
+  (1) FLAT JSON ARRAY OF { file, literal, suggestedKey, section }
+============================================================
+[
+  {
+    "file": "app/login/page.tsx",
+    "literal": "Enter your Email Address",
+    "suggestedKey": "auth.login.placeholder.enter.your.email.address",
+    "section": "auth.login.placeholder"
+  },
+  {
+    "file": "app/login/page.tsx",
+    "literal": "Enter your password",
+    "suggestedKey": "auth.login.placeholder.enter.your.password",
+    "section": "auth.login.placeholder"
+  },
+  {
+    "file": "app/login/page.tsx",
+    "literal": "Aurora Bank logo",
+    "suggestedKey": "auth.login.alt.aurora.bank.logo",
+    "section": "auth.login.alt"
+  },
+  {
+    "file": "app/login/page.tsx",
+    "literal": "Admin Account Detected",
+    "suggestedKey": "auth.login.admin.account.detected",
+    "section": "auth.login"
+  },
+  {
+    "file": "app/login/page.tsx",
+    "literal": "Email Address",
+    "suggestedKey": "auth.login.email.address",
+    "section": "auth.login"
+  },
+  {
+    "file": "app/login/page.tsx",
+    "literal": "Protect your online banking.",
+    "suggestedKey": "auth.login.protect.your.online.banking",
+    "section": "auth.login"
+  },
+  {
+    "file": "app/login/page.tsx",
+    "literal": "Please verify your email to continue.",
+    "suggestedKey": "auth.login.toast.please.verify.your.email.to",
+    "section": "auth.login.toast"
+  },
+  {
+    "file": "app/login/page.tsx",
+    "literal": "Your account is restricted. Please contact support.",
+    "suggestedKey": "auth.login.toast.your.account.is.restricted.please",
+    "section": "auth.login.toast"
+  },
+  {
+    "file": "app/login/page.tsx",
+    "literal": "Signed in successfully",
+    "suggestedKey": "auth.login.toast.signed.in.successfully",
+    "section": "auth.login.toast"
+  },
+  {
+    "file": "app/login/page.tsx",
+    "literal": "Signed in, but failed to load your profile. Please try again.",
+    "suggestedKey": "auth.login.toast.signed.in.but.failed.to",
+    "section": "auth.login.toast"
+  },
+  {
+    "file": "app/login/page.tsx",
+    "literal": "This email address belongs to an Admin Portal account, not a regular user account. Please sign in via the Admin Portal at /admin/login.",
+    "suggestedKey": "auth.login.message.this.email.address.belongs.to",
+    "section": "auth.login.message"
+  },
+  {
+    "file": "app/login/page.tsx",
+    "literal": "Invalid credentials. Please try again.",
+    "suggestedKey": "auth.login.message.invalid.credentials.please.try.again",
+    "section": "auth.login.message"
+  },
+  {
+    "file": "app/login/page.tsx",
+    "literal": "Invalid email or password. Use",
+    "suggestedKey": "auth.login.message.invalid.email.or.password.use",
+    "section": "auth.login.message"
+  },
+  {
+    "file": "app/login/page.tsx",
+    "literal": "Invalid email or password.",
+    "suggestedKey": "auth.login.message.invalid.email.or.password",
+    "section": "auth.login.message"
+  },
+  {
+    "file": "app/login/page.tsx",
+    "literal": "No user found with this email. If you are an administrator, please use the Admin Portal login page at /admin/login.",
+    "suggestedKey": "auth.login.message.no.user.found.with.this",
+    "section": "auth.login.message"
+  },
+  {
+    "file": "app/login/page.tsx",
+    "literal": "Incorrect password.",
+    "suggestedKey": "auth.login.message.incorrect.password",
+    "section": "auth.login.message"
+  },
+  {
+    "file": "app/login/page.tsx",
+    "literal": "Too many failed attempts. Please try again later.",
+    "suggestedKey": "auth.login.message.too.many.failed.attempts.please",
+    "section": "auth.login.message"
+  },
+  {
+    "file": "app/login/page.tsx",
+    "literal": "Invalid email or password. Use 'Forgot password?' to reset.",
+    "suggestedKey": "auth.login.invalid.email.or.password.use",
+    "section": "auth.login"
+  },
+  {
+    "file": "app/login/page.tsx",
+    "literal": "Check your network connection, ensure browser extensions/ad blockers are not blocking",
+    "suggestedKey": "auth.login.check.your.network.connection.ensure",
+    "section": "auth.login"
+  },
+  {
+    "file": "app/login/page.tsx",
+    "literal": "and confirm the page protocol (HTTPS in production).",
+    "suggestedKey": "auth.login.and.confirm.the.page.protocol",
+    "section": "auth.login"
+  },
+  {
+    "file": "app/login/page.tsx",
+    "literal": "Signing in...",
+    "suggestedKey": "auth.login.signing.in",
+    "section": "auth.login"
+  },
+  {
+    "file": "app/login/page.tsx",
+    "literal": "Forgot password?",
+    "suggestedKey": "auth.login.forgot.password",
+    "section": "auth.login"
+  },
+  {
+    "file": "app/register/page.tsx",
+    "literal": "First Name",
+    "suggestedKey": "auth.register.placeholder.first.name",
+    "section": "auth.register.placeholder"
+  },
+  {
+    "file": "app/register/page.tsx",
+    "literal": "Middle Name",
+    "suggestedKey": "auth.register.placeholder.middle.name",
+    "section": "auth.register.placeholder"
+  },
+  {
+    "file": "app/register/page.tsx",
+    "literal": "Last Name",
+    "suggestedKey": "auth.register.placeholder.last.name",
+    "section": "auth.register.placeholder"
+  },
+  {
+    "file": "app/register/page.tsx",
+    "literal": "State / Region",
+    "suggestedKey": "auth.register.placeholder.state.region",
+    "section": "auth.register.placeholder"
+  },
+  {
+    "file": "app/register/page.tsx",
+    "literal": "Zip Code",
+    "suggestedKey": "auth.register.placeholder.zip.code",
+    "section": "auth.register.placeholder"
+  },
+  {
+    "file": "app/register/page.tsx",
+    "literal": "Mobile Number",
+    "suggestedKey": "auth.register.placeholder.mobile.number",
+    "section": "auth.register.placeholder"
+  },
+  {
+    "file": "app/register/page.tsx",
+    "literal": "Phone Number",
+    "suggestedKey": "auth.register.placeholder.phone.number",
+    "section": "auth.register.placeholder"
+  },
+  {
+    "file": "app/register/page.tsx",
+    "literal": "Email Address",
+    "suggestedKey": "auth.register.placeholder.email.address",
+    "section": "auth.register.placeholder"
+  },
+  {
+    "file": "app/register/page.tsx",
+    "literal": "SSN PIN",
+    "suggestedKey": "auth.register.placeholder.ssn.pin",
+    "section": "auth.register.placeholder"
+  },
+  {
+    "file": "app/register/page.tsx",
+    "literal": "Confirm Password",
+    "suggestedKey": "auth.register.placeholder.confirm.password",
+    "section": "auth.register.placeholder"
+  },
+  {
+    "file": "app/register/page.tsx",
+    "literal": "Personal Details",
+    "suggestedKey": "auth.register.personal.details",
+    "section": "auth.register"
+  },
+  {
+    "file": "app/register/page.tsx",
+    "literal": "Profile Photo",
+    "suggestedKey": "auth.register.profile.photo",
+    "section": "auth.register"
+  },
+  {
+    "file": "app/register/page.tsx",
+    "literal": "Banking Details",
+    "suggestedKey": "auth.register.banking.details",
+    "section": "auth.register"
+  },
+  {
+    "file": "app/register/page.tsx",
+    "literal": "Choose account type",
+    "suggestedKey": "auth.register.choose.account.type",
+    "section": "auth.register"
+  },
+  {
+    "file": "app/register/page.tsx",
+    "literal": "Choose account currency",
+    "suggestedKey": "auth.register.choose.account.currency",
+    "section": "auth.register"
+  },
+  {
+    "file": "app/register/page.tsx",
+    "literal": "Account created. Please verify your email to continue.",
+    "suggestedKey": "auth.register.toast.account.created.please.verify.your",
+    "section": "auth.register.toast"
+  },
+  {
+    "file": "app/register/page.tsx",
+    "literal": "Please fill in all required fields",
+    "suggestedKey": "auth.register.error.please.fill.in.all.required",
+    "section": "auth.register.error"
+  },
+  {
+    "file": "app/register/page.tsx",
+    "literal": "Passwords do not match",
+    "suggestedKey": "auth.register.error.passwords.do.not.match",
+    "section": "auth.register.error"
+  },
+  {
+    "file": "app/register/page.tsx",
+    "literal": "Error creating user:",
+    "suggestedKey": "auth.register.error.creating.user",
+    "section": "auth.register"
+  },
+  {
+    "file": "app/register/page.tsx",
+    "literal": "An error occurred",
+    "suggestedKey": "auth.register.an.error.occurred",
+    "section": "auth.register"
+  },
+  {
+    "file": "app/register/page.tsx",
+    "literal": "image/*",
+    "suggestedKey": "auth.register.image",
+    "section": "auth.register"
+  },
+  {
+    "file": "app/register/page.tsx",
+    "literal": "Submitting...",
+    "suggestedKey": "auth.register.submitting",
+    "section": "auth.register"
+  },
+  {
+    "file": "app/forgot-password/page.tsx",
+    "literal": "Reset password",
+    "suggestedKey": "auth.forgotPassword.reset.password",
+    "section": "auth.forgotPassword"
+  },
+  {
+    "file": "app/forgot-password/page.tsx",
+    "literal": "Email Address",
+    "suggestedKey": "auth.forgotPassword.email.address",
+    "section": "auth.forgotPassword"
+  },
+  {
+    "file": "app/forgot-password/page.tsx",
+    "literal": "Password reset email sent. Check your inbox.",
+    "suggestedKey": "auth.forgotPassword.toast.password.reset.email.sent.check",
+    "section": "auth.forgotPassword.toast"
+  },
+  {
+    "file": "app/forgot-password/page.tsx",
+    "literal": "Failed to send reset email. Please try again.",
+    "suggestedKey": "auth.forgotPassword.toast.failed.to.send.reset.email",
+    "section": "auth.forgotPassword.toast"
+  },
+  {
+    "file": "app/forgot-password/page.tsx",
+    "literal": "Sending...",
+    "suggestedKey": "auth.forgotPassword.sending",
+    "section": "auth.forgotPassword"
+  },
+  {
+    "file": "app/forgot-password/page.tsx",
+    "literal": "Send reset email",
+    "suggestedKey": "auth.forgotPassword.send.reset.email",
+    "section": "auth.forgotPassword"
+  },
+  {
+    "file": "app/verify-email/VerifyEmailClient.tsx",
+    "literal": "Verify your email",
+    "suggestedKey": "auth.verifyEmail.verify.your.email",
+    "section": "auth.verifyEmail"
+  },
+  {
+    "file": "app/verify-email/VerifyEmailClient.tsx",
+    "literal": "Verification email sent. Check your inbox.",
+    "suggestedKey": "auth.verifyEmail.toast.verification.email.sent.check.your",
+    "section": "auth.verifyEmail.toast"
+  },
+  {
+    "file": "app/verify-email/VerifyEmailClient.tsx",
+    "literal": "Too many requests. Please wait a few minutes and try again.",
+    "suggestedKey": "auth.verifyEmail.toast.too.many.requests.please.wait",
+    "section": "auth.verifyEmail.toast"
+  },
+  {
+    "file": "app/verify-email/VerifyEmailClient.tsx",
+    "literal": "Failed to send verification email.",
+    "suggestedKey": "auth.verifyEmail.toast.failed.to.send.verification.email",
+    "section": "auth.verifyEmail.toast"
+  },
+  {
+    "file": "app/verify-email/VerifyEmailClient.tsx",
+    "literal": "Email verified. Welcome!",
+    "suggestedKey": "auth.verifyEmail.toast.email.verified.welcome",
+    "section": "auth.verifyEmail.toast"
+  },
+  {
+    "file": "app/verify-email/VerifyEmailClient.tsx",
+    "literal": "Email not verified yet. Please check your inbox.",
+    "suggestedKey": "auth.verifyEmail.toast.email.not.verified.yet.please",
+    "section": "auth.verifyEmail.toast"
+  },
+  {
+    "file": "app/verify-email/VerifyEmailClient.tsx",
+    "literal": "Failed to check verification status.",
+    "suggestedKey": "auth.verifyEmail.toast.failed.to.check.verification.status",
+    "section": "auth.verifyEmail.toast"
+  },
+  {
+    "file": "app/verify-email/VerifyEmailClient.tsx",
+    "literal": "Failed to sign out.",
+    "suggestedKey": "auth.verifyEmail.toast.failed.to.sign.out",
+    "section": "auth.verifyEmail.toast"
+  },
+  {
+    "file": "app/verify-email/VerifyEmailClient.tsx",
+    "literal": "Sending...",
+    "suggestedKey": "auth.verifyEmail.sending",
+    "section": "auth.verifyEmail"
+  },
+  {
+    "file": "app/verify-email/VerifyEmailClient.tsx",
+    "literal": "Resend verification email",
+    "suggestedKey": "auth.verifyEmail.resend.verification.email",
+    "section": "auth.verifyEmail"
+  },
+  {
+    "file": "app/verify-email/VerifyEmailClient.tsx",
+    "literal": "Checking...",
+    "suggestedKey": "auth.verifyEmail.checking",
+    "section": "auth.verifyEmail"
+  },
+  {
+    "file": "app/verify-email/VerifyEmailClient.tsx",
+    "literal": "I verified, continue",
+    "suggestedKey": "auth.verifyEmail.i.verified.continue",
+    "section": "auth.verifyEmail"
+  },
+  {
+    "file": "app/blocked/page.tsx",
+    "literal": "Account restricted",
+    "suggestedKey": "auth.blocked.account.restricted",
+    "section": "auth.blocked"
+  },
+  {
+    "file": "app/apply-card/page.tsx",
+    "literal": "Apply for Virtual Card",
+    "suggestedKey": "card.apply.apply.for.virtual.card",
+    "section": "card.apply"
+  },
+  {
+    "file": "app/apply-card/page.tsx",
+    "literal": "Card Policy",
+    "suggestedKey": "card.apply.card.policy",
+    "section": "card.apply"
+  },
+  {
+    "file": "app/apply-card/page.tsx",
+    "literal": "Card access is reviewed and approved by an administrator.",
+    "suggestedKey": "card.apply.card.access.is.reviewed.and",
+    "section": "card.apply"
+  },
+  {
+    "file": "app/apply-card/page.tsx",
+    "literal": "Never share your card details or verification codes.",
+    "suggestedKey": "card.apply.never.share.your.card.details",
+    "section": "card.apply"
+  },
+  {
+    "file": "app/apply-card/page.tsx",
+    "literal": "Report suspicious activity immediately.",
+    "suggestedKey": "card.apply.report.suspicious.activity.immediately",
+    "section": "card.apply"
+  },
+  {
+    "file": "app/apply-card/page.tsx",
+    "literal": "Card Usage",
+    "suggestedKey": "card.apply.card.usage",
+    "section": "card.apply"
+  },
+  {
+    "file": "app/apply-card/page.tsx",
+    "literal": "Please sign in first.",
+    "suggestedKey": "card.apply.toast.please.sign.in.first",
+    "section": "card.apply.toast"
+  },
+  {
+    "file": "app/apply-card/page.tsx",
+    "literal": "You already have a pending request.",
+    "suggestedKey": "card.apply.toast.you.already.have.a.pending",
+    "section": "card.apply.toast"
+  },
+  {
+    "file": "app/apply-card/page.tsx",
+    "literal": "Your account has no email.",
+    "suggestedKey": "card.apply.toast.your.account.has.no.email",
+    "section": "card.apply.toast"
+  },
+  {
+    "file": "app/apply-card/page.tsx",
+    "literal": "Your request has been submitted.",
+    "suggestedKey": "card.apply.toast.your.request.has.been.submitted",
+    "section": "card.apply.toast"
+  },
+  {
+    "file": "app/apply-card/page.tsx",
+    "literal": "Submission failed. Please try again.",
+    "suggestedKey": "card.apply.toast.submission.failed.please.try.again",
+    "section": "card.apply.toast"
+  },
+  {
+    "file": "app/apply-card/page.tsx",
+    "literal": "Failed to check your card request status.",
+    "suggestedKey": "card.apply.message.failed.to.check.your.card",
+    "section": "card.apply.message"
+  },
+  {
+    "file": "app/apply-card/page.tsx",
+    "literal": "Failed to submit card request.",
+    "suggestedKey": "card.apply.message.failed.to.submit.card.request",
+    "section": "card.apply.message"
+  },
+  {
+    "file": "app/apply-card/page.tsx",
+    "literal": "Check existing card request failed:",
+    "suggestedKey": "card.apply.check.existing.card.request.failed",
+    "section": "card.apply"
+  },
+  {
+    "file": "app/apply-card/page.tsx",
+    "literal": "Submit card request failed:",
+    "suggestedKey": "card.apply.submit.card.request.failed",
+    "section": "card.apply"
+  },
+  {
+    "file": "app/apply-card/page.tsx",
+    "literal": "Awaiting approval",
+    "suggestedKey": "card.apply.awaiting.approval",
+    "section": "card.apply"
+  },
+  {
+    "file": "app/apply-card/page.tsx",
+    "literal": "Submitting...",
+    "suggestedKey": "card.apply.submitting",
+    "section": "card.apply"
+  },
+  {
+    "file": "app/apply-card/page.tsx",
+    "literal": "Submit Request",
+    "suggestedKey": "card.apply.submit.request",
+    "section": "card.apply"
+  },
+  {
+    "file": "app/track-card/page.tsx",
+    "literal": "Track Virtual Card",
+    "suggestedKey": "card.track.track.virtual.card",
+    "section": "card.track"
+  },
+  {
+    "file": "app/track-card/page.tsx",
+    "literal": "Check your virtual card request status.",
+    "suggestedKey": "card.track.check.your.virtual.card.request",
+    "section": "card.track"
+  },
+  {
+    "file": "app/track-card/page.tsx",
+    "literal": "Failed to load your card request status.",
+    "suggestedKey": "card.track.message.failed.to.load.your.card",
+    "section": "card.track.message"
+  },
+  {
+    "file": "app/track-card/page.tsx",
+    "literal": "Track card request failed:",
+    "suggestedKey": "card.track.track.card.request.failed",
+    "section": "card.track"
+  },
+  {
+    "file": "app/dashboard/page.tsx",
+    "literal": "Enter bank name",
+    "suggestedKey": "dashboard.home.placeholder.enter.bank.name",
+    "section": "dashboard.home.placeholder"
+  },
+  {
+    "file": "app/dashboard/page.tsx",
+    "literal": "Enter routine number",
+    "suggestedKey": "dashboard.home.placeholder.enter.routine.number",
+    "section": "dashboard.home.placeholder"
+  },
+  {
+    "file": "app/dashboard/page.tsx",
+    "literal": "Enter narration",
+    "suggestedKey": "dashboard.home.placeholder.enter.narration",
+    "section": "dashboard.home.placeholder"
+  },
+  {
+    "file": "app/dashboard/page.tsx",
+    "literal": "Reference number, etc.",
+    "suggestedKey": "dashboard.home.placeholder.reference.number.etc",
+    "section": "dashboard.home.placeholder"
+  },
+  {
+    "file": "app/dashboard/page.tsx",
+    "literal": "Account number, bank name, etc.",
+    "suggestedKey": "dashboard.home.placeholder.account.number.bank.name.etc",
+    "section": "dashboard.home.placeholder"
+  },
+  {
+    "file": "app/dashboard/page.tsx",
+    "literal": "Refresh card data",
+    "suggestedKey": "dashboard.home.title.refresh.card.data",
+    "section": "dashboard.home.title"
+  },
+  {
+    "file": "app/dashboard/page.tsx",
+    "literal": "Virtual Card Policy & Usage",
+    "suggestedKey": "dashboard.home.virtual.card.policy.usage",
+    "section": "dashboard.home"
+  },
+  {
+    "file": "app/dashboard/page.tsx",
+    "literal": "Never share card details or OTP codes.",
+    "suggestedKey": "dashboard.home.never.share.card.details.or",
+    "section": "dashboard.home"
+  },
+  {
+    "file": "app/dashboard/page.tsx",
+    "literal": "Report suspicious activity immediately.",
+    "suggestedKey": "dashboard.home.report.suspicious.activity.immediately",
+    "section": "dashboard.home"
+  },
+  {
+    "file": "app/dashboard/page.tsx",
+    "literal": "Total Balance",
+    "suggestedKey": "dashboard.home.total.balance",
+    "section": "dashboard.home"
+  },
+  {
+    "file": "app/dashboard/page.tsx",
+    "literal": "Monthly Budget",
+    "suggestedKey": "dashboard.home.monthly.budget",
+    "section": "dashboard.home"
+  },
+  {
+    "file": "app/dashboard/page.tsx",
+    "literal": "Make a Deposit",
+    "suggestedKey": "dashboard.home.make.a.deposit",
+    "section": "dashboard.home"
+  },
+  {
+    "file": "app/dashboard/page.tsx",
+    "literal": "Payment Method",
+    "suggestedKey": "dashboard.home.payment.method",
+    "section": "dashboard.home"
+  },
+  {
+    "file": "app/dashboard/page.tsx",
+    "literal": "Bank Transfer",
+    "suggestedKey": "dashboard.home.bank.transfer",
+    "section": "dashboard.home"
+  },
+  {
+    "file": "app/dashboard/page.tsx",
+    "literal": "Wire Transfer",
+    "suggestedKey": "dashboard.home.wire.transfer",
+    "section": "dashboard.home"
+  },
+  {
+    "file": "app/dashboard/page.tsx",
+    "literal": "Mobile Money",
+    "suggestedKey": "dashboard.home.mobile.money",
+    "section": "dashboard.home"
+  },
+  {
+    "file": "app/dashboard/page.tsx",
+    "literal": "Bank Name",
+    "suggestedKey": "dashboard.home.bank.name",
+    "section": "dashboard.home"
+  },
+  {
+    "file": "app/dashboard/page.tsx",
+    "literal": "Routine number",
+    "suggestedKey": "dashboard.home.routine.number",
+    "section": "dashboard.home"
+  },
+  {
+    "file": "app/dashboard/page.tsx",
+    "literal": "Notes (Optional)",
+    "suggestedKey": "dashboard.home.notes.optional",
+    "section": "dashboard.home"
+  },
+  {
+    "file": "app/dashboard/page.tsx",
+    "literal": "Submit Deposit",
+    "suggestedKey": "dashboard.home.submit.deposit",
+    "section": "dashboard.home"
+  },
+  {
+    "file": "app/dashboard/page.tsx",
+    "literal": "Withdraw Funds",
+    "suggestedKey": "dashboard.home.withdraw.funds",
+    "section": "dashboard.home"
+  },
+  {
+    "file": "app/dashboard/page.tsx",
+    "literal": "Withdrawal Method",
+    "suggestedKey": "dashboard.home.withdrawal.method",
+    "section": "dashboard.home"
+  },
+  {
+    "file": "app/dashboard/page.tsx",
+    "literal": "Account Details / Notes",
+    "suggestedKey": "dashboard.home.account.details.notes",
+    "section": "dashboard.home"
+  },
+  {
+    "file": "app/dashboard/page.tsx",
+    "literal": "Recent Transactions",
+    "suggestedKey": "dashboard.home.recent.transactions",
+    "section": "dashboard.home"
+  },
+  {
+    "file": "app/dashboard/page.tsx",
+    "literal": "My Cards",
+    "suggestedKey": "dashboard.home.my.cards",
+    "section": "dashboard.home"
+  },
+  {
+    "file": "app/dashboard/page.tsx",
+    "literal": "Card Number",
+    "suggestedKey": "dashboard.home.card.number",
+    "section": "dashboard.home"
+  },
+  {
+    "file": "app/dashboard/page.tsx",
+    "literal": "Card Holder",
+    "suggestedKey": "dashboard.home.card.holder",
+    "section": "dashboard.home"
+  },
+  {
+    "file": "app/dashboard/page.tsx",
+    "literal": "Card Status",
+    "suggestedKey": "dashboard.home.card.status",
+    "section": "dashboard.home"
+  },
+  {
+    "file": "app/dashboard/page.tsx",
+    "literal": "No activity yet.",
+    "suggestedKey": "dashboard.home.no.activity.yet",
+    "section": "dashboard.home"
+  },
+  {
+    "file": "app/dashboard/page.tsx",
+    "literal": "Quick Transfer",
+    "suggestedKey": "dashboard.home.quick.transfer",
+    "section": "dashboard.home"
+  },
+  {
+    "file": "app/dashboard/page.tsx",
+    "literal": "Recipient Email",
+    "suggestedKey": "dashboard.home.recipient.email",
+    "section": "dashboard.home"
+  },
+  {
+    "file": "app/dashboard/page.tsx",
+    "literal": "Missing Firestore index for transactions. Deploy Firestore indexes.",
+    "suggestedKey": "dashboard.home.toast.missing.firestore.index.for.transactions",
+    "section": "dashboard.home.toast"
+  },
+  {
+    "file": "app/dashboard/page.tsx",
+    "literal": "You must be signed in.",
+    "suggestedKey": "dashboard.home.toast.you.must.be.signed.in",
+    "section": "dashboard.home.toast"
+  },
+  {
+    "file": "app/dashboard/page.tsx",
+    "literal": "You already have a pending card request.",
+    "suggestedKey": "dashboard.home.toast.you.already.have.a.pending",
+    "section": "dashboard.home.toast"
+  },
+  {
+    "file": "app/dashboard/page.tsx",
+    "literal": "Your account has no email.",
+    "suggestedKey": "dashboard.home.toast.your.account.has.no.email",
+    "section": "dashboard.home.toast"
+  },
+  {
+    "file": "app/dashboard/page.tsx",
+    "literal": "Virtual card request submitted.",
+    "suggestedKey": "dashboard.home.toast.virtual.card.request.submitted",
+    "section": "dashboard.home.toast"
+  },
+  {
+    "file": "app/dashboard/page.tsx",
+    "literal": "Transaction failed:",
+    "suggestedKey": "dashboard.home.toast.transaction.failed",
+    "section": "dashboard.home.toast"
+  },
+  {
+    "file": "app/dashboard/page.tsx",
+    "literal": "User not found",
+    "suggestedKey": "dashboard.home.toast.user.not.found",
+    "section": "dashboard.home.toast"
+  },
+  {
+    "file": "app/dashboard/page.tsx",
+    "literal": "Cannot transfer to yourself",
+    "suggestedKey": "dashboard.home.toast.cannot.transfer.to.yourself",
+    "section": "dashboard.home.toast"
+  },
+  {
+    "file": "app/dashboard/page.tsx",
+    "literal": "Transfer successful!",
+    "suggestedKey": "dashboard.home.toast.transfer.successful",
+    "section": "dashboard.home.toast"
+  },
+  {
+    "file": "app/dashboard/page.tsx",
+    "literal": "Cards refreshed",
+    "suggestedKey": "dashboard.home.toast.cards.refreshed",
+    "section": "dashboard.home.toast"
+  },
+  {
+    "file": "app/dashboard/page.tsx",
+    "literal": "No cards found",
+    "suggestedKey": "dashboard.home.toast.no.cards.found",
+    "section": "dashboard.home.toast"
+  },
+  {
+    "file": "app/dashboard/page.tsx",
+    "literal": "Failed to refresh cards",
+    "suggestedKey": "dashboard.home.toast.failed.to.refresh.cards",
+    "section": "dashboard.home.toast"
+  },
+  {
+    "file": "app/dashboard/page.tsx",
+    "literal": "Enter a valid deposit amount",
+    "suggestedKey": "dashboard.home.toast.enter.a.valid.deposit.amount",
+    "section": "dashboard.home.toast"
+  },
+  {
+    "file": "app/dashboard/page.tsx",
+    "literal": "Your account is blocked. Please contact support.",
+    "suggestedKey": "dashboard.home.toast.your.account.is.blocked.please",
+    "section": "dashboard.home.toast"
+  },
+  {
+    "file": "app/dashboard/page.tsx",
+    "literal": "Your deposit has been successfully processed. Just wait for the admin approval.",
+    "suggestedKey": "dashboard.home.toast.your.deposit.has.been.successfully",
+    "section": "dashboard.home.toast"
+  },
+  {
+    "file": "app/dashboard/page.tsx",
+    "literal": "Deposit request failed",
+    "suggestedKey": "dashboard.home.toast.deposit.request.failed",
+    "section": "dashboard.home.toast"
+  },
+  {
+    "file": "app/dashboard/page.tsx",
+    "literal": "Enter a valid withdrawal amount",
+    "suggestedKey": "dashboard.home.toast.enter.a.valid.withdrawal.amount",
+    "section": "dashboard.home.toast"
+  },
+  {
+    "file": "app/dashboard/page.tsx",
+    "literal": "Your withdrawal has been successfully completed.",
+    "suggestedKey": "dashboard.home.toast.your.withdrawal.has.been.successfully",
+    "section": "dashboard.home.toast"
+  },
+  {
+    "file": "app/dashboard/page.tsx",
+    "literal": "No transactions to export",
+    "suggestedKey": "dashboard.home.toast.no.transactions.to.export",
+    "section": "dashboard.home.toast"
+  },
+  {
+    "file": "app/dashboard/page.tsx",
+    "literal": "User does not exist!",
+    "suggestedKey": "dashboard.home.error.user.does.not.exist",
+    "section": "dashboard.home.error"
+  },
+  {
+    "file": "app/dashboard/page.tsx",
+    "literal": "Insufficient funds for atomic transaction",
+    "suggestedKey": "dashboard.home.error.insufficient.funds.for.atomic.transaction",
+    "section": "dashboard.home.error"
+  },
+  {
+    "file": "app/dashboard/page.tsx",
+    "literal": "Invalid amount",
+    "suggestedKey": "dashboard.home.error.invalid.amount",
+    "section": "dashboard.home.error"
+  },
+  {
+    "file": "app/dashboard/page.tsx",
+    "literal": "Insufficient funds",
+    "suggestedKey": "dashboard.home.error.insufficient.funds",
+    "section": "dashboard.home.error"
+  },
+  {
+    "file": "app/dashboard/page.tsx",
+    "literal": "User error",
+    "suggestedKey": "dashboard.home.error.user.error",
+    "section": "dashboard.home.error"
+  },
+  {
+    "file": "app/dashboard/page.tsx",
+    "literal": "Failed to send email:",
+    "suggestedKey": "dashboard.home.failed.to.send.email",
+    "section": "dashboard.home"
+  },
+  {
+    "file": "app/dashboard/page.tsx",
+    "literal": "Good morning",
+    "suggestedKey": "dashboard.home.good.morning",
+    "section": "dashboard.home"
+  },
+  {
+    "file": "app/dashboard/page.tsx",
+    "literal": "Good afternoon",
+    "suggestedKey": "dashboard.home.good.afternoon",
+    "section": "dashboard.home"
+  },
+  {
+    "file": "app/dashboard/page.tsx",
+    "literal": "Good evening",
+    "suggestedKey": "dashboard.home.good.evening",
+    "section": "dashboard.home"
+  },
+  {
+    "file": "app/dashboard/page.tsx",
+    "literal": "Failed to backfill photoURL:",
+    "suggestedKey": "dashboard.home.failed.to.backfill.photourl",
+    "section": "dashboard.home"
+  },
+  {
+    "file": "app/dashboard/page.tsx",
+    "literal": "User profile stream error:",
+    "suggestedKey": "dashboard.home.user.profile.stream.error",
+    "section": "dashboard.home"
+  },
+  {
+    "file": "app/dashboard/page.tsx",
+    "literal": "Card requests update, empty:",
+    "suggestedKey": "dashboard.home.card.requests.update.empty",
+    "section": "dashboard.home"
+  },
+  {
+    "file": "app/dashboard/page.tsx",
+    "literal": "count:",
+    "suggestedKey": "dashboard.home.count",
+    "section": "dashboard.home"
+  },
+  {
+    "file": "app/dashboard/page.tsx",
+    "literal": "Card request data:",
+    "suggestedKey": "dashboard.home.card.request.data",
+    "section": "dashboard.home"
+  },
+  {
+    "file": "app/dashboard/page.tsx",
+    "literal": "Cards stream already active, skipping setup",
+    "suggestedKey": "dashboard.home.cards.stream.already.active.skipping",
+    "section": "dashboard.home"
+  },
+  {
+    "file": "app/dashboard/page.tsx",
+    "literal": "Starting cards stream for path:",
+    "suggestedKey": "dashboard.home.starting.cards.stream.for.path",
+    "section": "dashboard.home"
+  },
+  {
+    "file": "app/dashboard/page.tsx",
+    "literal": "Cards stream update, count:",
+    "suggestedKey": "dashboard.home.cards.stream.update.count",
+    "section": "dashboard.home"
+  },
+  {
+    "file": "app/dashboard/page.tsx",
+    "literal": "path:",
+    "suggestedKey": "dashboard.home.path",
+    "section": "dashboard.home"
+  },
+  {
+    "file": "app/dashboard/page.tsx",
+    "literal": "Cards stream is empty for user:",
+    "suggestedKey": "dashboard.home.cards.stream.is.empty.for",
+    "section": "dashboard.home"
+  },
+  {
+    "file": "app/dashboard/page.tsx",
+    "literal": "Setting main card:",
+    "suggestedKey": "dashboard.home.setting.main.card",
+    "section": "dashboard.home"
+  },
+  {
+    "file": "app/dashboard/page.tsx",
+    "literal": "Number:",
+    "suggestedKey": "dashboard.home.number",
+    "section": "dashboard.home"
+  },
+  {
+    "file": "app/dashboard/page.tsx",
+    "literal": "Cards stream error for path:",
+    "suggestedKey": "dashboard.home.cards.stream.error.for.path",
+    "section": "dashboard.home"
+  },
+  {
+    "file": "app/dashboard/page.tsx",
+    "literal": "Error code:",
+    "suggestedKey": "dashboard.home.error.code",
+    "section": "dashboard.home"
+  },
+  {
+    "file": "app/dashboard/page.tsx",
+    "literal": "Message:",
+    "suggestedKey": "dashboard.home.message",
+    "section": "dashboard.home"
+  },
+  {
+    "file": "app/dashboard/page.tsx",
+    "literal": "cardRequests stream error details:",
+    "suggestedKey": "dashboard.home.cardrequests.stream.error.details",
+    "section": "dashboard.home"
+  },
+  {
+    "file": "app/dashboard/page.tsx",
+    "literal": "Failed to load card request status.",
+    "suggestedKey": "dashboard.home.failed.to.load.card.request",
+    "section": "dashboard.home"
+  },
+  {
+    "file": "app/dashboard/page.tsx",
+    "literal": "publicUsers sync failed:",
+    "suggestedKey": "dashboard.home.publicusers.sync.failed",
+    "section": "dashboard.home"
+  },
+  {
+    "file": "app/dashboard/page.tsx",
+    "literal": "Contacts stream error:",
+    "suggestedKey": "dashboard.home.contacts.stream.error",
+    "section": "dashboard.home"
+  },
+  {
+    "file": "app/dashboard/page.tsx",
+    "literal": "Dashboard transactions stream error:",
+    "suggestedKey": "dashboard.home.dashboard.transactions.stream.error",
+    "section": "dashboard.home"
+  },
+  {
+    "file": "app/dashboard/page.tsx",
+    "literal": "requires an index",
+    "suggestedKey": "dashboard.home.requires.an.index",
+    "section": "dashboard.home"
+  },
+  {
+    "file": "app/dashboard/page.tsx",
+    "literal": "Dashboard transactions fallback stream error:",
+    "suggestedKey": "dashboard.home.dashboard.transactions.fallback.stream.error",
+    "section": "dashboard.home"
+  },
+  {
+    "file": "app/dashboard/page.tsx",
+    "literal": "Dashboard error:",
+    "suggestedKey": "dashboard.home.dashboard.error",
+    "section": "dashboard.home"
+  },
+  {
+    "file": "app/dashboard/page.tsx",
+    "literal": "Create card request failed:",
+    "suggestedKey": "dashboard.home.create.card.request.failed",
+    "section": "dashboard.home"
+  },
+  {
+    "file": "app/dashboard/page.tsx",
+    "literal": "Failed to submit card request.",
+    "suggestedKey": "dashboard.home.failed.to.submit.card.request",
+    "section": "dashboard.home"
+  },
+  {
+    "file": "app/dashboard/page.tsx",
+    "literal": "Unknown error",
+    "suggestedKey": "dashboard.home.unknown.error",
+    "section": "dashboard.home"
+  },
+  {
+    "file": "app/dashboard/page.tsx",
+    "literal": "transfer (outgoing)",
+    "suggestedKey": "dashboard.home.transfer.outgoing",
+    "section": "dashboard.home"
+  },
+  {
+    "file": "app/dashboard/page.tsx",
+    "literal": "Contact upsert failed:",
+    "suggestedKey": "dashboard.home.contact.upsert.failed",
+    "section": "dashboard.home"
+  },
+  {
+    "file": "app/dashboard/page.tsx",
+    "literal": "Transfer error:",
+    "suggestedKey": "dashboard.home.transfer.error",
+    "section": "dashboard.home"
+  },
+  {
+    "file": "app/dashboard/page.tsx",
+    "literal": "Transfer failed",
+    "suggestedKey": "dashboard.home.transfer.failed",
+    "section": "dashboard.home"
+  },
+  {
+    "file": "app/dashboard/page.tsx",
+    "literal": "Manual cards refresh error:",
+    "suggestedKey": "dashboard.home.manual.cards.refresh.error",
+    "section": "dashboard.home"
+  },
+  {
+    "file": "app/dashboard/page.tsx",
+    "literal": "Deposit request failed:",
+    "suggestedKey": "dashboard.home.deposit.request.failed",
+    "section": "dashboard.home"
+  },
+  {
+    "file": "app/dashboard/page.tsx",
+    "literal": "Withdrawal completed",
+    "suggestedKey": "dashboard.home.withdrawal.completed",
+    "section": "dashboard.home"
+  },
+  {
+    "file": "app/dashboard/page.tsx",
+    "literal": "Withdrawal request failed:",
+    "suggestedKey": "dashboard.home.withdrawal.request.failed",
+    "section": "dashboard.home"
+  },
+  {
+    "file": "app/dashboard/page.tsx",
+    "literal": "Withdrawal request failed",
+    "suggestedKey": "dashboard.home.withdrawal.request.failed",
+    "section": "dashboard.home"
+  },
+  {
+    "file": "app/dashboard/page.tsx",
+    "literal": "data:text/csv;charset=utf-8,",
+    "suggestedKey": "dashboard.home.data.text.csv.charset.utf",
+    "section": "dashboard.home"
+  },
+  {
+    "file": "app/dashboard/page.tsx",
+    "literal": "Welcome back",
+    "suggestedKey": "dashboard.home.welcome.back",
+    "section": "dashboard.home"
+  },
+  {
+    "file": "app/dashboard/page.tsx",
+    "literal": "Manage Virtual Card",
+    "suggestedKey": "dashboard.home.manage.virtual.card",
+    "section": "dashboard.home"
+  },
+  {
+    "file": "app/dashboard/page.tsx",
+    "literal": "Track Virtual Card",
+    "suggestedKey": "dashboard.home.track.virtual.card",
+    "section": "dashboard.home"
+  },
+  {
+    "file": "app/dashboard/page.tsx",
+    "literal": "Get Virtual Card",
+    "suggestedKey": "dashboard.home.get.virtual.card",
+    "section": "dashboard.home"
+  },
+  {
+    "file": "app/dashboard/page.tsx",
+    "literal": "Processing...",
+    "suggestedKey": "dashboard.home.processing",
+    "section": "dashboard.home"
+  },
+  {
+    "file": "app/dashboard/page.tsx",
+    "literal": "Submit Withdrawal",
+    "suggestedKey": "dashboard.home.submit.withdrawal",
+    "section": "dashboard.home"
+  },
+  {
+    "file": "app/dashboard/page.tsx",
+    "literal": "Your request is under review.",
+    "suggestedKey": "dashboard.home.your.request.is.under.review",
+    "section": "dashboard.home"
+  },
+  {
+    "file": "app/dashboard/page.tsx",
+    "literal": "Your request was rejected.",
+    "suggestedKey": "dashboard.home.your.request.was.rejected",
+    "section": "dashboard.home"
+  },
+  {
+    "file": "app/dashboard/page.tsx",
+    "literal": "Your virtual card is being provisioned.",
+    "suggestedKey": "dashboard.home.your.virtual.card.is.being",
+    "section": "dashboard.home"
+  },
+  {
+    "file": "app/dashboard/page.tsx",
+    "literal": "Apply for a virtual card to access My Cards.",
+    "suggestedKey": "dashboard.home.apply.for.a.virtual.card",
+    "section": "dashboard.home"
+  },
+  {
+    "file": "app/dashboard/page.tsx",
+    "literal": "Apply for Card",
+    "suggestedKey": "dashboard.home.apply.for.card",
+    "section": "dashboard.home"
+  },
+  {
+    "file": "app/dashboard/page.tsx",
+    "literal": "Track Request",
+    "suggestedKey": "dashboard.home.track.request",
+    "section": "dashboard.home"
+  },
+  {
+    "file": "app/dashboard/page.tsx",
+    "literal": "Sending...",
+    "suggestedKey": "dashboard.home.sending",
+    "section": "dashboard.home"
+  },
+  {
+    "file": "app/dashboard/page.tsx",
+    "literal": "Send Money",
+    "suggestedKey": "dashboard.home.send.money",
+    "section": "dashboard.home"
+  },
+  {
+    "file": "app/dashboard/page.tsx",
+    "literal": "linear-gradient(to bottom left, black, transparent)",
+    "suggestedKey": "dashboard.home.linear.gradient.to.bottom.left",
+    "section": "dashboard.home"
+  },
+  {
+    "file": "app/dashboard/transfer/page.tsx",
+    "literal": "6-digit transfer code",
+    "suggestedKey": "dashboard.transfer.placeholder.6.digit.transfer.code",
+    "section": "dashboard.transfer.placeholder"
+  },
+  {
+    "file": "app/dashboard/transfer/page.tsx",
+    "literal": "e.g. Rent, Invoice #123, Gift",
+    "suggestedKey": "dashboard.transfer.placeholder.e.g.rent.invoice.123",
+    "section": "dashboard.transfer.placeholder"
+  },
+  {
+    "file": "app/dashboard/transfer/page.tsx",
+    "literal": "Send Funds",
+    "suggestedKey": "dashboard.transfer.send.funds",
+    "section": "dashboard.transfer"
+  },
+  {
+    "file": "app/dashboard/transfer/page.tsx",
+    "literal": "Recipient account could not be verified.",
+    "suggestedKey": "dashboard.transfer.recipient.account.could.not.be",
+    "section": "dashboard.transfer"
+  },
+  {
+    "file": "app/dashboard/transfer/page.tsx",
+    "literal": "Account Number",
+    "suggestedKey": "dashboard.transfer.account.number",
+    "section": "dashboard.transfer"
+  },
+  {
+    "file": "app/dashboard/transfer/page.tsx",
+    "literal": "Available Balance",
+    "suggestedKey": "dashboard.transfer.available.balance",
+    "section": "dashboard.transfer"
+  },
+  {
+    "file": "app/dashboard/transfer/page.tsx",
+    "literal": "Your 6-digit PIN and 6-digit Transfer Code are always required.",
+    "suggestedKey": "dashboard.transfer.your.6.digit.pin.and",
+    "section": "dashboard.transfer"
+  },
+  {
+    "file": "app/dashboard/transfer/page.tsx",
+    "literal": "Ensure the recipient account number is correct before submitting.",
+    "suggestedKey": "dashboard.transfer.ensure.the.recipient.account.number",
+    "section": "dashboard.transfer"
+  },
+  {
+    "file": "app/dashboard/transfer/page.tsx",
+    "literal": "Transfers are processed immediately and cannot be reversed.",
+    "suggestedKey": "dashboard.transfer.transfers.are.processed.immediately.and",
+    "section": "dashboard.transfer"
+  },
+  {
+    "file": "app/dashboard/transfer/page.tsx",
+    "literal": "Session expired.",
+    "suggestedKey": "dashboard.transfer.toast.session.expired",
+    "section": "dashboard.transfer.toast"
+  },
+  {
+    "file": "app/dashboard/transfer/page.tsx",
+    "literal": "Transfer completed successfully.",
+    "suggestedKey": "dashboard.transfer.toast.transfer.completed.successfully",
+    "section": "dashboard.transfer.toast"
+  },
+  {
+    "file": "app/dashboard/transfer/page.tsx",
+    "literal": "Network error. Please try again.",
+    "suggestedKey": "dashboard.transfer.toast.network.error.please.try.again",
+    "section": "dashboard.transfer.toast"
+  },
+  {
+    "file": "app/dashboard/transfer/page.tsx",
+    "literal": "Recipient account number is required.",
+    "suggestedKey": "dashboard.transfer.recipient.account.number.is.required",
+    "section": "dashboard.transfer"
+  },
+  {
+    "file": "app/dashboard/transfer/page.tsx",
+    "literal": "Recipient account number must be exactly 10 digits.",
+    "suggestedKey": "dashboard.transfer.recipient.account.number.must.be",
+    "section": "dashboard.transfer"
+  },
+  {
+    "file": "app/dashboard/transfer/page.tsx",
+    "literal": "Amount is required.",
+    "suggestedKey": "dashboard.transfer.amount.is.required",
+    "section": "dashboard.transfer"
+  },
+  {
+    "file": "app/dashboard/transfer/page.tsx",
+    "literal": "Amount must be a number.",
+    "suggestedKey": "dashboard.transfer.amount.must.be.a.number",
+    "section": "dashboard.transfer"
+  },
+  {
+    "file": "app/dashboard/transfer/page.tsx",
+    "literal": "Amount must be greater than zero.",
+    "suggestedKey": "dashboard.transfer.amount.must.be.greater.than",
+    "section": "dashboard.transfer"
+  },
+  {
+    "file": "app/dashboard/transfer/page.tsx",
+    "literal": "Amount exceeds your available balance.",
+    "suggestedKey": "dashboard.transfer.amount.exceeds.your.available.balance",
+    "section": "dashboard.transfer"
+  },
+  {
+    "file": "app/dashboard/transfer/page.tsx",
+    "literal": "PIN is required.",
+    "suggestedKey": "dashboard.transfer.pin.is.required",
+    "section": "dashboard.transfer"
+  },
+  {
+    "file": "app/dashboard/transfer/page.tsx",
+    "literal": "PIN must be exactly 6 digits.",
+    "suggestedKey": "dashboard.transfer.pin.must.be.exactly.6",
+    "section": "dashboard.transfer"
+  },
+  {
+    "file": "app/dashboard/transfer/page.tsx",
+    "literal": "Transfer code is required.",
+    "suggestedKey": "dashboard.transfer.transfer.code.is.required",
+    "section": "dashboard.transfer"
+  },
+  {
+    "file": "app/dashboard/transfer/page.tsx",
+    "literal": "Transfer code must be exactly 6 digits.",
+    "suggestedKey": "dashboard.transfer.transfer.code.must.be.exactly",
+    "section": "dashboard.transfer"
+  },
+  {
+    "file": "app/dashboard/transfer/page.tsx",
+    "literal": "Your user profile has not been provisioned yet. Please refresh or contact support.",
+    "suggestedKey": "dashboard.transfer.your.user.profile.has.not",
+    "section": "dashboard.transfer"
+  },
+  {
+    "file": "app/dashboard/transfer/page.tsx",
+    "literal": "Fund transfers are available only for accounts created through the Admin Portal with a registered account number, PIN, and transfer code. Self-registered accounts are not eligible for this feature.",
+    "suggestedKey": "dashboard.transfer.fund.transfers.are.available.only",
+    "section": "dashboard.transfer"
+  },
+  {
+    "file": "app/dashboard/transfer/page.tsx",
+    "literal": "Transfer page: profile stream error:",
+    "suggestedKey": "dashboard.transfer.transfer.page.profile.stream.error",
+    "section": "dashboard.transfer"
+  },
+  {
+    "file": "app/dashboard/transfer/page.tsx",
+    "literal": "Failed to load your account profile. Please refresh the page.",
+    "suggestedKey": "dashboard.transfer.failed.to.load.your.account",
+    "section": "dashboard.transfer"
+  },
+  {
+    "file": "app/dashboard/transfer/page.tsx",
+    "literal": "Unable to verify this account number.",
+    "suggestedKey": "dashboard.transfer.unable.to.verify.this.account",
+    "section": "dashboard.transfer"
+  },
+  {
+    "file": "app/dashboard/transfer/page.tsx",
+    "literal": "Transfer UI: account lookup error:",
+    "suggestedKey": "dashboard.transfer.transfer.ui.account.lookup.error",
+    "section": "dashboard.transfer"
+  },
+  {
+    "file": "app/dashboard/transfer/page.tsx",
+    "literal": "Network error while looking up account.",
+    "suggestedKey": "dashboard.transfer.network.error.while.looking.up",
+    "section": "dashboard.transfer"
+  },
+  {
+    "file": "app/dashboard/transfer/page.tsx",
+    "literal": "Not signed in.",
+    "suggestedKey": "dashboard.transfer.not.signed.in",
+    "section": "dashboard.transfer"
+  },
+  {
+    "file": "app/dashboard/transfer/page.tsx",
+    "literal": "Your account is not eligible for transfers. Contact the administrator.",
+    "suggestedKey": "dashboard.transfer.your.account.is.not.eligible",
+    "section": "dashboard.transfer"
+  },
+  {
+    "file": "app/dashboard/transfer/page.tsx",
+    "literal": "Please wait while we verify the recipient account.",
+    "suggestedKey": "dashboard.transfer.please.wait.while.we.verify",
+    "section": "dashboard.transfer"
+  },
+  {
+    "file": "app/dashboard/transfer/page.tsx",
+    "literal": "Please verify the account number.",
+    "suggestedKey": "dashboard.transfer.please.verify.the.account.number",
+    "section": "dashboard.transfer"
+  },
+  {
+    "file": "app/dashboard/transfer/page.tsx",
+    "literal": "Please verify the recipient account before submitting.",
+    "suggestedKey": "dashboard.transfer.please.verify.the.recipient.account",
+    "section": "dashboard.transfer"
+  },
+  {
+    "file": "app/dashboard/transfer/page.tsx",
+    "literal": "Please confirm that the displayed account name matches your intended recipient.",
+    "suggestedKey": "dashboard.transfer.please.confirm.that.the.displayed",
+    "section": "dashboard.transfer"
+  },
+  {
+    "file": "app/dashboard/transfer/page.tsx",
+    "literal": "Please correct the highlighted fields.",
+    "suggestedKey": "dashboard.transfer.please.correct.the.highlighted.fields",
+    "section": "dashboard.transfer"
+  },
+  {
+    "file": "app/dashboard/transfer/page.tsx",
+    "literal": "Transfer request was declined. Please try again.",
+    "suggestedKey": "dashboard.transfer.transfer.request.was.declined.please",
+    "section": "dashboard.transfer"
+  },
+  {
+    "file": "app/dashboard/transfer/page.tsx",
+    "literal": "Your session has expired. Please sign in again.",
+    "suggestedKey": "dashboard.transfer.your.session.has.expired.please",
+    "section": "dashboard.transfer"
+  },
+  {
+    "file": "app/dashboard/transfer/page.tsx",
+    "literal": "Transfer UI: submit error:",
+    "suggestedKey": "dashboard.transfer.transfer.ui.submit.error",
+    "section": "dashboard.transfer"
+  },
+  {
+    "file": "app/dashboard/transfer/page.tsx",
+    "literal": "A network error occurred while submitting the transfer. Please check your connection and try again.",
+    "suggestedKey": "dashboard.transfer.a.network.error.occurred.while",
+    "section": "dashboard.transfer"
+  },
+  {
+    "file": "app/dashboard/transfer/page.tsx",
+    "literal": "Please check the 10-digit account number.",
+    "suggestedKey": "dashboard.transfer.please.check.the.10.digit",
+    "section": "dashboard.transfer"
+  },
+  {
+    "file": "app/dashboard/transactions/page.tsx",
+    "literal": "View and filter your transaction history.",
+    "suggestedKey": "dashboard.transactions.view.and.filter.your.transaction",
+    "section": "dashboard.transactions"
+  },
+  {
+    "file": "app/dashboard/transactions/page.tsx",
+    "literal": "Loading transactions...",
+    "suggestedKey": "dashboard.transactions.loading.transactions",
+    "section": "dashboard.transactions"
+  },
+  {
+    "file": "app/dashboard/transactions/page.tsx",
+    "literal": "No transactions found.",
+    "suggestedKey": "dashboard.transactions.no.transactions.found",
+    "section": "dashboard.transactions"
+  },
+  {
+    "file": "app/dashboard/transactions/page.tsx",
+    "literal": "Export failed. Please try again.",
+    "suggestedKey": "dashboard.transactions.toast.export.failed.please.try.again",
+    "section": "dashboard.transactions.toast"
+  },
+  {
+    "file": "app/dashboard/transactions/page.tsx",
+    "literal": "Error fetching transactions:",
+    "suggestedKey": "dashboard.transactions.error.fetching.transactions",
+    "section": "dashboard.transactions"
+  },
+  {
+    "file": "app/dashboard/transactions/page.tsx",
+    "literal": "data:text/csv;charset=utf-8,",
+    "suggestedKey": "dashboard.transactions.data.text.csv.charset.utf",
+    "section": "dashboard.transactions"
+  },
+  {
+    "file": "app/dashboard/transactions/page.tsx",
+    "literal": "Export failed:",
+    "suggestedKey": "dashboard.transactions.export.failed",
+    "section": "dashboard.transactions"
+  },
+  {
+    "file": "app/dashboard/transactions/page.tsx",
+    "literal": "Exporting...",
+    "suggestedKey": "dashboard.transactions.exporting",
+    "section": "dashboard.transactions"
+  },
+  {
+    "file": "app/dashboard/transactions/page.tsx",
+    "literal": "Export CSV",
+    "suggestedKey": "dashboard.transactions.export.csv",
+    "section": "dashboard.transactions"
+  },
+  {
+    "file": "app/dashboard/profile/page.tsx",
+    "literal": "123 Main St, City, Country",
+    "suggestedKey": "dashboard.profile.placeholder.123.main.st.city.country",
+    "section": "dashboard.profile.placeholder"
+  },
+  {
+    "file": "app/dashboard/profile/page.tsx",
+    "literal": "My Profile",
+    "suggestedKey": "dashboard.profile.my.profile",
+    "section": "dashboard.profile"
+  },
+  {
+    "file": "app/dashboard/profile/page.tsx",
+    "literal": "Manage your personal information.",
+    "suggestedKey": "dashboard.profile.manage.your.personal.information",
+    "section": "dashboard.profile"
+  },
+  {
+    "file": "app/dashboard/profile/page.tsx",
+    "literal": "Display Name",
+    "suggestedKey": "dashboard.profile.display.name",
+    "section": "dashboard.profile"
+  },
+  {
+    "file": "app/dashboard/profile/page.tsx",
+    "literal": "Email Address",
+    "suggestedKey": "dashboard.profile.email.address",
+    "section": "dashboard.profile"
+  },
+  {
+    "file": "app/dashboard/profile/page.tsx",
+    "literal": "Phone Number",
+    "suggestedKey": "dashboard.profile.phone.number",
+    "section": "dashboard.profile"
+  },
+  {
+    "file": "app/dashboard/profile/page.tsx",
+    "literal": "Session expired. Please login again.",
+    "suggestedKey": "dashboard.profile.toast.session.expired.please.login.again",
+    "section": "dashboard.profile.toast"
+  },
+  {
+    "file": "app/dashboard/profile/page.tsx",
+    "literal": "Profile updated",
+    "suggestedKey": "dashboard.profile.toast.profile.updated",
+    "section": "dashboard.profile.toast"
+  },
+  {
+    "file": "app/dashboard/profile/page.tsx",
+    "literal": "Failed to update profile. Please try again.",
+    "suggestedKey": "dashboard.profile.failed.to.update.profile.please",
+    "section": "dashboard.profile"
+  },
+  {
+    "file": "app/dashboard/profile/page.tsx",
+    "literal": "Error updating profile:",
+    "suggestedKey": "dashboard.profile.error.updating.profile",
+    "section": "dashboard.profile"
+  },
+  {
+    "file": "app/dashboard/profile/page.tsx",
+    "literal": "Not set",
+    "suggestedKey": "dashboard.profile.not.set",
+    "section": "dashboard.profile"
+  },
+  {
+    "file": "app/dashboard/settings/page.tsx",
+    "literal": "Manage your account preferences and security.",
+    "suggestedKey": "dashboard.settings.manage.your.account.preferences.and",
+    "section": "dashboard.settings"
+  },
+  {
+    "file": "app/dashboard/settings/page.tsx",
+    "literal": "Push Notifications",
+    "suggestedKey": "dashboard.settings.push.notifications",
+    "section": "dashboard.settings"
+  },
+  {
+    "file": "app/dashboard/settings/page.tsx",
+    "literal": "Receive alerts on your device.",
+    "suggestedKey": "dashboard.settings.receive.alerts.on.your.device",
+    "section": "dashboard.settings"
+  },
+  {
+    "file": "app/dashboard/settings/page.tsx",
+    "literal": "Email Alerts",
+    "suggestedKey": "dashboard.settings.email.alerts",
+    "section": "dashboard.settings"
+  },
+  {
+    "file": "app/dashboard/settings/page.tsx",
+    "literal": "Receive transaction summaries via email.",
+    "suggestedKey": "dashboard.settings.receive.transaction.summaries.via.email",
+    "section": "dashboard.settings"
+  },
+  {
+    "file": "app/dashboard/settings/page.tsx",
+    "literal": "Add an extra layer of security to your account.",
+    "suggestedKey": "dashboard.settings.add.an.extra.layer.of",
+    "section": "dashboard.settings"
+  },
+  {
+    "file": "app/dashboard/settings/page.tsx",
+    "literal": "Dark Mode",
+    "suggestedKey": "dashboard.settings.dark.mode",
+    "section": "dashboard.settings"
+  },
+  {
+    "file": "app/dashboard/settings/page.tsx",
+    "literal": "Switch between light and dark themes.",
+    "suggestedKey": "dashboard.settings.switch.between.light.and.dark",
+    "section": "dashboard.settings"
+  },
+  {
+    "file": "app/dashboard/settings/page.tsx",
+    "literal": "Monthly Budget",
+    "suggestedKey": "dashboard.settings.monthly.budget",
+    "section": "dashboard.settings"
+  },
+  {
+    "file": "app/dashboard/settings/page.tsx",
+    "literal": "Amount (USD)",
+    "suggestedKey": "dashboard.settings.amount.usd",
+    "section": "dashboard.settings"
+  },
+  {
+    "file": "app/dashboard/settings/page.tsx",
+    "literal": "Used to compute budget progress on your dashboard.",
+    "suggestedKey": "dashboard.settings.used.to.compute.budget.progress",
+    "section": "dashboard.settings"
+  },
+  {
+    "file": "app/dashboard/settings/page.tsx",
+    "literal": "Transfer Limits",
+    "suggestedKey": "dashboard.settings.transfer.limits",
+    "section": "dashboard.settings"
+  },
+  {
+    "file": "app/dashboard/settings/page.tsx",
+    "literal": "Daily Transfer Limit (USD)",
+    "suggestedKey": "dashboard.settings.daily.transfer.limit.usd",
+    "section": "dashboard.settings"
+  },
+  {
+    "file": "app/dashboard/settings/page.tsx",
+    "literal": "Set to 0 to disable the limit.",
+    "suggestedKey": "dashboard.settings.set.to.0.to.disable",
+    "section": "dashboard.settings"
+  },
+  {
+    "file": "app/dashboard/cards/page.tsx",
+    "literal": "My Cards",
+    "suggestedKey": "dashboard.cards.my.cards",
+    "section": "dashboard.cards"
+  },
+  {
+    "file": "app/dashboard/cards/page.tsx",
+    "literal": "Manage your payment methods.",
+    "suggestedKey": "dashboard.cards.manage.your.payment.methods",
+    "section": "dashboard.cards"
+  },
+  {
+    "file": "app/dashboard/cards/page.tsx",
+    "literal": "Virtual card not available",
+    "suggestedKey": "dashboard.cards.virtual.card.not.available",
+    "section": "dashboard.cards"
+  },
+  {
+    "file": "app/dashboard/cards/page.tsx",
+    "literal": "Card Holder",
+    "suggestedKey": "dashboard.cards.card.holder",
+    "section": "dashboard.cards"
+  },
+  {
+    "file": "app/dashboard/cards/page.tsx",
+    "literal": "No cards added",
+    "suggestedKey": "dashboard.cards.no.cards.added",
+    "section": "dashboard.cards"
+  },
+  {
+    "file": "app/dashboard/cards/page.tsx",
+    "literal": "Cards refreshed",
+    "suggestedKey": "dashboard.cards.toast.cards.refreshed",
+    "section": "dashboard.cards.toast"
+  },
+  {
+    "file": "app/dashboard/cards/page.tsx",
+    "literal": "Failed to refresh cards",
+    "suggestedKey": "dashboard.cards.toast.failed.to.refresh.cards",
+    "section": "dashboard.cards.toast"
+  },
+  {
+    "file": "app/dashboard/cards/page.tsx",
+    "literal": "Card number copied",
+    "suggestedKey": "dashboard.cards.toast.card.number.copied",
+    "section": "dashboard.cards.toast"
+  },
+  {
+    "file": "app/dashboard/cards/page.tsx",
+    "literal": "Refresh error:",
+    "suggestedKey": "dashboard.cards.refresh.error",
+    "section": "dashboard.cards"
+  },
+  {
+    "file": "app/dashboard/cards/page.tsx",
+    "literal": "Card requests update in My Cards, size:",
+    "suggestedKey": "dashboard.cards.card.requests.update.in.my",
+    "section": "dashboard.cards"
+  },
+  {
+    "file": "app/dashboard/cards/page.tsx",
+    "literal": "Card request status in My Cards:",
+    "suggestedKey": "dashboard.cards.card.request.status.in.my",
+    "section": "dashboard.cards"
+  },
+  {
+    "file": "app/dashboard/cards/page.tsx",
+    "literal": "Cards stream already active in My Cards",
+    "suggestedKey": "dashboard.cards.cards.stream.already.active.in",
+    "section": "dashboard.cards"
+  },
+  {
+    "file": "app/dashboard/cards/page.tsx",
+    "literal": "Starting cards stream in My Cards for UID:",
+    "suggestedKey": "dashboard.cards.starting.cards.stream.in.my",
+    "section": "dashboard.cards"
+  },
+  {
+    "file": "app/dashboard/cards/page.tsx",
+    "literal": "Cards update in My Cards, size:",
+    "suggestedKey": "dashboard.cards.cards.update.in.my.cards",
+    "section": "dashboard.cards"
+  },
+  {
+    "file": "app/dashboard/cards/page.tsx",
+    "literal": "Cards stream error in My Cards - Code:",
+    "suggestedKey": "dashboard.cards.cards.stream.error.in.my",
+    "section": "dashboard.cards"
+  },
+  {
+    "file": "app/dashboard/cards/page.tsx",
+    "literal": "Message:",
+    "suggestedKey": "dashboard.cards.message",
+    "section": "dashboard.cards"
+  },
+  {
+    "file": "app/dashboard/cards/page.tsx",
+    "literal": "Path:",
+    "suggestedKey": "dashboard.cards.path",
+    "section": "dashboard.cards"
+  },
+  {
+    "file": "app/dashboard/cards/page.tsx",
+    "literal": "Card request status error in My Cards details:",
+    "suggestedKey": "dashboard.cards.card.request.status.error.in",
+    "section": "dashboard.cards"
+  },
+  {
+    "file": "app/dashboard/cards/page.tsx",
+    "literal": "Failed to load card request status:",
+    "suggestedKey": "dashboard.cards.failed.to.load.card.request",
+    "section": "dashboard.cards"
+  },
+  {
+    "file": "app/dashboard/cards/page.tsx",
+    "literal": "Refreshing...",
+    "suggestedKey": "dashboard.cards.refreshing",
+    "section": "dashboard.cards"
+  },
+  {
+    "file": "app/dashboard/cards/page.tsx",
+    "literal": "Manage Virtual Card",
+    "suggestedKey": "dashboard.cards.manage.virtual.card",
+    "section": "dashboard.cards"
+  },
+  {
+    "file": "app/dashboard/cards/page.tsx",
+    "literal": "Track Request",
+    "suggestedKey": "dashboard.cards.track.request",
+    "section": "dashboard.cards"
+  },
+  {
+    "file": "app/dashboard/cards/page.tsx",
+    "literal": "Get Virtual Card",
+    "suggestedKey": "dashboard.cards.get.virtual.card",
+    "section": "dashboard.cards"
+  },
+  {
+    "file": "app/dashboard/cards/page.tsx",
+    "literal": "Your request is under review.",
+    "suggestedKey": "dashboard.cards.your.request.is.under.review",
+    "section": "dashboard.cards"
+  },
+  {
+    "file": "app/dashboard/cards/page.tsx",
+    "literal": "Your request was rejected.",
+    "suggestedKey": "dashboard.cards.your.request.was.rejected",
+    "section": "dashboard.cards"
+  },
+  {
+    "file": "app/dashboard/cards/page.tsx",
+    "literal": "Apply for a virtual card to access My Cards.",
+    "suggestedKey": "dashboard.cards.apply.for.a.virtual.card",
+    "section": "dashboard.cards"
+  },
+  {
+    "file": "app/dashboard/cards/page.tsx",
+    "literal": "Apply for Virtual Card",
+    "suggestedKey": "dashboard.cards.apply.for.virtual.card",
+    "section": "dashboard.cards"
+  },
+  {
+    "file": "app/dashboard/contacts/page.tsx",
+    "literal": "Search contacts...",
+    "suggestedKey": "dashboard.contacts.placeholder.search.contacts",
+    "section": "dashboard.contacts.placeholder"
+  },
+  {
+    "file": "app/dashboard/contacts/page.tsx",
+    "literal": "Save recipients for faster transfers.",
+    "suggestedKey": "dashboard.contacts.save.recipients.for.faster.transfers",
+    "section": "dashboard.contacts"
+  },
+  {
+    "file": "app/dashboard/contacts/page.tsx",
+    "literal": "Loading...",
+    "suggestedKey": "dashboard.contacts.loading",
+    "section": "dashboard.contacts"
+  },
+  {
+    "file": "app/dashboard/contacts/page.tsx",
+    "literal": "Recipient Email",
+    "suggestedKey": "dashboard.contacts.recipient.email",
+    "section": "dashboard.contacts"
+  },
+  {
+    "file": "app/dashboard/contacts/page.tsx",
+    "literal": "Failed to load contacts",
+    "suggestedKey": "dashboard.contacts.toast.failed.to.load.contacts",
+    "section": "dashboard.contacts.toast"
+  },
+  {
+    "file": "app/dashboard/contacts/page.tsx",
+    "literal": "User not found",
+    "suggestedKey": "dashboard.contacts.toast.user.not.found",
+    "section": "dashboard.contacts.toast"
+  },
+  {
+    "file": "app/dashboard/contacts/page.tsx",
+    "literal": "Contact saved",
+    "suggestedKey": "dashboard.contacts.toast.contact.saved",
+    "section": "dashboard.contacts.toast"
+  },
+  {
+    "file": "app/dashboard/contacts/page.tsx",
+    "literal": "Failed to save contact",
+    "suggestedKey": "dashboard.contacts.toast.failed.to.save.contact",
+    "section": "dashboard.contacts.toast"
+  },
+  {
+    "file": "app/dashboard/contacts/page.tsx",
+    "literal": "Contact removed",
+    "suggestedKey": "dashboard.contacts.toast.contact.removed",
+    "section": "dashboard.contacts.toast"
+  },
+  {
+    "file": "app/dashboard/contacts/page.tsx",
+    "literal": "Failed to remove contact",
+    "suggestedKey": "dashboard.contacts.toast.failed.to.remove.contact",
+    "section": "dashboard.contacts.toast"
+  },
+  {
+    "file": "app/dashboard/contacts/page.tsx",
+    "literal": "Failed to load contacts:",
+    "suggestedKey": "dashboard.contacts.failed.to.load.contacts",
+    "section": "dashboard.contacts"
+  },
+  {
+    "file": "app/dashboard/contacts/page.tsx",
+    "literal": "Failed to save contact:",
+    "suggestedKey": "dashboard.contacts.failed.to.save.contact",
+    "section": "dashboard.contacts"
+  },
+  {
+    "file": "app/dashboard/contacts/page.tsx",
+    "literal": "Failed to remove contact:",
+    "suggestedKey": "dashboard.contacts.failed.to.remove.contact",
+    "section": "dashboard.contacts"
+  },
+  {
+    "file": "app/dashboard/requests/page.tsx",
+    "literal": "My Requests",
+    "suggestedKey": "dashboard.requests.my.requests",
+    "section": "dashboard.requests"
+  },
+  {
+    "file": "app/dashboard/requests/page.tsx",
+    "literal": "Track your deposit and withdrawal requests.",
+    "suggestedKey": "dashboard.requests.track.your.deposit.and.withdrawal",
+    "section": "dashboard.requests"
+  },
+  {
+    "file": "app/dashboard/requests/page.tsx",
+    "literal": "Loading requests...",
+    "suggestedKey": "dashboard.requests.loading.requests",
+    "section": "dashboard.requests"
+  },
+  {
+    "file": "app/dashboard/requests/page.tsx",
+    "literal": "No requests yet.",
+    "suggestedKey": "dashboard.requests.no.requests.yet",
+    "section": "dashboard.requests"
+  },
+  {
+    "file": "app/dashboard/requests/page.tsx",
+    "literal": "Bank:",
+    "suggestedKey": "dashboard.requests.bank",
+    "section": "dashboard.requests"
+  },
+  {
+    "file": "app/dashboard/requests/page.tsx",
+    "literal": "Routine #:",
+    "suggestedKey": "dashboard.requests.routine",
+    "section": "dashboard.requests"
+  },
+  {
+    "file": "app/dashboard/requests/page.tsx",
+    "literal": "Narration:",
+    "suggestedKey": "dashboard.requests.narration",
+    "section": "dashboard.requests"
+  },
+  {
+    "file": "app/dashboard/requests/page.tsx",
+    "literal": "Method:",
+    "suggestedKey": "dashboard.requests.method",
+    "section": "dashboard.requests"
+  },
+  {
+    "file": "app/dashboard/requests/page.tsx",
+    "literal": "Note:",
+    "suggestedKey": "dashboard.requests.note",
+    "section": "dashboard.requests"
+  },
+  {
+    "file": "app/dashboard/requests/page.tsx",
+    "literal": "Failed to load requests",
+    "suggestedKey": "dashboard.requests.message.failed.to.load.requests",
+    "section": "dashboard.requests.message"
+  },
+  {
+    "file": "app/dashboard/requests/page.tsx",
+    "literal": "Failed to load requests:",
+    "suggestedKey": "dashboard.requests.failed.to.load.requests",
+    "section": "dashboard.requests"
+  },
+  {
+    "file": "components/DashboardHeader.tsx",
+    "literal": "Failed to backfill photoURL:",
+    "suggestedKey": "dashboard.header.failed.to.backfill.photourl",
+    "section": "dashboard.header"
+  },
+  {
+    "file": "components/DashboardHeader.tsx",
+    "literal": "Firestore access error:",
+    "suggestedKey": "dashboard.header.firestore.access.error",
+    "section": "dashboard.header"
+  },
+  {
+    "file": "components/DashboardHeader.tsx",
+    "literal": "My Account",
+    "suggestedKey": "dashboard.header.my.account",
+    "section": "dashboard.header"
+  },
+  {
+    "file": "components/DashboardSidebar.tsx",
+    "literal": "Send Funds",
+    "suggestedKey": "dashboard.sidebar.send.funds",
+    "section": "dashboard.sidebar"
+  },
+  {
+    "file": "components/DashboardSidebar.tsx",
+    "literal": "My Cards",
+    "suggestedKey": "dashboard.sidebar.my.cards",
+    "section": "dashboard.sidebar"
+  },
+  {
+    "file": "components/DashboardSidebar.tsx",
+    "literal": "Logout failed",
+    "suggestedKey": "dashboard.sidebar.logout.failed",
+    "section": "dashboard.sidebar"
+  },
+  {
+    "file": "app/admin/login/page.tsx",
+    "literal": "Admin Portal",
+    "suggestedKey": "admin.login.admin.portal",
+    "section": "admin.login"
+  },
+  {
+    "file": "app/admin/login/page.tsx",
+    "literal": "Sign in to manage the banking system",
+    "suggestedKey": "admin.login.sign.in.to.manage.the",
+    "section": "admin.login"
+  },
+  {
+    "file": "app/admin/login/page.tsx",
+    "literal": "must redeploy",
+    "suggestedKey": "admin.login.must.redeploy",
+    "section": "admin.login"
+  },
+  {
+    "file": "app/admin/login/page.tsx",
+    "literal": "Server admin config OK.",
+    "suggestedKey": "admin.login.server.admin.config.ok",
+    "section": "admin.login"
+  },
+  {
+    "file": "app/admin/login/page.tsx",
+    "literal": "Password must contain:",
+    "suggestedKey": "admin.login.password.must.contain",
+    "section": "admin.login"
+  },
+  {
+    "file": "app/admin/login/page.tsx",
+    "literal": "Network error. Please check your connection and try again.",
+    "suggestedKey": "admin.login.message.network.error.please.check.your",
+    "section": "admin.login.message"
+  },
+  {
+    "file": "app/admin/login/page.tsx",
+    "literal": "Email is required",
+    "suggestedKey": "admin.login.email.is.required",
+    "section": "admin.login"
+  },
+  {
+    "file": "app/admin/login/page.tsx",
+    "literal": "Please enter a valid email address",
+    "suggestedKey": "admin.login.please.enter.a.valid.email",
+    "section": "admin.login"
+  },
+  {
+    "file": "app/admin/login/page.tsx",
+    "literal": "Password is required",
+    "suggestedKey": "admin.login.password.is.required",
+    "section": "admin.login"
+  },
+  {
+    "file": "app/admin/login/page.tsx",
+    "literal": "Password must be at least 8 characters",
+    "suggestedKey": "admin.login.password.must.be.at.least",
+    "section": "admin.login"
+  },
+  {
+    "file": "app/admin/login/page.tsx",
+    "literal": "Password must contain at least one uppercase letter",
+    "suggestedKey": "admin.login.password.must.contain.at.least",
+    "section": "admin.login"
+  },
+  {
+    "file": "app/admin/login/page.tsx",
+    "literal": "Password must contain at least one lowercase letter",
+    "suggestedKey": "admin.login.password.must.contain.at.least",
+    "section": "admin.login"
+  },
+  {
+    "file": "app/admin/login/page.tsx",
+    "literal": "Password must contain at least one number",
+    "suggestedKey": "admin.login.password.must.contain.at.least",
+    "section": "admin.login"
+  },
+  {
+    "file": "app/admin/login/page.tsx",
+    "literal": "[Admin Login] Health check fetch failed:",
+    "suggestedKey": "admin.login.admin.login.health.check.fetch",
+    "section": "admin.login"
+  },
+  {
+    "file": "app/admin/login/page.tsx",
+    "literal": "Too many attempts. Please try again later.",
+    "suggestedKey": "admin.login.too.many.attempts.please.try",
+    "section": "admin.login"
+  },
+  {
+    "file": "app/admin/login/page.tsx",
+    "literal": "[Admin Login] Server reports X-Admin-Config-Status=env-missing. The admin credentials in the running Node.js process are not loaded. Restart the server after verifying .env.local variables.",
+    "suggestedKey": "admin.login.admin.login.server.reports.x",
+    "section": "admin.login"
+  },
+  {
+    "file": "app/admin/login/page.tsx",
+    "literal": "Invalid email or password",
+    "suggestedKey": "admin.login.invalid.email.or.password",
+    "section": "admin.login"
+  },
+  {
+    "file": "app/admin/login/page.tsx",
+    "literal": "Login error:",
+    "suggestedKey": "admin.login.login.error",
+    "section": "admin.login"
+  },
+  {
+    "file": "app/admin/login/page.tsx",
+    "literal": "Sign In",
+    "suggestedKey": "admin.login.sign.in",
+    "section": "admin.login"
+  },
+  {
+    "file": "app/admin/dashboard/page.tsx",
+    "literal": "Welcome back,",
+    "suggestedKey": "admin.dashboard.welcome.back",
+    "section": "admin.dashboard"
+  },
+  {
+    "file": "app/admin/dashboard/page.tsx",
+    "literal": "Session Details",
+    "suggestedKey": "admin.dashboard.session.details",
+    "section": "admin.dashboard"
+  },
+  {
+    "file": "app/admin/dashboard/page.tsx",
+    "literal": "Admin Email",
+    "suggestedKey": "admin.dashboard.admin.email",
+    "section": "admin.dashboard"
+  },
+  {
+    "file": "app/admin/dashboard/page.tsx",
+    "literal": "Authenticated At",
+    "suggestedKey": "admin.dashboard.authenticated.at",
+    "section": "admin.dashboard"
+  },
+  {
+    "file": "app/admin/dashboard/page.tsx",
+    "literal": "Session Expires",
+    "suggestedKey": "admin.dashboard.session.expires",
+    "section": "admin.dashboard"
+  },
+  {
+    "file": "app/admin/dashboard/page.tsx",
+    "literal": "Cookie Flags",
+    "suggestedKey": "admin.dashboard.cookie.flags",
+    "section": "admin.dashboard"
+  },
+  {
+    "file": "app/admin/dashboard/page.tsx",
+    "literal": "Security Features",
+    "suggestedKey": "admin.dashboard.security.features",
+    "section": "admin.dashboard"
+  },
+  {
+    "file": "app/admin/dashboard/page.tsx",
+    "literal": "Session not authenticated",
+    "suggestedKey": "admin.dashboard.message.session.not.authenticated",
+    "section": "admin.dashboard.message"
+  },
+  {
+    "file": "app/admin/dashboard/page.tsx",
+    "literal": "Session verification failed",
+    "suggestedKey": "admin.dashboard.message.session.verification.failed",
+    "section": "admin.dashboard.message"
+  },
+  {
+    "file": "app/admin/dashboard/page.tsx",
+    "literal": "Failed to verify session",
+    "suggestedKey": "admin.dashboard.message.failed.to.verify.session",
+    "section": "admin.dashboard.message"
+  },
+  {
+    "file": "app/admin/dashboard/page.tsx",
+    "literal": "Logout failed:",
+    "suggestedKey": "admin.dashboard.logout.failed",
+    "section": "admin.dashboard"
+  },
+  {
+    "file": "app/admin/dashboard/page.tsx",
+    "literal": "Session API error:",
+    "suggestedKey": "admin.dashboard.session.api.error",
+    "section": "admin.dashboard"
+  },
+  {
+    "file": "app/admin/dashboard/page.tsx",
+    "literal": "Admin Role",
+    "suggestedKey": "admin.dashboard.admin.role",
+    "section": "admin.dashboard"
+  },
+  {
+    "file": "app/admin/dashboard/page.tsx",
+    "literal": "Super User",
+    "suggestedKey": "admin.dashboard.super.user",
+    "section": "admin.dashboard"
+  },
+  {
+    "file": "app/admin/dashboard/page.tsx",
+    "literal": "Session Duration",
+    "suggestedKey": "admin.dashboard.session.duration",
+    "section": "admin.dashboard"
+  },
+  {
+    "file": "app/admin/dashboard/page.tsx",
+    "literal": "Secure Channel",
+    "suggestedKey": "admin.dashboard.secure.channel",
+    "section": "admin.dashboard"
+  },
+  {
+    "file": "app/admin/dashboard/page.tsx",
+    "literal": "Rate limiting",
+    "suggestedKey": "admin.dashboard.rate.limiting",
+    "section": "admin.dashboard"
+  },
+  {
+    "file": "app/admin/dashboard/page.tsx",
+    "literal": "Prevents timing attacks",
+    "suggestedKey": "admin.dashboard.prevents.timing.attacks",
+    "section": "admin.dashboard"
+  },
+  {
+    "file": "app/admin/dashboard/page.tsx",
+    "literal": "HttpOnly cookie",
+    "suggestedKey": "admin.dashboard.httponly.cookie",
+    "section": "admin.dashboard"
+  },
+  {
+    "file": "app/admin/dashboard/page.tsx",
+    "literal": "Inaccessible to JavaScript",
+    "suggestedKey": "admin.dashboard.inaccessible.to.javascript",
+    "section": "admin.dashboard"
+  },
+  {
+    "file": "app/admin/dashboard/page.tsx",
+    "literal": "SameSite=Lax",
+    "suggestedKey": "admin.dashboard.samesite.lax",
+    "section": "admin.dashboard"
+  },
+  {
+    "file": "app/admin/dashboard/page.tsx",
+    "literal": "CSRF protection",
+    "suggestedKey": "admin.dashboard.csrf.protection",
+    "section": "admin.dashboard"
+  },
+  {
+    "file": "app/admin/dashboard/page.tsx",
+    "literal": "Tamper-proof session payloads",
+    "suggestedKey": "admin.dashboard.tamper.proof.session.payloads",
+    "section": "admin.dashboard"
+  },
+  {
+    "file": "app/admin/dashboard/page.tsx",
+    "literal": "Edge middleware",
+    "suggestedKey": "admin.dashboard.edge.middleware",
+    "section": "admin.dashboard"
+  },
+  {
+    "file": "app/admin/dashboard/page.tsx",
+    "literal": "Per-request auth enforcement",
+    "suggestedKey": "admin.dashboard.per.request.auth.enforcement",
+    "section": "admin.dashboard"
+  },
+  {
+    "file": "app/admin/users/page.tsx",
+    "literal": "Search users...",
+    "suggestedKey": "admin.users.placeholder.search.users",
+    "section": "admin.users.placeholder"
+  },
+  {
+    "file": "app/admin/users/page.tsx",
+    "literal": "Loading users...",
+    "suggestedKey": "admin.users.loading.users",
+    "section": "admin.users"
+  },
+  {
+    "file": "app/admin/users/page.tsx",
+    "literal": "Network error. Action not recorded.",
+    "suggestedKey": "admin.users.toast.network.error.action.not.recorded",
+    "section": "admin.users.toast"
+  },
+  {
+    "file": "app/admin/users/page.tsx",
+    "literal": "User account created successfully.",
+    "suggestedKey": "admin.users.toast.user.account.created.successfully",
+    "section": "admin.users.toast"
+  },
+  {
+    "file": "app/admin/users/page.tsx",
+    "literal": "Export failed. Please try again.",
+    "suggestedKey": "admin.users.toast.export.failed.please.try.again",
+    "section": "admin.users.toast"
+  },
+  {
+    "file": "app/admin/users/page.tsx",
+    "literal": "Server returned not-ok status.",
+    "suggestedKey": "admin.users.error.server.returned.not.ok.status",
+    "section": "admin.users.error"
+  },
+  {
+    "file": "app/admin/users/page.tsx",
+    "literal": "Admin session expired. Re-signing in…",
+    "suggestedKey": "admin.users.message.admin.session.expired.re.signing",
+    "section": "admin.users.message"
+  },
+  {
+    "file": "app/admin/users/page.tsx",
+    "literal": "Session check failed:",
+    "suggestedKey": "admin.users.session.check.failed",
+    "section": "admin.users"
+  },
+  {
+    "file": "app/admin/users/page.tsx",
+    "literal": "Error fetching users:",
+    "suggestedKey": "admin.users.error.fetching.users",
+    "section": "admin.users"
+  },
+  {
+    "file": "app/admin/users/page.tsx",
+    "literal": "Failed to load users. Please try again later.",
+    "suggestedKey": "admin.users.failed.to.load.users.please",
+    "section": "admin.users"
+  },
+  {
+    "file": "app/admin/users/page.tsx",
+    "literal": "Optional reason for suspension (saved to audit log):",
+    "suggestedKey": "admin.users.optional.reason.for.suspension.saved",
+    "section": "admin.users"
+  },
+  {
+    "file": "app/admin/users/page.tsx",
+    "literal": "Optional note for activation (saved to audit log):",
+    "suggestedKey": "admin.users.optional.note.for.activation.saved",
+    "section": "admin.users"
+  },
+  {
+    "file": "app/admin/users/page.tsx",
+    "literal": "Optional reason for block (saved to audit log):",
+    "suggestedKey": "admin.users.optional.reason.for.block.saved",
+    "section": "admin.users"
+  },
+  {
+    "file": "app/admin/users/page.tsx",
+    "literal": "Reason for closing this account (saved to audit log, recommend documenting):",
+    "suggestedKey": "admin.users.reason.for.closing.this.account",
+    "section": "admin.users"
+  },
+  {
+    "file": "app/admin/users/page.tsx",
+    "literal": "Confirm deletion reason (required for audit trail):",
+    "suggestedKey": "admin.users.confirm.deletion.reason.required.for",
+    "section": "admin.users"
+  },
+  {
+    "file": "app/admin/users/page.tsx",
+    "literal": "Created At",
+    "suggestedKey": "admin.users.created.at",
+    "section": "admin.users"
+  },
+  {
+    "file": "app/admin/users/page.tsx",
+    "literal": "data:text/csv;charset=utf-8,",
+    "suggestedKey": "admin.users.data.text.csv.charset.utf",
+    "section": "admin.users"
+  },
+  {
+    "file": "app/admin/users/page.tsx",
+    "literal": "Export failed:",
+    "suggestedKey": "admin.users.export.failed",
+    "section": "admin.users"
+  },
+  {
+    "file": "app/admin/users/page.tsx",
+    "literal": "Exporting...",
+    "suggestedKey": "admin.users.exporting",
+    "section": "admin.users"
+  },
+  {
+    "file": "app/admin/users/[uid]/page.tsx",
+    "literal": "Example: Please review your updated profile picture before the next statement cycle.",
+    "suggestedKey": "admin.userDetail.placeholder.example.please.review.your.updated",
+    "section": "admin.userDetail.placeholder"
+  },
+  {
+    "file": "app/admin/users/[uid]/page.tsx",
+    "literal": "Leave blank to keep current password",
+    "suggestedKey": "admin.userDetail.placeholder.leave.blank.to.keep.current",
+    "section": "admin.userDetail.placeholder"
+  },
+  {
+    "file": "app/admin/users/[uid]/page.tsx",
+    "literal": "6 digits (blank = keep current)",
+    "suggestedKey": "admin.userDetail.placeholder.6.digits.blank.keep.current",
+    "section": "admin.userDetail.placeholder"
+  },
+  {
+    "file": "app/admin/users/[uid]/page.tsx",
+    "literal": "Source preview",
+    "suggestedKey": "admin.userDetail.alt.source.preview",
+    "section": "admin.userDetail.alt"
+  },
+  {
+    "file": "app/admin/users/[uid]/page.tsx",
+    "literal": "Current avatar",
+    "suggestedKey": "admin.userDetail.alt.current.avatar",
+    "section": "admin.userDetail.alt"
+  },
+  {
+    "file": "app/admin/users/[uid]/page.tsx",
+    "literal": "Edited preview",
+    "suggestedKey": "admin.userDetail.alt.edited.preview",
+    "section": "admin.userDetail.alt"
+  },
+  {
+    "file": "app/admin/users/[uid]/page.tsx",
+    "literal": "Missing user id.",
+    "suggestedKey": "admin.userDetail.missing.user.id",
+    "section": "admin.userDetail"
+  },
+  {
+    "file": "app/admin/users/[uid]/page.tsx",
+    "literal": "Could not load user detail",
+    "suggestedKey": "admin.userDetail.could.not.load.user.detail",
+    "section": "admin.userDetail"
+  },
+  {
+    "file": "app/admin/users/[uid]/page.tsx",
+    "literal": "Account #",
+    "suggestedKey": "admin.userDetail.account",
+    "section": "admin.userDetail"
+  },
+  {
+    "file": "app/admin/users/[uid]/page.tsx",
+    "literal": "Profile picture management",
+    "suggestedKey": "admin.userDetail.profile.picture.management",
+    "section": "admin.userDetail"
+  },
+  {
+    "file": "app/admin/users/[uid]/page.tsx",
+    "literal": "Upload a new picture",
+    "suggestedKey": "admin.userDetail.upload.a.new.picture",
+    "section": "admin.userDetail"
+  },
+  {
+    "file": "app/admin/users/[uid]/page.tsx",
+    "literal": "Small square (256×256, faster upload)",
+    "suggestedKey": "admin.userDetail.small.square.256.256.faster",
+    "section": "admin.userDetail"
+  },
+  {
+    "file": "app/admin/users/[uid]/page.tsx",
+    "literal": "Large square (512×512, recommended)",
+    "suggestedKey": "admin.userDetail.large.square.512.512.recommended",
+    "section": "admin.userDetail"
+  },
+  {
+    "file": "app/admin/users/[uid]/page.tsx",
+    "literal": "Smaller file · 85% quality",
+    "suggestedKey": "admin.userDetail.smaller.file.85.quality",
+    "section": "admin.userDetail"
+  },
+  {
+    "file": "app/admin/users/[uid]/page.tsx",
+    "literal": "Balanced · 90% quality",
+    "suggestedKey": "admin.userDetail.balanced.90.quality",
+    "section": "admin.userDetail"
+  },
+  {
+    "file": "app/admin/users/[uid]/page.tsx",
+    "literal": "Crisp · 95% quality",
+    "suggestedKey": "admin.userDetail.crisp.95.quality",
+    "section": "admin.userDetail"
+  },
+  {
+    "file": "app/admin/users/[uid]/page.tsx",
+    "literal": "Saved profile picture URL",
+    "suggestedKey": "admin.userDetail.saved.profile.picture.url",
+    "section": "admin.userDetail"
+  },
+  {
+    "file": "app/admin/users/[uid]/page.tsx",
+    "literal": "Login Email",
+    "suggestedKey": "admin.userDetail.login.email",
+    "section": "admin.userDetail"
+  },
+  {
+    "file": "app/admin/users/[uid]/page.tsx",
+    "literal": "Login Password",
+    "suggestedKey": "admin.userDetail.login.password",
+    "section": "admin.userDetail"
+  },
+  {
+    "file": "app/admin/users/[uid]/page.tsx",
+    "literal": "— not set",
+    "suggestedKey": "admin.userDetail.not.set",
+    "section": "admin.userDetail"
+  },
+  {
+    "file": "app/admin/users/[uid]/page.tsx",
+    "literal": "Account Number (10 digits)",
+    "suggestedKey": "admin.userDetail.account.number.10.digits",
+    "section": "admin.userDetail"
+  },
+  {
+    "file": "app/admin/users/[uid]/page.tsx",
+    "literal": "Account PIN (6 digits)",
+    "suggestedKey": "admin.userDetail.account.pin.6.digits",
+    "section": "admin.userDetail"
+  },
+  {
+    "file": "app/admin/users/[uid]/page.tsx",
+    "literal": "Transfer Code (6 digits)",
+    "suggestedKey": "admin.userDetail.transfer.code.6.digits",
+    "section": "admin.userDetail"
+  },
+  {
+    "file": "app/admin/users/[uid]/page.tsx",
+    "literal": "Profile & Preferences",
+    "suggestedKey": "admin.userDetail.profile.preferences",
+    "section": "admin.userDetail"
+  },
+  {
+    "file": "app/admin/users/[uid]/page.tsx",
+    "literal": "Mailing Address",
+    "suggestedKey": "admin.userDetail.mailing.address",
+    "section": "admin.userDetail"
+  },
+  {
+    "file": "app/admin/users/[uid]/page.tsx",
+    "literal": "Date of Birth",
+    "suggestedKey": "admin.userDetail.date.of.birth",
+    "section": "admin.userDetail"
+  },
+  {
+    "file": "app/admin/users/[uid]/page.tsx",
+    "literal": "Preferred Language",
+    "suggestedKey": "admin.userDetail.preferred.language",
+    "section": "admin.userDetail"
+  },
+  {
+    "file": "app/admin/users/[uid]/page.tsx",
+    "literal": "Region / State",
+    "suggestedKey": "admin.userDetail.region.state",
+    "section": "admin.userDetail"
+  },
+  {
+    "file": "app/admin/users/[uid]/page.tsx",
+    "literal": "Postal Code",
+    "suggestedKey": "admin.userDetail.postal.code",
+    "section": "admin.userDetail"
+  },
+  {
+    "file": "app/admin/users/[uid]/page.tsx",
+    "literal": "Address Line",
+    "suggestedKey": "admin.userDetail.address.line",
+    "section": "admin.userDetail"
+  },
+  {
+    "file": "app/admin/users/[uid]/page.tsx",
+    "literal": "First Name",
+    "suggestedKey": "admin.userDetail.first.name",
+    "section": "admin.userDetail"
+  },
+  {
+    "file": "app/admin/users/[uid]/page.tsx",
+    "literal": "Middle Name",
+    "suggestedKey": "admin.userDetail.middle.name",
+    "section": "admin.userDetail"
+  },
+  {
+    "file": "app/admin/users/[uid]/page.tsx",
+    "literal": "Last Name",
+    "suggestedKey": "admin.userDetail.last.name",
+    "section": "admin.userDetail"
+  },
+  {
+    "file": "app/admin/users/[uid]/page.tsx",
+    "literal": "State / Region",
+    "suggestedKey": "admin.userDetail.state.region",
+    "section": "admin.userDetail"
+  },
+  {
+    "file": "app/admin/users/[uid]/page.tsx",
+    "literal": "Postal / ZIP Code",
+    "suggestedKey": "admin.userDetail.postal.zip.code",
+    "section": "admin.userDetail"
+  },
+  {
+    "file": "app/admin/users/[uid]/page.tsx",
+    "literal": "KYC Documents",
+    "suggestedKey": "admin.userDetail.kyc.documents",
+    "section": "admin.userDetail"
+  },
+  {
+    "file": "app/admin/users/[uid]/page.tsx",
+    "literal": "Profile picture uploaded and saved.",
+    "suggestedKey": "admin.userDetail.toast.profile.picture.uploaded.and.saved",
+    "section": "admin.userDetail.toast"
+  },
+  {
+    "file": "app/admin/users/[uid]/page.tsx",
+    "literal": "Network error while uploading.",
+    "suggestedKey": "admin.userDetail.toast.network.error.while.uploading",
+    "section": "admin.userDetail.toast"
+  },
+  {
+    "file": "app/admin/users/[uid]/page.tsx",
+    "literal": "Profile picture URL copied to clipboard.",
+    "suggestedKey": "admin.userDetail.toast.profile.picture.url.copied.to",
+    "section": "admin.userDetail.toast"
+  },
+  {
+    "file": "app/admin/users/[uid]/page.tsx",
+    "literal": "Clipboard copy failed. Copy it manually.",
+    "suggestedKey": "admin.userDetail.toast.clipboard.copy.failed.copy.it",
+    "section": "admin.userDetail.toast"
+  },
+  {
+    "file": "app/admin/users/[uid]/page.tsx",
+    "literal": "Network error while sending.",
+    "suggestedKey": "admin.userDetail.toast.network.error.while.sending",
+    "section": "admin.userDetail.toast"
+  },
+  {
+    "file": "app/admin/users/[uid]/page.tsx",
+    "literal": "Nothing to copy for this field.",
+    "suggestedKey": "admin.userDetail.toast.nothing.to.copy.for.this",
+    "section": "admin.userDetail.toast"
+  },
+  {
+    "file": "app/admin/users/[uid]/page.tsx",
+    "literal": "Copied to clipboard.",
+    "suggestedKey": "admin.userDetail.toast.copied.to.clipboard",
+    "section": "admin.userDetail.toast"
+  },
+  {
+    "file": "app/admin/users/[uid]/page.tsx",
+    "literal": "Failed to copy to clipboard.",
+    "suggestedKey": "admin.userDetail.toast.failed.to.copy.to.clipboard",
+    "section": "admin.userDetail.toast"
+  },
+  {
+    "file": "app/admin/users/[uid]/page.tsx",
+    "literal": "User details saved successfully.",
+    "suggestedKey": "admin.userDetail.toast.user.details.saved.successfully",
+    "section": "admin.userDetail.toast"
+  },
+  {
+    "file": "app/admin/users/[uid]/page.tsx",
+    "literal": "Network error while saving changes.",
+    "suggestedKey": "admin.userDetail.toast.network.error.while.saving.changes",
+    "section": "admin.userDetail.toast"
+  },
+  {
+    "file": "app/admin/users/[uid]/page.tsx",
+    "literal": "Invalid KYC document type.",
+    "suggestedKey": "admin.userDetail.toast.invalid.kyc.document.type",
+    "section": "admin.userDetail.toast"
+  },
+  {
+    "file": "app/admin/users/[uid]/page.tsx",
+    "literal": "Canvas 2D context unavailable.",
+    "suggestedKey": "admin.userDetail.error.canvas.2d.context.unavailable",
+    "section": "admin.userDetail.error"
+  },
+  {
+    "file": "app/admin/users/[uid]/page.tsx",
+    "literal": "Canvas export failed.",
+    "suggestedKey": "admin.userDetail.error.canvas.export.failed",
+    "section": "admin.userDetail.error"
+  },
+  {
+    "file": "app/admin/users/[uid]/page.tsx",
+    "literal": "File is empty.",
+    "suggestedKey": "admin.userDetail.message.file.is.empty",
+    "section": "admin.userDetail.message"
+  },
+  {
+    "file": "app/admin/users/[uid]/page.tsx",
+    "literal": "Network error while uploading KYC document.",
+    "suggestedKey": "admin.userDetail.message.network.error.while.uploading.kyc",
+    "section": "admin.userDetail.message"
+  },
+  {
+    "file": "app/admin/users/[uid]/page.tsx",
+    "literal": "ID Card (Front)",
+    "suggestedKey": "admin.userDetail.id.card.front",
+    "section": "admin.userDetail"
+  },
+  {
+    "file": "app/admin/users/[uid]/page.tsx",
+    "literal": "ID Card (Back)",
+    "suggestedKey": "admin.userDetail.id.card.back",
+    "section": "admin.userDetail"
+  },
+  {
+    "file": "app/admin/users/[uid]/page.tsx",
+    "literal": "Proof of Address",
+    "suggestedKey": "admin.userDetail.proof.of.address",
+    "section": "admin.userDetail"
+  },
+  {
+    "file": "app/admin/users/[uid]/page.tsx",
+    "literal": "Could not decode image.",
+    "suggestedKey": "admin.userDetail.could.not.decode.image",
+    "section": "admin.userDetail"
+  },
+  {
+    "file": "app/admin/users/[uid]/page.tsx",
+    "literal": "Admin login required.",
+    "suggestedKey": "admin.userDetail.admin.login.required",
+    "section": "admin.userDetail"
+  },
+  {
+    "file": "app/admin/users/[uid]/page.tsx",
+    "literal": "Missing uid.",
+    "suggestedKey": "admin.userDetail.missing.uid",
+    "section": "admin.userDetail"
+  },
+  {
+    "file": "app/admin/users/[uid]/page.tsx",
+    "literal": "Network error.",
+    "suggestedKey": "admin.userDetail.network.error",
+    "section": "admin.userDetail"
+  },
+  {
+    "file": "app/admin/users/[uid]/page.tsx",
+    "literal": "Image too small. Minimum 32×32 pixels.",
+    "suggestedKey": "admin.userDetail.image.too.small.minimum.32",
+    "section": "admin.userDetail"
+  },
+  {
+    "file": "app/admin/users/[uid]/page.tsx",
+    "literal": "Unknown error.",
+    "suggestedKey": "admin.userDetail.unknown.error",
+    "section": "admin.userDetail"
+  },
+  {
+    "file": "app/admin/users/[uid]/page.tsx",
+    "literal": "Output size",
+    "suggestedKey": "admin.userDetail.output.size",
+    "section": "admin.userDetail"
+  },
+  {
+    "file": "app/admin/users/[uid]/page.tsx",
+    "literal": "JPEG quality",
+    "suggestedKey": "admin.userDetail.jpeg.quality",
+    "section": "admin.userDetail"
+  },
+  {
+    "file": "app/admin/users/[uid]/page.tsx",
+    "literal": "Higher = sharper but larger file.",
+    "suggestedKey": "admin.userDetail.higher.sharper.but.larger.file",
+    "section": "admin.userDetail"
+  },
+  {
+    "file": "app/admin/users/[uid]/page.tsx",
+    "literal": "Horizontal offset of crop square within source image.",
+    "suggestedKey": "admin.userDetail.horizontal.offset.of.crop.square",
+    "section": "admin.userDetail"
+  },
+  {
+    "file": "app/admin/users/[uid]/page.tsx",
+    "literal": "Vertical offset of crop square within source image.",
+    "suggestedKey": "admin.userDetail.vertical.offset.of.crop.square",
+    "section": "admin.userDetail"
+  },
+  {
+    "file": "app/admin/users/[uid]/page.tsx",
+    "literal": "How much of the source image is used (square output always).",
+    "suggestedKey": "admin.userDetail.how.much.of.the.source",
+    "section": "admin.userDetail"
+  },
+  {
+    "file": "app/admin/users/[uid]/page.tsx",
+    "literal": "Adjust exposure.",
+    "suggestedKey": "admin.userDetail.adjust.exposure",
+    "section": "admin.userDetail"
+  },
+  {
+    "file": "app/admin/users/[uid]/page.tsx",
+    "literal": "Adjust difference between light and dark.",
+    "suggestedKey": "admin.userDetail.adjust.difference.between.light.and",
+    "section": "admin.userDetail"
+  },
+  {
+    "file": "app/admin/users/[uid]/page.tsx",
+    "literal": "Adjust color intensity.",
+    "suggestedKey": "admin.userDetail.adjust.color.intensity",
+    "section": "admin.userDetail"
+  },
+  {
+    "file": "app/admin/users/[uid]/page.tsx",
+    "literal": "Uploading…",
+    "suggestedKey": "admin.userDetail.uploading",
+    "section": "admin.userDetail"
+  },
+  {
+    "file": "app/admin/users/[uid]/page.tsx",
+    "literal": "Upload & save profile picture",
+    "suggestedKey": "admin.userDetail.upload.save.profile.picture",
+    "section": "admin.userDetail"
+  },
+  {
+    "file": "app/admin/users/[uid]/page.tsx",
+    "literal": "Choose an image first",
+    "suggestedKey": "admin.userDetail.choose.an.image.first",
+    "section": "admin.userDetail"
+  },
+  {
+    "file": "app/admin/users/[uid]/page.tsx",
+    "literal": "No source loaded",
+    "suggestedKey": "admin.userDetail.no.source.loaded",
+    "section": "admin.userDetail"
+  },
+  {
+    "file": "app/admin/users/[uid]/page.tsx",
+    "literal": "Preview will appear here",
+    "suggestedKey": "admin.userDetail.preview.will.appear.here",
+    "section": "admin.userDetail"
+  },
+  {
+    "file": "app/admin/users/[uid]/page.tsx",
+    "literal": "Copied!",
+    "suggestedKey": "admin.userDetail.copied",
+    "section": "admin.userDetail"
+  },
+  {
+    "file": "app/admin/users/[uid]/page.tsx",
+    "literal": "Sending…",
+    "suggestedKey": "admin.userDetail.sending",
+    "section": "admin.userDetail"
+  },
+  {
+    "file": "app/admin/users/[uid]/page.tsx",
+    "literal": "Send profile picture to user",
+    "suggestedKey": "admin.userDetail.send.profile.picture.to.user",
+    "section": "admin.userDetail"
+  },
+  {
+    "file": "app/admin/users/[uid]/page.tsx",
+    "literal": "Copy email address",
+    "suggestedKey": "admin.userDetail.copy.email.address",
+    "section": "admin.userDetail"
+  },
+  {
+    "file": "app/admin/users/[uid]/page.tsx",
+    "literal": "Mask password",
+    "suggestedKey": "admin.userDetail.mask.password",
+    "section": "admin.userDetail"
+  },
+  {
+    "file": "app/admin/users/[uid]/page.tsx",
+    "literal": "Reveal password",
+    "suggestedKey": "admin.userDetail.reveal.password",
+    "section": "admin.userDetail"
+  },
+  {
+    "file": "app/admin/users/[uid]/page.tsx",
+    "literal": "Hide password",
+    "suggestedKey": "admin.userDetail.hide.password",
+    "section": "admin.userDetail"
+  },
+  {
+    "file": "app/admin/users/[uid]/page.tsx",
+    "literal": "Show password",
+    "suggestedKey": "admin.userDetail.show.password",
+    "section": "admin.userDetail"
+  },
+  {
+    "file": "app/admin/users/[uid]/page.tsx",
+    "literal": "Copy new password",
+    "suggestedKey": "admin.userDetail.copy.new.password",
+    "section": "admin.userDetail"
+  },
+  {
+    "file": "app/admin/users/[uid]/page.tsx",
+    "literal": "Copy account number",
+    "suggestedKey": "admin.userDetail.copy.account.number",
+    "section": "admin.userDetail"
+  },
+  {
+    "file": "app/admin/users/[uid]/page.tsx",
+    "literal": "Mask account PIN",
+    "suggestedKey": "admin.userDetail.mask.account.pin",
+    "section": "admin.userDetail"
+  },
+  {
+    "file": "app/admin/users/[uid]/page.tsx",
+    "literal": "Reveal account PIN",
+    "suggestedKey": "admin.userDetail.reveal.account.pin",
+    "section": "admin.userDetail"
+  },
+  {
+    "file": "app/admin/users/[uid]/page.tsx",
+    "literal": "Hide PIN",
+    "suggestedKey": "admin.userDetail.hide.pin",
+    "section": "admin.userDetail"
+  },
+  {
+    "file": "app/admin/users/[uid]/page.tsx",
+    "literal": "Show PIN",
+    "suggestedKey": "admin.userDetail.show.pin",
+    "section": "admin.userDetail"
+  },
+  {
+    "file": "app/admin/users/[uid]/page.tsx",
+    "literal": "Copy account PIN",
+    "suggestedKey": "admin.userDetail.copy.account.pin",
+    "section": "admin.userDetail"
+  },
+  {
+    "file": "app/admin/users/[uid]/page.tsx",
+    "literal": "Mask transfer code",
+    "suggestedKey": "admin.userDetail.mask.transfer.code",
+    "section": "admin.userDetail"
+  },
+  {
+    "file": "app/admin/users/[uid]/page.tsx",
+    "literal": "Reveal transfer code",
+    "suggestedKey": "admin.userDetail.reveal.transfer.code",
+    "section": "admin.userDetail"
+  },
+  {
+    "file": "app/admin/users/[uid]/page.tsx",
+    "literal": "Hide transfer code",
+    "suggestedKey": "admin.userDetail.hide.transfer.code",
+    "section": "admin.userDetail"
+  },
+  {
+    "file": "app/admin/users/[uid]/page.tsx",
+    "literal": "Show transfer code",
+    "suggestedKey": "admin.userDetail.show.transfer.code",
+    "section": "admin.userDetail"
+  },
+  {
+    "file": "app/admin/users/[uid]/page.tsx",
+    "literal": "Copy transfer code",
+    "suggestedKey": "admin.userDetail.copy.transfer.code",
+    "section": "admin.userDetail"
+  },
+  {
+    "file": "app/admin/users/[uid]/page.tsx",
+    "literal": "text-[10px] sm:text-[11px] text-gray-500",
+    "suggestedKey": "admin.userDetail.text.10px.sm.text.11px",
+    "section": "admin.userDetail"
+  },
+  {
+    "file": "app/admin/users/[uid]/page.tsx",
+    "literal": "Saving…",
+    "suggestedKey": "admin.userDetail.saving",
+    "section": "admin.userDetail"
+  },
+  {
+    "file": "app/admin/users/[uid]/page.tsx",
+    "literal": "Save changes",
+    "suggestedKey": "admin.userDetail.save.changes",
+    "section": "admin.userDetail"
+  },
+  {
+    "file": "app/admin/users/[uid]/page.tsx",
+    "literal": "noreferrer noopener",
+    "suggestedKey": "admin.userDetail.noreferrer.noopener",
+    "section": "admin.userDetail"
+  },
+  {
+    "file": "app/admin/users/[uid]/page.tsx",
+    "literal": "Crop output will be a square. 512px recommended for profile avatars.",
+    "suggestedKey": "admin.userDetail.crop.output.will.be.a",
+    "section": "admin.userDetail"
+  },
+  {
+    "file": "app/admin/transactions/page.tsx",
+    "literal": "Total Transactions",
+    "suggestedKey": "admin.transactions.total.transactions",
+    "section": "admin.transactions"
+  },
+  {
+    "file": "app/admin/transactions/page.tsx",
+    "literal": "Admin session verified. List data via server-side API route.",
+    "suggestedKey": "admin.transactions.admin.session.verified.list.data",
+    "section": "admin.transactions"
+  },
+  {
+    "file": "app/admin/transactions/page.tsx",
+    "literal": "Session verification pending.",
+    "suggestedKey": "admin.transactions.session.verification.pending",
+    "section": "admin.transactions"
+  },
+  {
+    "file": "app/admin/requests/page.tsx",
+    "literal": "Funding Requests",
+    "suggestedKey": "admin.requests.funding.requests",
+    "section": "admin.requests"
+  },
+  {
+    "file": "app/admin/requests/page.tsx",
+    "literal": "Admin session verified. Approve/reject via server-side API routes.",
+    "suggestedKey": "admin.requests.admin.session.verified.approve.reject",
+    "section": "admin.requests"
+  },
+  {
+    "file": "app/admin/requests/page.tsx",
+    "literal": "Session verification pending.",
+    "suggestedKey": "admin.requests.session.verification.pending",
+    "section": "admin.requests"
+  },
+  {
+    "file": "components/AdminHeader.tsx",
+    "literal": "Logout API call failed",
+    "suggestedKey": "admin.header.logout.api.call.failed",
+    "section": "admin.header"
+  },
+  {
+    "file": "components/AdminHeader.tsx",
+    "literal": "Session check skipped (transient network).",
+    "suggestedKey": "admin.header.session.check.skipped.transient.network",
+    "section": "admin.header"
+  },
+  {
+    "file": "components/AdminHeader.tsx",
+    "literal": "Session check failed:",
+    "suggestedKey": "admin.header.session.check.failed",
+    "section": "admin.header"
+  },
+  {
+    "file": "components/AdminHeader.tsx",
+    "literal": "sticky top-0 z-10 flex h-auto min-h-[5rem] w-full bg-white shadow-sm border-b border-gray-100 items-center justify-between px-3 sm:px-6 lg:px-12 py-3 gap-2 sm:gap-4 flex-wrap sm:flex-nowrap",
+    "suggestedKey": "admin.header.sticky.top.0.z.10",
+    "section": "admin.header"
+  },
+  {
+    "file": "components/AdminHeader.tsx",
+    "literal": "Open admin navigation",
+    "suggestedKey": "admin.header.open.admin.navigation",
+    "section": "admin.header"
+  },
+  {
+    "file": "components/AdminHeader.tsx",
+    "literal": "Loading...",
+    "suggestedKey": "admin.header.loading",
+    "section": "admin.header"
+  },
+  {
+    "file": "components/AdminSidebar.tsx",
+    "literal": "Logout API call failed",
+    "suggestedKey": "admin.sidebar.logout.api.call.failed",
+    "section": "admin.sidebar"
+  },
+  {
+    "file": "components/UserTable.tsx",
+    "literal": "View / Edit details",
+    "suggestedKey": "admin.userTable.title.view.edit.details",
+    "section": "admin.userTable.title"
+  },
+  {
+    "file": "components/UserTable.tsx",
+    "literal": "Fund Account",
+    "suggestedKey": "admin.userTable.title.fund.account",
+    "section": "admin.userTable.title"
+  },
+  {
+    "file": "components/UserTable.tsx",
+    "literal": "Suspend account",
+    "suggestedKey": "admin.userTable.title.suspend.account",
+    "section": "admin.userTable.title"
+  },
+  {
+    "file": "components/UserTable.tsx",
+    "literal": "Activate / Unblock account",
+    "suggestedKey": "admin.userTable.title.activate.unblock.account",
+    "section": "admin.userTable.title"
+  },
+  {
+    "file": "components/UserTable.tsx",
+    "literal": "Permanently close account",
+    "suggestedKey": "admin.userTable.title.permanently.close.account",
+    "section": "admin.userTable.title"
+  },
+  {
+    "file": "components/UserTable.tsx",
+    "literal": "Permanently delete account data",
+    "suggestedKey": "admin.userTable.title.permanently.delete.account.data",
+    "section": "admin.userTable.title"
+  },
+  {
+    "file": "components/UserTable.tsx",
+    "literal": "User Info",
+    "suggestedKey": "admin.userTable.user.info",
+    "section": "admin.userTable"
+  },
+  {
+    "file": "components/UserTable.tsx",
+    "literal": "Account Type",
+    "suggestedKey": "admin.userTable.account.type",
+    "section": "admin.userTable"
+  },
+  {
+    "file": "components/UserTable.tsx",
+    "literal": "Unblock User",
+    "suggestedKey": "admin.userTable.unblock.user",
+    "section": "admin.userTable"
+  },
+  {
+    "file": "components/CreateUserModal.tsx",
+    "literal": "John A. Smith",
+    "suggestedKey": "admin.createUserModal.placeholder.john.a.smith",
+    "section": "admin.createUserModal.placeholder"
+  },
+  {
+    "file": "components/CreateUserModal.tsx",
+    "literal": "StrongP@ssw0rd",
+    "suggestedKey": "admin.createUserModal.placeholder.strongp.ssw0rd",
+    "section": "admin.createUserModal.placeholder"
+  },
+  {
+    "file": "components/CreateUserModal.tsx",
+    "literal": "Auto-generate strong password",
+    "suggestedKey": "admin.createUserModal.title.auto.generate.strong.password",
+    "section": "admin.createUserModal.title"
+  },
+  {
+    "file": "components/CreateUserModal.tsx",
+    "literal": "Auto-generate unique account number",
+    "suggestedKey": "admin.createUserModal.title.auto.generate.unique.account.number",
+    "section": "admin.createUserModal.title"
+  },
+  {
+    "file": "components/CreateUserModal.tsx",
+    "literal": "Auto-generate secure PIN",
+    "suggestedKey": "admin.createUserModal.title.auto.generate.secure.pin",
+    "section": "admin.createUserModal.title"
+  },
+  {
+    "file": "components/CreateUserModal.tsx",
+    "literal": "Auto-generate secure transfer code",
+    "suggestedKey": "admin.createUserModal.title.auto.generate.secure.transfer.code",
+    "section": "admin.createUserModal.title"
+  },
+  {
+    "file": "components/CreateUserModal.tsx",
+    "literal": "Create User Account",
+    "suggestedKey": "admin.createUserModal.create.user.account",
+    "section": "admin.createUserModal"
+  },
+  {
+    "file": "components/CreateUserModal.tsx",
+    "literal": "Generate a new bank customer login and profile.",
+    "suggestedKey": "admin.createUserModal.generate.a.new.bank.customer",
+    "section": "admin.createUserModal"
+  },
+  {
+    "file": "components/CreateUserModal.tsx",
+    "literal": "Account created successfully.",
+    "suggestedKey": "admin.createUserModal.account.created.successfully",
+    "section": "admin.createUserModal"
+  },
+  {
+    "file": "components/CreateUserModal.tsx",
+    "literal": "Customer Name",
+    "suggestedKey": "admin.createUserModal.customer.name",
+    "section": "admin.createUserModal"
+  },
+  {
+    "file": "components/CreateUserModal.tsx",
+    "literal": "Login Email",
+    "suggestedKey": "admin.createUserModal.login.email",
+    "section": "admin.createUserModal"
+  },
+  {
+    "file": "components/CreateUserModal.tsx",
+    "literal": "Login Password",
+    "suggestedKey": "admin.createUserModal.login.password",
+    "section": "admin.createUserModal"
+  },
+  {
+    "file": "components/CreateUserModal.tsx",
+    "literal": "Account Number",
+    "suggestedKey": "admin.createUserModal.account.number",
+    "section": "admin.createUserModal"
+  },
+  {
+    "file": "components/CreateUserModal.tsx",
+    "literal": "Account PIN",
+    "suggestedKey": "admin.createUserModal.account.pin",
+    "section": "admin.createUserModal"
+  },
+  {
+    "file": "components/CreateUserModal.tsx",
+    "literal": "Transfer Code",
+    "suggestedKey": "admin.createUserModal.transfer.code",
+    "section": "admin.createUserModal"
+  },
+  {
+    "file": "components/CreateUserModal.tsx",
+    "literal": "User account created.",
+    "suggestedKey": "admin.createUserModal.toast.user.account.created",
+    "section": "admin.createUserModal.toast"
+  },
+  {
+    "file": "components/CreateUserModal.tsx",
+    "literal": "Server response missing created user data.",
+    "suggestedKey": "admin.createUserModal.error.server.response.missing.created.user",
+    "section": "admin.createUserModal.error"
+  },
+  {
+    "file": "components/CreateUserModal.tsx",
+    "literal": "Please correct the highlighted fields.",
+    "suggestedKey": "admin.createUserModal.message.please.correct.the.highlighted.fields",
+    "section": "admin.createUserModal.message"
+  },
+  {
+    "file": "components/CreateUserModal.tsx",
+    "literal": "A user with this login email already exists. Use a different email address.",
+    "suggestedKey": "admin.createUserModal.message.a.user.with.this.login",
+    "section": "admin.createUserModal.message"
+  },
+  {
+    "file": "components/CreateUserModal.tsx",
+    "literal": "Email is already registered — choose a different address.",
+    "suggestedKey": "admin.createUserModal.message.email.is.already.registered.choose",
+    "section": "admin.createUserModal.message"
+  },
+  {
+    "file": "components/CreateUserModal.tsx",
+    "literal": "At least 8 characters",
+    "suggestedKey": "admin.createUserModal.at.least.8.characters",
+    "section": "admin.createUserModal"
+  },
+  {
+    "file": "components/CreateUserModal.tsx",
+    "literal": "One uppercase letter",
+    "suggestedKey": "admin.createUserModal.one.uppercase.letter",
+    "section": "admin.createUserModal"
+  },
+  {
+    "file": "components/CreateUserModal.tsx",
+    "literal": "One lowercase letter",
+    "suggestedKey": "admin.createUserModal.one.lowercase.letter",
+    "section": "admin.createUserModal"
+  },
+  {
+    "file": "components/CreateUserModal.tsx",
+    "literal": "One number",
+    "suggestedKey": "admin.createUserModal.one.number",
+    "section": "admin.createUserModal"
+  },
+  {
+    "file": "components/CreateUserModal.tsx",
+    "literal": "One special character",
+    "suggestedKey": "admin.createUserModal.one.special.character",
+    "section": "admin.createUserModal"
+  },
+  {
+    "file": "components/CreateUserModal.tsx",
+    "literal": "Strong password",
+    "suggestedKey": "admin.createUserModal.strong.password",
+    "section": "admin.createUserModal"
+  },
+  {
+    "file": "components/CreateUserModal.tsx",
+    "literal": "Auto-generate accountNumber via API failed, falling back to client-only:",
+    "suggestedKey": "admin.createUserModal.auto.generate.accountnumber.via.api",
+    "section": "admin.createUserModal"
+  },
+  {
+    "file": "components/CreateUserModal.tsx",
+    "literal": "Customer name is required.",
+    "suggestedKey": "admin.createUserModal.customer.name.is.required",
+    "section": "admin.createUserModal"
+  },
+  {
+    "file": "components/CreateUserModal.tsx",
+    "literal": "Login email is required.",
+    "suggestedKey": "admin.createUserModal.login.email.is.required",
+    "section": "admin.createUserModal"
+  },
+  {
+    "file": "components/CreateUserModal.tsx",
+    "literal": "Email format is invalid.",
+    "suggestedKey": "admin.createUserModal.email.format.is.invalid",
+    "section": "admin.createUserModal"
+  },
+  {
+    "file": "components/CreateUserModal.tsx",
+    "literal": "Login password is required.",
+    "suggestedKey": "admin.createUserModal.login.password.is.required",
+    "section": "admin.createUserModal"
+  },
+  {
+    "file": "components/CreateUserModal.tsx",
+    "literal": "Account number must be exactly 10 digits.",
+    "suggestedKey": "admin.createUserModal.account.number.must.be.exactly",
+    "section": "admin.createUserModal"
+  },
+  {
+    "file": "components/CreateUserModal.tsx",
+    "literal": "Balance must be a non-negative number.",
+    "suggestedKey": "admin.createUserModal.balance.must.be.a.non",
+    "section": "admin.createUserModal"
+  },
+  {
+    "file": "components/CreateUserModal.tsx",
+    "literal": "PIN must be exactly 6 digits.",
+    "suggestedKey": "admin.createUserModal.pin.must.be.exactly.6",
+    "section": "admin.createUserModal"
+  },
+  {
+    "file": "components/CreateUserModal.tsx",
+    "literal": "Transfer code must be exactly 6 digits.",
+    "suggestedKey": "admin.createUserModal.transfer.code.must.be.exactly",
+    "section": "admin.createUserModal"
+  },
+  {
+    "file": "components/CreateUserModal.tsx",
+    "literal": "Create user failed:",
+    "suggestedKey": "admin.createUserModal.create.user.failed",
+    "section": "admin.createUserModal"
+  },
+  {
+    "file": "components/CreateUserModal.tsx",
+    "literal": "Create user failed.",
+    "suggestedKey": "admin.createUserModal.create.user.failed",
+    "section": "admin.createUserModal"
+  },
+  {
+    "file": "components/CreateUserModal.tsx",
+    "literal": "Will be auto-generated if left blank",
+    "suggestedKey": "admin.createUserModal.will.be.auto.generated.if",
+    "section": "admin.createUserModal"
+  },
+  {
+    "file": "components/CreateUserModal.tsx",
+    "literal": "Customer Name *",
+    "suggestedKey": "admin.createUserModal.customer.name",
+    "section": "admin.createUserModal"
+  },
+  {
+    "file": "components/CreateUserModal.tsx",
+    "literal": "Login Email *",
+    "suggestedKey": "admin.createUserModal.login.email",
+    "section": "admin.createUserModal"
+  },
+  {
+    "file": "components/CreateUserModal.tsx",
+    "literal": "Login Password *",
+    "suggestedKey": "admin.createUserModal.login.password",
+    "section": "admin.createUserModal"
+  },
+  {
+    "file": "components/CreateUserModal.tsx",
+    "literal": "Hide password",
+    "suggestedKey": "admin.createUserModal.hide.password",
+    "section": "admin.createUserModal"
+  },
+  {
+    "file": "components/CreateUserModal.tsx",
+    "literal": "Show password",
+    "suggestedKey": "admin.createUserModal.show.password",
+    "section": "admin.createUserModal"
+  },
+  {
+    "file": "components/CreateUserModal.tsx",
+    "literal": "10 digits; click auto-generate for uniqueness verified account",
+    "suggestedKey": "admin.createUserModal.10.digits.click.auto.generate",
+    "section": "admin.createUserModal"
+  },
+  {
+    "file": "components/CreateUserModal.tsx",
+    "literal": "Opening Balance ($) *",
+    "suggestedKey": "admin.createUserModal.opening.balance",
+    "section": "admin.createUserModal"
+  },
+  {
+    "file": "components/CreateUserModal.tsx",
+    "literal": "Account Status",
+    "suggestedKey": "admin.createUserModal.account.status",
+    "section": "admin.createUserModal"
+  },
+  {
+    "file": "components/CreateUserModal.tsx",
+    "literal": "Hide PIN",
+    "suggestedKey": "admin.createUserModal.hide.pin",
+    "section": "admin.createUserModal"
+  },
+  {
+    "file": "components/CreateUserModal.tsx",
+    "literal": "Show PIN",
+    "suggestedKey": "admin.createUserModal.show.pin",
+    "section": "admin.createUserModal"
+  },
+  {
+    "file": "components/CreateUserModal.tsx",
+    "literal": "Hide transfer code",
+    "suggestedKey": "admin.createUserModal.hide.transfer.code",
+    "section": "admin.createUserModal"
+  },
+  {
+    "file": "components/CreateUserModal.tsx",
+    "literal": "Show transfer code",
+    "suggestedKey": "admin.createUserModal.show.transfer.code",
+    "section": "admin.createUserModal"
+  },
+  {
+    "file": "components/CreateUserModal.tsx",
+    "literal": "First Name (override)",
+    "suggestedKey": "admin.createUserModal.first.name.override",
+    "section": "admin.createUserModal"
+  },
+  {
+    "file": "components/CreateUserModal.tsx",
+    "literal": "Middle Name",
+    "suggestedKey": "admin.createUserModal.middle.name",
+    "section": "admin.createUserModal"
+  },
+  {
+    "file": "components/CreateUserModal.tsx",
+    "literal": "Last Name (override)",
+    "suggestedKey": "admin.createUserModal.last.name.override",
+    "section": "admin.createUserModal"
+  },
+  {
+    "file": "components/CreateUserModal.tsx",
+    "literal": "Date of Birth",
+    "suggestedKey": "admin.createUserModal.date.of.birth",
+    "section": "admin.createUserModal"
+  },
+  {
+    "file": "components/CreateUserModal.tsx",
+    "literal": "State / Province",
+    "suggestedKey": "admin.createUserModal.state.province",
+    "section": "admin.createUserModal"
+  },
+  {
+    "file": "components/CreateUserModal.tsx",
+    "literal": "Zip / Postal Code",
+    "suggestedKey": "admin.createUserModal.zip.postal.code",
+    "section": "admin.createUserModal"
+  },
+  {
+    "file": "components/CreateUserModal.tsx",
+    "literal": "Mobile Number",
+    "suggestedKey": "admin.createUserModal.mobile.number",
+    "section": "admin.createUserModal"
+  },
+  {
+    "file": "components/CreateUserModal.tsx",
+    "literal": "Alternate Phone",
+    "suggestedKey": "admin.createUserModal.alternate.phone",
+    "section": "admin.createUserModal"
+  },
+  {
+    "file": "components/CreateUserModal.tsx",
+    "literal": "Creating…",
+    "suggestedKey": "admin.createUserModal.creating",
+    "section": "admin.createUserModal"
+  },
+  {
+    "file": "components/CreateUserModal.tsx",
+    "literal": "Create User",
+    "suggestedKey": "admin.createUserModal.create.user",
+    "section": "admin.createUserModal"
+  },
+  {
+    "file": "components/FundUserModal.tsx",
+    "literal": "Manage Balance",
+    "suggestedKey": "admin.fundUserModal.manage.balance",
+    "section": "admin.fundUserModal"
+  },
+  {
+    "file": "components/FundUserModal.tsx",
+    "literal": "Current Balance",
+    "suggestedKey": "admin.fundUserModal.current.balance",
+    "section": "admin.fundUserModal"
+  },
+  {
+    "file": "components/FundUserModal.tsx",
+    "literal": "Action Type",
+    "suggestedKey": "admin.fundUserModal.action.type",
+    "section": "admin.fundUserModal"
+  },
+  {
+    "file": "components/FundUserModal.tsx",
+    "literal": "Amount ($)",
+    "suggestedKey": "admin.fundUserModal.amount",
+    "section": "admin.fundUserModal"
+  },
+  {
+    "file": "components/FundUserModal.tsx",
+    "literal": "User does not exist!",
+    "suggestedKey": "admin.fundUserModal.error.user.does.not.exist",
+    "section": "admin.fundUserModal.error"
+  },
+  {
+    "file": "components/FundUserModal.tsx",
+    "literal": "Please enter a valid amount",
+    "suggestedKey": "admin.fundUserModal.please.enter.a.valid.amount",
+    "section": "admin.fundUserModal"
+  },
+  {
+    "file": "components/FundUserModal.tsx",
+    "literal": "Spring Admin",
+    "suggestedKey": "admin.fundUserModal.spring.admin",
+    "section": "admin.fundUserModal"
+  },
+  {
+    "file": "components/FundUserModal.tsx",
+    "literal": "Transaction failed:",
+    "suggestedKey": "admin.fundUserModal.transaction.failed",
+    "section": "admin.fundUserModal"
+  },
+  {
+    "file": "components/FundUserModal.tsx",
+    "literal": "Transaction failed. Check console for details.",
+    "suggestedKey": "admin.fundUserModal.transaction.failed.check.console.for",
+    "section": "admin.fundUserModal"
+  },
+  {
+    "file": "components/FundUserModal.tsx",
+    "literal": "Processing...",
+    "suggestedKey": "admin.fundUserModal.processing",
+    "section": "admin.fundUserModal"
+  }
+]
+
+============================================================
+  (2a) UNIQUE DE-DUPLICATED SORTED LITERALS (521 items)
+============================================================
+[
+  "— not set",
+  "[Admin Login] Health check fetch failed:",
+  "[Admin Login] Server reports X-Admin-Config-Status=env-missing. The admin credentials in the running Node.js process are not loaded. Restart the server after verifying .env.local variables.",
+  "10 digits; click auto-generate for uniqueness verified account",
+  "123 Main St, City, Country",
+  "6 digits (blank = keep current)",
+  "6-digit transfer code",
+  "A network error occurred while submitting the transfer. Please check your connection and try again.",
+  "A user with this login email already exists. Use a different email address.",
+  "Account #",
+  "Account created successfully.",
+  "Account created. Please verify your email to continue.",
+  "Account Details / Notes",
+  "Account Number",
+  "Account Number (10 digits)",
+  "Account number must be exactly 10 digits.",
+  "Account number, bank name, etc.",
+  "Account PIN",
+  "Account PIN (6 digits)",
+  "Account restricted",
+  "Account Status",
+  "Account Type",
+  "Action Type",
+  "Activate / Unblock account",
+  "Add an extra layer of security to your account.",
+  "Address Line",
+  "Adjust color intensity.",
+  "Adjust difference between light and dark.",
+  "Adjust exposure.",
+  "Admin Account Detected",
+  "Admin Email",
+  "Admin login required.",
+  "Admin Portal",
+  "Admin Role",
+  "Admin session expired. Re-signing in…",
+  "Admin session verified. Approve/reject via server-side API routes.",
+  "Admin session verified. List data via server-side API route.",
+  "Alternate Phone",
+  "Amount ($)",
+  "Amount (USD)",
+  "Amount exceeds your available balance.",
+  "Amount is required.",
+  "Amount must be a number.",
+  "Amount must be greater than zero.",
+  "An error occurred",
+  "and confirm the page protocol (HTTPS in production).",
+  "Apply for a virtual card to access My Cards.",
+  "Apply for Card",
+  "Apply for Virtual Card",
+  "At least 8 characters",
+  "Aurora Bank logo",
+  "Authenticated At",
+  "Auto-generate accountNumber via API failed, falling back to client-only:",
+  "Auto-generate secure PIN",
+  "Auto-generate secure transfer code",
+  "Auto-generate strong password",
+  "Auto-generate unique account number",
+  "Available Balance",
+  "Awaiting approval",
+  "Balance must be a non-negative number.",
+  "Balanced · 90% quality",
+  "Bank Name",
+  "Bank Transfer",
+  "Bank:",
+  "Banking Details",
+  "Cannot transfer to yourself",
+  "Canvas 2D context unavailable.",
+  "Canvas export failed.",
+  "Card access is reviewed and approved by an administrator.",
+  "Card Holder",
+  "Card Number",
+  "Card number copied",
+  "Card Policy",
+  "Card request data:",
+  "Card request status error in My Cards details:",
+  "Card request status in My Cards:",
+  "Card requests update in My Cards, size:",
+  "Card requests update, empty:",
+  "Card Status",
+  "Card Usage",
+  "cardRequests stream error details:",
+  "Cards refreshed",
+  "Cards stream already active in My Cards",
+  "Cards stream already active, skipping setup",
+  "Cards stream error for path:",
+  "Cards stream error in My Cards - Code:",
+  "Cards stream is empty for user:",
+  "Cards stream update, count:",
+  "Cards update in My Cards, size:",
+  "Check existing card request failed:",
+  "Check your network connection, ensure browser extensions/ad blockers are not blocking",
+  "Check your virtual card request status.",
+  "Checking...",
+  "Choose account currency",
+  "Choose account type",
+  "Choose an image first",
+  "Clipboard copy failed. Copy it manually.",
+  "Confirm deletion reason (required for audit trail):",
+  "Confirm Password",
+  "Contact removed",
+  "Contact saved",
+  "Contact upsert failed:",
+  "Contacts stream error:",
+  "Cookie Flags",
+  "Copied to clipboard.",
+  "Copied!",
+  "Copy account number",
+  "Copy account PIN",
+  "Copy email address",
+  "Copy new password",
+  "Copy transfer code",
+  "Could not decode image.",
+  "Could not load user detail",
+  "count:",
+  "Create card request failed:",
+  "Create User",
+  "Create User Account",
+  "Create user failed:",
+  "Create user failed.",
+  "Created At",
+  "Creating…",
+  "Crisp · 95% quality",
+  "Crop output will be a square. 512px recommended for profile avatars.",
+  "CSRF protection",
+  "Current avatar",
+  "Current Balance",
+  "Customer Name",
+  "Customer Name *",
+  "Customer name is required.",
+  "Daily Transfer Limit (USD)",
+  "Dark Mode",
+  "Dashboard error:",
+  "Dashboard transactions fallback stream error:",
+  "Dashboard transactions stream error:",
+  "data:text/csv;charset=utf-8,",
+  "Date of Birth",
+  "Deposit request failed",
+  "Deposit request failed:",
+  "Display Name",
+  "e.g. Rent, Invoice #123, Gift",
+  "Edge middleware",
+  "Edited preview",
+  "Email Address",
+  "Email Alerts",
+  "Email format is invalid.",
+  "Email is already registered — choose a different address.",
+  "Email is required",
+  "Email not verified yet. Please check your inbox.",
+  "Email verified. Welcome!",
+  "Ensure the recipient account number is correct before submitting.",
+  "Enter a valid deposit amount",
+  "Enter a valid withdrawal amount",
+  "Enter bank name",
+  "Enter narration",
+  "Enter routine number",
+  "Enter your Email Address",
+  "Enter your password",
+  "Error code:",
+  "Error creating user:",
+  "Error fetching transactions:",
+  "Error fetching users:",
+  "Error updating profile:",
+  "Example: Please review your updated profile picture before the next statement cycle.",
+  "Export CSV",
+  "Export failed:",
+  "Export failed. Please try again.",
+  "Exporting...",
+  "Failed to backfill photoURL:",
+  "Failed to check verification status.",
+  "Failed to check your card request status.",
+  "Failed to copy to clipboard.",
+  "Failed to load card request status:",
+  "Failed to load card request status.",
+  "Failed to load contacts",
+  "Failed to load contacts:",
+  "Failed to load requests",
+  "Failed to load requests:",
+  "Failed to load users. Please try again later.",
+  "Failed to load your account profile. Please refresh the page.",
+  "Failed to load your card request status.",
+  "Failed to refresh cards",
+  "Failed to remove contact",
+  "Failed to remove contact:",
+  "Failed to save contact",
+  "Failed to save contact:",
+  "Failed to send email:",
+  "Failed to send reset email. Please try again.",
+  "Failed to send verification email.",
+  "Failed to sign out.",
+  "Failed to submit card request.",
+  "Failed to update profile. Please try again.",
+  "Failed to verify session",
+  "File is empty.",
+  "Firestore access error:",
+  "First Name",
+  "First Name (override)",
+  "Forgot password?",
+  "Fund Account",
+  "Fund transfers are available only for accounts created through the Admin Portal with a registered account number, PIN, and transfer code. Self-registered accounts are not eligible for this feature.",
+  "Funding Requests",
+  "Generate a new bank customer login and profile.",
+  "Get Virtual Card",
+  "Good afternoon",
+  "Good evening",
+  "Good morning",
+  "Hide password",
+  "Hide PIN",
+  "Hide transfer code",
+  "Higher = sharper but larger file.",
+  "Horizontal offset of crop square within source image.",
+  "How much of the source image is used (square output always).",
+  "HttpOnly cookie",
+  "I verified, continue",
+  "ID Card (Back)",
+  "ID Card (Front)",
+  "Image too small. Minimum 32×32 pixels.",
+  "image/*",
+  "Inaccessible to JavaScript",
+  "Incorrect password.",
+  "Insufficient funds",
+  "Insufficient funds for atomic transaction",
+  "Invalid amount",
+  "Invalid credentials. Please try again.",
+  "Invalid email or password",
+  "Invalid email or password.",
+  "Invalid email or password. Use",
+  "Invalid email or password. Use 'Forgot password?' to reset.",
+  "Invalid KYC document type.",
+  "John A. Smith",
+  "JPEG quality",
+  "KYC Documents",
+  "Large square (512×512, recommended)",
+  "Last Name",
+  "Last Name (override)",
+  "Leave blank to keep current password",
+  "linear-gradient(to bottom left, black, transparent)",
+  "Loading requests...",
+  "Loading transactions...",
+  "Loading users...",
+  "Loading...",
+  "Login Email",
+  "Login Email *",
+  "Login email is required.",
+  "Login error:",
+  "Login Password",
+  "Login Password *",
+  "Login password is required.",
+  "Logout API call failed",
+  "Logout failed",
+  "Logout failed:",
+  "Mailing Address",
+  "Make a Deposit",
+  "Manage Balance",
+  "Manage Virtual Card",
+  "Manage your account preferences and security.",
+  "Manage your payment methods.",
+  "Manage your personal information.",
+  "Manual cards refresh error:",
+  "Mask account PIN",
+  "Mask password",
+  "Mask transfer code",
+  "Message:",
+  "Method:",
+  "Middle Name",
+  "Missing Firestore index for transactions. Deploy Firestore indexes.",
+  "Missing uid.",
+  "Missing user id.",
+  "Mobile Money",
+  "Mobile Number",
+  "Monthly Budget",
+  "must redeploy",
+  "My Account",
+  "My Cards",
+  "My Profile",
+  "My Requests",
+  "Narration:",
+  "Network error while looking up account.",
+  "Network error while saving changes.",
+  "Network error while sending.",
+  "Network error while uploading KYC document.",
+  "Network error while uploading.",
+  "Network error.",
+  "Network error. Action not recorded.",
+  "Network error. Please check your connection and try again.",
+  "Network error. Please try again.",
+  "Never share card details or OTP codes.",
+  "Never share your card details or verification codes.",
+  "No activity yet.",
+  "No cards added",
+  "No cards found",
+  "No requests yet.",
+  "No source loaded",
+  "No transactions found.",
+  "No transactions to export",
+  "No user found with this email. If you are an administrator, please use the Admin Portal login page at /admin/login.",
+  "noreferrer noopener",
+  "Not set",
+  "Not signed in.",
+  "Note:",
+  "Notes (Optional)",
+  "Nothing to copy for this field.",
+  "Number:",
+  "One lowercase letter",
+  "One number",
+  "One special character",
+  "One uppercase letter",
+  "Open admin navigation",
+  "Opening Balance ($) *",
+  "Optional note for activation (saved to audit log):",
+  "Optional reason for block (saved to audit log):",
+  "Optional reason for suspension (saved to audit log):",
+  "Output size",
+  "Password is required",
+  "Password must be at least 8 characters",
+  "Password must contain at least one lowercase letter",
+  "Password must contain at least one number",
+  "Password must contain at least one uppercase letter",
+  "Password must contain:",
+  "Password reset email sent. Check your inbox.",
+  "Passwords do not match",
+  "path:",
+  "Path:",
+  "Payment Method",
+  "Per-request auth enforcement",
+  "Permanently close account",
+  "Permanently delete account data",
+  "Personal Details",
+  "Phone Number",
+  "PIN is required.",
+  "PIN must be exactly 6 digits.",
+  "Please check the 10-digit account number.",
+  "Please confirm that the displayed account name matches your intended recipient.",
+  "Please correct the highlighted fields.",
+  "Please enter a valid amount",
+  "Please enter a valid email address",
+  "Please fill in all required fields",
+  "Please sign in first.",
+  "Please verify the account number.",
+  "Please verify the recipient account before submitting.",
+  "Please verify your email to continue.",
+  "Please wait while we verify the recipient account.",
+  "Postal / ZIP Code",
+  "Postal Code",
+  "Preferred Language",
+  "Prevents timing attacks",
+  "Preview will appear here",
+  "Processing...",
+  "Profile & Preferences",
+  "Profile Photo",
+  "Profile picture management",
+  "Profile picture uploaded and saved.",
+  "Profile picture URL copied to clipboard.",
+  "Profile updated",
+  "Proof of Address",
+  "Protect your online banking.",
+  "publicUsers sync failed:",
+  "Push Notifications",
+  "Quick Transfer",
+  "Rate limiting",
+  "Reason for closing this account (saved to audit log, recommend documenting):",
+  "Receive alerts on your device.",
+  "Receive transaction summaries via email.",
+  "Recent Transactions",
+  "Recipient account could not be verified.",
+  "Recipient account number is required.",
+  "Recipient account number must be exactly 10 digits.",
+  "Recipient Email",
+  "Reference number, etc.",
+  "Refresh card data",
+  "Refresh error:",
+  "Refreshing...",
+  "Region / State",
+  "Report suspicious activity immediately.",
+  "requires an index",
+  "Resend verification email",
+  "Reset password",
+  "Reveal account PIN",
+  "Reveal password",
+  "Reveal transfer code",
+  "Routine #:",
+  "Routine number",
+  "SameSite=Lax",
+  "Save changes",
+  "Save recipients for faster transfers.",
+  "Saved profile picture URL",
+  "Saving…",
+  "Search contacts...",
+  "Search users...",
+  "Secure Channel",
+  "Security Features",
+  "Send Funds",
+  "Send Money",
+  "Send profile picture to user",
+  "Send reset email",
+  "Sending...",
+  "Sending…",
+  "Server admin config OK.",
+  "Server response missing created user data.",
+  "Server returned not-ok status.",
+  "Session API error:",
+  "Session check failed:",
+  "Session check skipped (transient network).",
+  "Session Details",
+  "Session Duration",
+  "Session expired.",
+  "Session expired. Please login again.",
+  "Session Expires",
+  "Session not authenticated",
+  "Session verification failed",
+  "Session verification pending.",
+  "Set to 0 to disable the limit.",
+  "Setting main card:",
+  "Show password",
+  "Show PIN",
+  "Show transfer code",
+  "Sign In",
+  "Sign in to manage the banking system",
+  "Signed in successfully",
+  "Signed in, but failed to load your profile. Please try again.",
+  "Signing in...",
+  "Small square (256×256, faster upload)",
+  "Smaller file · 85% quality",
+  "Source preview",
+  "Spring Admin",
+  "SSN PIN",
+  "Starting cards stream for path:",
+  "Starting cards stream in My Cards for UID:",
+  "State / Province",
+  "State / Region",
+  "sticky top-0 z-10 flex h-auto min-h-[5rem] w-full bg-white shadow-sm border-b border-gray-100 items-center justify-between px-3 sm:px-6 lg:px-12 py-3 gap-2 sm:gap-4 flex-wrap sm:flex-nowrap",
+  "Strong password",
+  "StrongP@ssw0rd",
+  "Submission failed. Please try again.",
+  "Submit card request failed:",
+  "Submit Deposit",
+  "Submit Request",
+  "Submit Withdrawal",
+  "Submitting...",
+  "Super User",
+  "Suspend account",
+  "Switch between light and dark themes.",
+  "Tamper-proof session payloads",
+  "text-[10px] sm:text-[11px] text-gray-500",
+  "This email address belongs to an Admin Portal account, not a regular user account. Please sign in via the Admin Portal at /admin/login.",
+  "Too many attempts. Please try again later.",
+  "Too many failed attempts. Please try again later.",
+  "Too many requests. Please wait a few minutes and try again.",
+  "Total Balance",
+  "Total Transactions",
+  "Track card request failed:",
+  "Track Request",
+  "Track Virtual Card",
+  "Track your deposit and withdrawal requests.",
+  "Transaction failed:",
+  "Transaction failed. Check console for details.",
+  "transfer (outgoing)",
+  "Transfer Code",
+  "Transfer Code (6 digits)",
+  "Transfer code is required.",
+  "Transfer code must be exactly 6 digits.",
+  "Transfer completed successfully.",
+  "Transfer error:",
+  "Transfer failed",
+  "Transfer Limits",
+  "Transfer page: profile stream error:",
+  "Transfer request was declined. Please try again.",
+  "Transfer successful!",
+  "Transfer UI: account lookup error:",
+  "Transfer UI: submit error:",
+  "Transfers are processed immediately and cannot be reversed.",
+  "Unable to verify this account number.",
+  "Unblock User",
+  "Unknown error",
+  "Unknown error.",
+  "Upload & save profile picture",
+  "Upload a new picture",
+  "Uploading…",
+  "Used to compute budget progress on your dashboard.",
+  "User account created successfully.",
+  "User account created.",
+  "User details saved successfully.",
+  "User does not exist!",
+  "User error",
+  "User Info",
+  "User not found",
+  "User profile stream error:",
+  "Verification email sent. Check your inbox.",
+  "Verify your email",
+  "Vertical offset of crop square within source image.",
+  "View / Edit details",
+  "View and filter your transaction history.",
+  "Virtual card not available",
+  "Virtual Card Policy & Usage",
+  "Virtual card request submitted.",
+  "Welcome back",
+  "Welcome back,",
+  "Will be auto-generated if left blank",
+  "Wire Transfer",
+  "Withdraw Funds",
+  "Withdrawal completed",
+  "Withdrawal Method",
+  "Withdrawal request failed",
+  "Withdrawal request failed:",
+  "You already have a pending card request.",
+  "You already have a pending request.",
+  "You must be signed in.",
+  "Your 6-digit PIN and 6-digit Transfer Code are always required.",
+  "Your account has no email.",
+  "Your account is blocked. Please contact support.",
+  "Your account is not eligible for transfers. Contact the administrator.",
+  "Your account is restricted. Please contact support.",
+  "Your deposit has been successfully processed. Just wait for the admin approval.",
+  "Your request has been submitted.",
+  "Your request is under review.",
+  "Your request was rejected.",
+  "Your session has expired. Please sign in again.",
+  "Your user profile has not been provisioned yet. Please refresh or contact support.",
+  "Your virtual card is being provisioned.",
+  "Your withdrawal has been successfully completed.",
+  "Zip / Postal Code",
+  "Zip Code"
+]
+
+============================================================
+  (2b) UNIQUE DE-DUPLICATED SORTED SUGGESTED KEYS (574 items)
+============================================================
+[
+  "admin.createUserModal.10.digits.click.auto.generate",
+  "admin.createUserModal.account.created.successfully",
+  "admin.createUserModal.account.number",
+  "admin.createUserModal.account.number.must.be.exactly",
+  "admin.createUserModal.account.pin",
+  "admin.createUserModal.account.status",
+  "admin.createUserModal.alternate.phone",
+  "admin.createUserModal.at.least.8.characters",
+  "admin.createUserModal.auto.generate.accountnumber.via.api",
+  "admin.createUserModal.balance.must.be.a.non",
+  "admin.createUserModal.create.user",
+  "admin.createUserModal.create.user.account",
+  "admin.createUserModal.create.user.failed",
+  "admin.createUserModal.creating",
+  "admin.createUserModal.customer.name",
+  "admin.createUserModal.customer.name.is.required",
+  "admin.createUserModal.date.of.birth",
+  "admin.createUserModal.email.format.is.invalid",
+  "admin.createUserModal.error.server.response.missing.created.user",
+  "admin.createUserModal.first.name.override",
+  "admin.createUserModal.generate.a.new.bank.customer",
+  "admin.createUserModal.hide.password",
+  "admin.createUserModal.hide.pin",
+  "admin.createUserModal.hide.transfer.code",
+  "admin.createUserModal.last.name.override",
+  "admin.createUserModal.login.email",
+  "admin.createUserModal.login.email.is.required",
+  "admin.createUserModal.login.password",
+  "admin.createUserModal.login.password.is.required",
+  "admin.createUserModal.message.a.user.with.this.login",
+  "admin.createUserModal.message.email.is.already.registered.choose",
+  "admin.createUserModal.message.please.correct.the.highlighted.fields",
+  "admin.createUserModal.middle.name",
+  "admin.createUserModal.mobile.number",
+  "admin.createUserModal.one.lowercase.letter",
+  "admin.createUserModal.one.number",
+  "admin.createUserModal.one.special.character",
+  "admin.createUserModal.one.uppercase.letter",
+  "admin.createUserModal.opening.balance",
+  "admin.createUserModal.pin.must.be.exactly.6",
+  "admin.createUserModal.placeholder.john.a.smith",
+  "admin.createUserModal.placeholder.strongp.ssw0rd",
+  "admin.createUserModal.show.password",
+  "admin.createUserModal.show.pin",
+  "admin.createUserModal.show.transfer.code",
+  "admin.createUserModal.state.province",
+  "admin.createUserModal.strong.password",
+  "admin.createUserModal.title.auto.generate.secure.pin",
+  "admin.createUserModal.title.auto.generate.secure.transfer.code",
+  "admin.createUserModal.title.auto.generate.strong.password",
+  "admin.createUserModal.title.auto.generate.unique.account.number",
+  "admin.createUserModal.toast.user.account.created",
+  "admin.createUserModal.transfer.code",
+  "admin.createUserModal.transfer.code.must.be.exactly",
+  "admin.createUserModal.will.be.auto.generated.if",
+  "admin.createUserModal.zip.postal.code",
+  "admin.dashboard.admin.email",
+  "admin.dashboard.admin.role",
+  "admin.dashboard.authenticated.at",
+  "admin.dashboard.cookie.flags",
+  "admin.dashboard.csrf.protection",
+  "admin.dashboard.edge.middleware",
+  "admin.dashboard.httponly.cookie",
+  "admin.dashboard.inaccessible.to.javascript",
+  "admin.dashboard.logout.failed",
+  "admin.dashboard.message.failed.to.verify.session",
+  "admin.dashboard.message.session.not.authenticated",
+  "admin.dashboard.message.session.verification.failed",
+  "admin.dashboard.per.request.auth.enforcement",
+  "admin.dashboard.prevents.timing.attacks",
+  "admin.dashboard.rate.limiting",
+  "admin.dashboard.samesite.lax",
+  "admin.dashboard.secure.channel",
+  "admin.dashboard.security.features",
+  "admin.dashboard.session.api.error",
+  "admin.dashboard.session.details",
+  "admin.dashboard.session.duration",
+  "admin.dashboard.session.expires",
+  "admin.dashboard.super.user",
+  "admin.dashboard.tamper.proof.session.payloads",
+  "admin.dashboard.welcome.back",
+  "admin.fundUserModal.action.type",
+  "admin.fundUserModal.amount",
+  "admin.fundUserModal.current.balance",
+  "admin.fundUserModal.error.user.does.not.exist",
+  "admin.fundUserModal.manage.balance",
+  "admin.fundUserModal.please.enter.a.valid.amount",
+  "admin.fundUserModal.processing",
+  "admin.fundUserModal.spring.admin",
+  "admin.fundUserModal.transaction.failed",
+  "admin.fundUserModal.transaction.failed.check.console.for",
+  "admin.header.loading",
+  "admin.header.logout.api.call.failed",
+  "admin.header.open.admin.navigation",
+  "admin.header.session.check.failed",
+  "admin.header.session.check.skipped.transient.network",
+  "admin.header.sticky.top.0.z.10",
+  "admin.login.admin.login.health.check.fetch",
+  "admin.login.admin.login.server.reports.x",
+  "admin.login.admin.portal",
+  "admin.login.email.is.required",
+  "admin.login.invalid.email.or.password",
+  "admin.login.login.error",
+  "admin.login.message.network.error.please.check.your",
+  "admin.login.must.redeploy",
+  "admin.login.password.is.required",
+  "admin.login.password.must.be.at.least",
+  "admin.login.password.must.contain",
+  "admin.login.password.must.contain.at.least",
+  "admin.login.please.enter.a.valid.email",
+  "admin.login.server.admin.config.ok",
+  "admin.login.sign.in",
+  "admin.login.sign.in.to.manage.the",
+  "admin.login.too.many.attempts.please.try",
+  "admin.requests.admin.session.verified.approve.reject",
+  "admin.requests.funding.requests",
+  "admin.requests.session.verification.pending",
+  "admin.sidebar.logout.api.call.failed",
+  "admin.transactions.admin.session.verified.list.data",
+  "admin.transactions.session.verification.pending",
+  "admin.transactions.total.transactions",
+  "admin.userDetail.account",
+  "admin.userDetail.account.number.10.digits",
+  "admin.userDetail.account.pin.6.digits",
+  "admin.userDetail.address.line",
+  "admin.userDetail.adjust.color.intensity",
+  "admin.userDetail.adjust.difference.between.light.and",
+  "admin.userDetail.adjust.exposure",
+  "admin.userDetail.admin.login.required",
+  "admin.userDetail.alt.current.avatar",
+  "admin.userDetail.alt.edited.preview",
+  "admin.userDetail.alt.source.preview",
+  "admin.userDetail.balanced.90.quality",
+  "admin.userDetail.choose.an.image.first",
+  "admin.userDetail.copied",
+  "admin.userDetail.copy.account.number",
+  "admin.userDetail.copy.account.pin",
+  "admin.userDetail.copy.email.address",
+  "admin.userDetail.copy.new.password",
+  "admin.userDetail.copy.transfer.code",
+  "admin.userDetail.could.not.decode.image",
+  "admin.userDetail.could.not.load.user.detail",
+  "admin.userDetail.crisp.95.quality",
+  "admin.userDetail.crop.output.will.be.a",
+  "admin.userDetail.date.of.birth",
+  "admin.userDetail.error.canvas.2d.context.unavailable",
+  "admin.userDetail.error.canvas.export.failed",
+  "admin.userDetail.first.name",
+  "admin.userDetail.hide.password",
+  "admin.userDetail.hide.pin",
+  "admin.userDetail.hide.transfer.code",
+  "admin.userDetail.higher.sharper.but.larger.file",
+  "admin.userDetail.horizontal.offset.of.crop.square",
+  "admin.userDetail.how.much.of.the.source",
+  "admin.userDetail.id.card.back",
+  "admin.userDetail.id.card.front",
+  "admin.userDetail.image.too.small.minimum.32",
+  "admin.userDetail.jpeg.quality",
+  "admin.userDetail.kyc.documents",
+  "admin.userDetail.large.square.512.512.recommended",
+  "admin.userDetail.last.name",
+  "admin.userDetail.login.email",
+  "admin.userDetail.login.password",
+  "admin.userDetail.mailing.address",
+  "admin.userDetail.mask.account.pin",
+  "admin.userDetail.mask.password",
+  "admin.userDetail.mask.transfer.code",
+  "admin.userDetail.message.file.is.empty",
+  "admin.userDetail.message.network.error.while.uploading.kyc",
+  "admin.userDetail.middle.name",
+  "admin.userDetail.missing.uid",
+  "admin.userDetail.missing.user.id",
+  "admin.userDetail.network.error",
+  "admin.userDetail.no.source.loaded",
+  "admin.userDetail.noreferrer.noopener",
+  "admin.userDetail.not.set",
+  "admin.userDetail.output.size",
+  "admin.userDetail.placeholder.6.digits.blank.keep.current",
+  "admin.userDetail.placeholder.example.please.review.your.updated",
+  "admin.userDetail.placeholder.leave.blank.to.keep.current",
+  "admin.userDetail.postal.code",
+  "admin.userDetail.postal.zip.code",
+  "admin.userDetail.preferred.language",
+  "admin.userDetail.preview.will.appear.here",
+  "admin.userDetail.profile.picture.management",
+  "admin.userDetail.profile.preferences",
+  "admin.userDetail.proof.of.address",
+  "admin.userDetail.region.state",
+  "admin.userDetail.reveal.account.pin",
+  "admin.userDetail.reveal.password",
+  "admin.userDetail.reveal.transfer.code",
+  "admin.userDetail.save.changes",
+  "admin.userDetail.saved.profile.picture.url",
+  "admin.userDetail.saving",
+  "admin.userDetail.send.profile.picture.to.user",
+  "admin.userDetail.sending",
+  "admin.userDetail.show.password",
+  "admin.userDetail.show.pin",
+  "admin.userDetail.show.transfer.code",
+  "admin.userDetail.small.square.256.256.faster",
+  "admin.userDetail.smaller.file.85.quality",
+  "admin.userDetail.state.region",
+  "admin.userDetail.text.10px.sm.text.11px",
+  "admin.userDetail.toast.clipboard.copy.failed.copy.it",
+  "admin.userDetail.toast.copied.to.clipboard",
+  "admin.userDetail.toast.failed.to.copy.to.clipboard",
+  "admin.userDetail.toast.invalid.kyc.document.type",
+  "admin.userDetail.toast.network.error.while.saving.changes",
+  "admin.userDetail.toast.network.error.while.sending",
+  "admin.userDetail.toast.network.error.while.uploading",
+  "admin.userDetail.toast.nothing.to.copy.for.this",
+  "admin.userDetail.toast.profile.picture.uploaded.and.saved",
+  "admin.userDetail.toast.profile.picture.url.copied.to",
+  "admin.userDetail.toast.user.details.saved.successfully",
+  "admin.userDetail.transfer.code.6.digits",
+  "admin.userDetail.unknown.error",
+  "admin.userDetail.upload.a.new.picture",
+  "admin.userDetail.upload.save.profile.picture",
+  "admin.userDetail.uploading",
+  "admin.userDetail.vertical.offset.of.crop.square",
+  "admin.users.confirm.deletion.reason.required.for",
+  "admin.users.created.at",
+  "admin.users.data.text.csv.charset.utf",
+  "admin.users.error.fetching.users",
+  "admin.users.error.server.returned.not.ok.status",
+  "admin.users.export.failed",
+  "admin.users.exporting",
+  "admin.users.failed.to.load.users.please",
+  "admin.users.loading.users",
+  "admin.users.message.admin.session.expired.re.signing",
+  "admin.users.optional.note.for.activation.saved",
+  "admin.users.optional.reason.for.block.saved",
+  "admin.users.optional.reason.for.suspension.saved",
+  "admin.users.placeholder.search.users",
+  "admin.users.reason.for.closing.this.account",
+  "admin.users.session.check.failed",
+  "admin.users.toast.export.failed.please.try.again",
+  "admin.users.toast.network.error.action.not.recorded",
+  "admin.users.toast.user.account.created.successfully",
+  "admin.userTable.account.type",
+  "admin.userTable.title.activate.unblock.account",
+  "admin.userTable.title.fund.account",
+  "admin.userTable.title.permanently.close.account",
+  "admin.userTable.title.permanently.delete.account.data",
+  "admin.userTable.title.suspend.account",
+  "admin.userTable.title.view.edit.details",
+  "admin.userTable.unblock.user",
+  "admin.userTable.user.info",
+  "auth.blocked.account.restricted",
+  "auth.forgotPassword.email.address",
+  "auth.forgotPassword.reset.password",
+  "auth.forgotPassword.send.reset.email",
+  "auth.forgotPassword.sending",
+  "auth.forgotPassword.toast.failed.to.send.reset.email",
+  "auth.forgotPassword.toast.password.reset.email.sent.check",
+  "auth.login.admin.account.detected",
+  "auth.login.alt.aurora.bank.logo",
+  "auth.login.and.confirm.the.page.protocol",
+  "auth.login.check.your.network.connection.ensure",
+  "auth.login.email.address",
+  "auth.login.forgot.password",
+  "auth.login.invalid.email.or.password.use",
+  "auth.login.message.incorrect.password",
+  "auth.login.message.invalid.credentials.please.try.again",
+  "auth.login.message.invalid.email.or.password",
+  "auth.login.message.invalid.email.or.password.use",
+  "auth.login.message.no.user.found.with.this",
+  "auth.login.message.this.email.address.belongs.to",
+  "auth.login.message.too.many.failed.attempts.please",
+  "auth.login.placeholder.enter.your.email.address",
+  "auth.login.placeholder.enter.your.password",
+  "auth.login.protect.your.online.banking",
+  "auth.login.signing.in",
+  "auth.login.toast.please.verify.your.email.to",
+  "auth.login.toast.signed.in.but.failed.to",
+  "auth.login.toast.signed.in.successfully",
+  "auth.login.toast.your.account.is.restricted.please",
+  "auth.register.an.error.occurred",
+  "auth.register.banking.details",
+  "auth.register.choose.account.currency",
+  "auth.register.choose.account.type",
+  "auth.register.error.creating.user",
+  "auth.register.error.passwords.do.not.match",
+  "auth.register.error.please.fill.in.all.required",
+  "auth.register.image",
+  "auth.register.personal.details",
+  "auth.register.placeholder.confirm.password",
+  "auth.register.placeholder.email.address",
+  "auth.register.placeholder.first.name",
+  "auth.register.placeholder.last.name",
+  "auth.register.placeholder.middle.name",
+  "auth.register.placeholder.mobile.number",
+  "auth.register.placeholder.phone.number",
+  "auth.register.placeholder.ssn.pin",
+  "auth.register.placeholder.state.region",
+  "auth.register.placeholder.zip.code",
+  "auth.register.profile.photo",
+  "auth.register.submitting",
+  "auth.register.toast.account.created.please.verify.your",
+  "auth.verifyEmail.checking",
+  "auth.verifyEmail.i.verified.continue",
+  "auth.verifyEmail.resend.verification.email",
+  "auth.verifyEmail.sending",
+  "auth.verifyEmail.toast.email.not.verified.yet.please",
+  "auth.verifyEmail.toast.email.verified.welcome",
+  "auth.verifyEmail.toast.failed.to.check.verification.status",
+  "auth.verifyEmail.toast.failed.to.send.verification.email",
+  "auth.verifyEmail.toast.failed.to.sign.out",
+  "auth.verifyEmail.toast.too.many.requests.please.wait",
+  "auth.verifyEmail.toast.verification.email.sent.check.your",
+  "auth.verifyEmail.verify.your.email",
+  "card.apply.apply.for.virtual.card",
+  "card.apply.awaiting.approval",
+  "card.apply.card.access.is.reviewed.and",
+  "card.apply.card.policy",
+  "card.apply.card.usage",
+  "card.apply.check.existing.card.request.failed",
+  "card.apply.message.failed.to.check.your.card",
+  "card.apply.message.failed.to.submit.card.request",
+  "card.apply.never.share.your.card.details",
+  "card.apply.report.suspicious.activity.immediately",
+  "card.apply.submit.card.request.failed",
+  "card.apply.submit.request",
+  "card.apply.submitting",
+  "card.apply.toast.please.sign.in.first",
+  "card.apply.toast.submission.failed.please.try.again",
+  "card.apply.toast.you.already.have.a.pending",
+  "card.apply.toast.your.account.has.no.email",
+  "card.apply.toast.your.request.has.been.submitted",
+  "card.track.check.your.virtual.card.request",
+  "card.track.message.failed.to.load.your.card",
+  "card.track.track.card.request.failed",
+  "card.track.track.virtual.card",
+  "dashboard.cards.apply.for.a.virtual.card",
+  "dashboard.cards.apply.for.virtual.card",
+  "dashboard.cards.card.holder",
+  "dashboard.cards.card.request.status.error.in",
+  "dashboard.cards.card.request.status.in.my",
+  "dashboard.cards.card.requests.update.in.my",
+  "dashboard.cards.cards.stream.already.active.in",
+  "dashboard.cards.cards.stream.error.in.my",
+  "dashboard.cards.cards.update.in.my.cards",
+  "dashboard.cards.failed.to.load.card.request",
+  "dashboard.cards.get.virtual.card",
+  "dashboard.cards.manage.virtual.card",
+  "dashboard.cards.manage.your.payment.methods",
+  "dashboard.cards.message",
+  "dashboard.cards.my.cards",
+  "dashboard.cards.no.cards.added",
+  "dashboard.cards.path",
+  "dashboard.cards.refresh.error",
+  "dashboard.cards.refreshing",
+  "dashboard.cards.starting.cards.stream.in.my",
+  "dashboard.cards.toast.card.number.copied",
+  "dashboard.cards.toast.cards.refreshed",
+  "dashboard.cards.toast.failed.to.refresh.cards",
+  "dashboard.cards.track.request",
+  "dashboard.cards.virtual.card.not.available",
+  "dashboard.cards.your.request.is.under.review",
+  "dashboard.cards.your.request.was.rejected",
+  "dashboard.contacts.failed.to.load.contacts",
+  "dashboard.contacts.failed.to.remove.contact",
+  "dashboard.contacts.failed.to.save.contact",
+  "dashboard.contacts.loading",
+  "dashboard.contacts.placeholder.search.contacts",
+  "dashboard.contacts.recipient.email",
+  "dashboard.contacts.save.recipients.for.faster.transfers",
+  "dashboard.contacts.toast.contact.removed",
+  "dashboard.contacts.toast.contact.saved",
+  "dashboard.contacts.toast.failed.to.load.contacts",
+  "dashboard.contacts.toast.failed.to.remove.contact",
+  "dashboard.contacts.toast.failed.to.save.contact",
+  "dashboard.contacts.toast.user.not.found",
+  "dashboard.header.failed.to.backfill.photourl",
+  "dashboard.header.firestore.access.error",
+  "dashboard.header.my.account",
+  "dashboard.home.account.details.notes",
+  "dashboard.home.apply.for.a.virtual.card",
+  "dashboard.home.apply.for.card",
+  "dashboard.home.bank.name",
+  "dashboard.home.bank.transfer",
+  "dashboard.home.card.holder",
+  "dashboard.home.card.number",
+  "dashboard.home.card.request.data",
+  "dashboard.home.card.requests.update.empty",
+  "dashboard.home.card.status",
+  "dashboard.home.cardrequests.stream.error.details",
+  "dashboard.home.cards.stream.already.active.skipping",
+  "dashboard.home.cards.stream.error.for.path",
+  "dashboard.home.cards.stream.is.empty.for",
+  "dashboard.home.cards.stream.update.count",
+  "dashboard.home.contact.upsert.failed",
+  "dashboard.home.contacts.stream.error",
+  "dashboard.home.count",
+  "dashboard.home.create.card.request.failed",
+  "dashboard.home.dashboard.error",
+  "dashboard.home.dashboard.transactions.fallback.stream.error",
+  "dashboard.home.dashboard.transactions.stream.error",
+  "dashboard.home.data.text.csv.charset.utf",
+  "dashboard.home.deposit.request.failed",
+  "dashboard.home.error.code",
+  "dashboard.home.error.insufficient.funds",
+  "dashboard.home.error.insufficient.funds.for.atomic.transaction",
+  "dashboard.home.error.invalid.amount",
+  "dashboard.home.error.user.does.not.exist",
+  "dashboard.home.error.user.error",
+  "dashboard.home.failed.to.backfill.photourl",
+  "dashboard.home.failed.to.load.card.request",
+  "dashboard.home.failed.to.send.email",
+  "dashboard.home.failed.to.submit.card.request",
+  "dashboard.home.get.virtual.card",
+  "dashboard.home.good.afternoon",
+  "dashboard.home.good.evening",
+  "dashboard.home.good.morning",
+  "dashboard.home.linear.gradient.to.bottom.left",
+  "dashboard.home.make.a.deposit",
+  "dashboard.home.manage.virtual.card",
+  "dashboard.home.manual.cards.refresh.error",
+  "dashboard.home.message",
+  "dashboard.home.mobile.money",
+  "dashboard.home.monthly.budget",
+  "dashboard.home.my.cards",
+  "dashboard.home.never.share.card.details.or",
+  "dashboard.home.no.activity.yet",
+  "dashboard.home.notes.optional",
+  "dashboard.home.number",
+  "dashboard.home.path",
+  "dashboard.home.payment.method",
+  "dashboard.home.placeholder.account.number.bank.name.etc",
+  "dashboard.home.placeholder.enter.bank.name",
+  "dashboard.home.placeholder.enter.narration",
+  "dashboard.home.placeholder.enter.routine.number",
+  "dashboard.home.placeholder.reference.number.etc",
+  "dashboard.home.processing",
+  "dashboard.home.publicusers.sync.failed",
+  "dashboard.home.quick.transfer",
+  "dashboard.home.recent.transactions",
+  "dashboard.home.recipient.email",
+  "dashboard.home.report.suspicious.activity.immediately",
+  "dashboard.home.requires.an.index",
+  "dashboard.home.routine.number",
+  "dashboard.home.send.money",
+  "dashboard.home.sending",
+  "dashboard.home.setting.main.card",
+  "dashboard.home.starting.cards.stream.for.path",
+  "dashboard.home.submit.deposit",
+  "dashboard.home.submit.withdrawal",
+  "dashboard.home.title.refresh.card.data",
+  "dashboard.home.toast.cannot.transfer.to.yourself",
+  "dashboard.home.toast.cards.refreshed",
+  "dashboard.home.toast.deposit.request.failed",
+  "dashboard.home.toast.enter.a.valid.deposit.amount",
+  "dashboard.home.toast.enter.a.valid.withdrawal.amount",
+  "dashboard.home.toast.failed.to.refresh.cards",
+  "dashboard.home.toast.missing.firestore.index.for.transactions",
+  "dashboard.home.toast.no.cards.found",
+  "dashboard.home.toast.no.transactions.to.export",
+  "dashboard.home.toast.transaction.failed",
+  "dashboard.home.toast.transfer.successful",
+  "dashboard.home.toast.user.not.found",
+  "dashboard.home.toast.virtual.card.request.submitted",
+  "dashboard.home.toast.you.already.have.a.pending",
+  "dashboard.home.toast.you.must.be.signed.in",
+  "dashboard.home.toast.your.account.has.no.email",
+  "dashboard.home.toast.your.account.is.blocked.please",
+  "dashboard.home.toast.your.deposit.has.been.successfully",
+  "dashboard.home.toast.your.withdrawal.has.been.successfully",
+  "dashboard.home.total.balance",
+  "dashboard.home.track.request",
+  "dashboard.home.track.virtual.card",
+  "dashboard.home.transfer.error",
+  "dashboard.home.transfer.failed",
+  "dashboard.home.transfer.outgoing",
+  "dashboard.home.unknown.error",
+  "dashboard.home.user.profile.stream.error",
+  "dashboard.home.virtual.card.policy.usage",
+  "dashboard.home.welcome.back",
+  "dashboard.home.wire.transfer",
+  "dashboard.home.withdraw.funds",
+  "dashboard.home.withdrawal.completed",
+  "dashboard.home.withdrawal.method",
+  "dashboard.home.withdrawal.request.failed",
+  "dashboard.home.your.request.is.under.review",
+  "dashboard.home.your.request.was.rejected",
+  "dashboard.home.your.virtual.card.is.being",
+  "dashboard.profile.display.name",
+  "dashboard.profile.email.address",
+  "dashboard.profile.error.updating.profile",
+  "dashboard.profile.failed.to.update.profile.please",
+  "dashboard.profile.manage.your.personal.information",
+  "dashboard.profile.my.profile",
+  "dashboard.profile.not.set",
+  "dashboard.profile.phone.number",
+  "dashboard.profile.placeholder.123.main.st.city.country",
+  "dashboard.profile.toast.profile.updated",
+  "dashboard.profile.toast.session.expired.please.login.again",
+  "dashboard.requests.bank",
+  "dashboard.requests.failed.to.load.requests",
+  "dashboard.requests.loading.requests",
+  "dashboard.requests.message.failed.to.load.requests",
+  "dashboard.requests.method",
+  "dashboard.requests.my.requests",
+  "dashboard.requests.narration",
+  "dashboard.requests.no.requests.yet",
+  "dashboard.requests.note",
+  "dashboard.requests.routine",
+  "dashboard.requests.track.your.deposit.and.withdrawal",
+  "dashboard.settings.add.an.extra.layer.of",
+  "dashboard.settings.amount.usd",
+  "dashboard.settings.daily.transfer.limit.usd",
+  "dashboard.settings.dark.mode",
+  "dashboard.settings.email.alerts",
+  "dashboard.settings.manage.your.account.preferences.and",
+  "dashboard.settings.monthly.budget",
+  "dashboard.settings.push.notifications",
+  "dashboard.settings.receive.alerts.on.your.device",
+  "dashboard.settings.receive.transaction.summaries.via.email",
+  "dashboard.settings.set.to.0.to.disable",
+  "dashboard.settings.switch.between.light.and.dark",
+  "dashboard.settings.transfer.limits",
+  "dashboard.settings.used.to.compute.budget.progress",
+  "dashboard.sidebar.logout.failed",
+  "dashboard.sidebar.my.cards",
+  "dashboard.sidebar.send.funds",
+  "dashboard.transactions.data.text.csv.charset.utf",
+  "dashboard.transactions.error.fetching.transactions",
+  "dashboard.transactions.export.csv",
+  "dashboard.transactions.export.failed",
+  "dashboard.transactions.exporting",
+  "dashboard.transactions.loading.transactions",
+  "dashboard.transactions.no.transactions.found",
+  "dashboard.transactions.toast.export.failed.please.try.again",
+  "dashboard.transactions.view.and.filter.your.transaction",
+  "dashboard.transfer.a.network.error.occurred.while",
+  "dashboard.transfer.account.number",
+  "dashboard.transfer.amount.exceeds.your.available.balance",
+  "dashboard.transfer.amount.is.required",
+  "dashboard.transfer.amount.must.be.a.number",
+  "dashboard.transfer.amount.must.be.greater.than",
+  "dashboard.transfer.available.balance",
+  "dashboard.transfer.ensure.the.recipient.account.number",
+  "dashboard.transfer.failed.to.load.your.account",
+  "dashboard.transfer.fund.transfers.are.available.only",
+  "dashboard.transfer.network.error.while.looking.up",
+  "dashboard.transfer.not.signed.in",
+  "dashboard.transfer.pin.is.required",
+  "dashboard.transfer.pin.must.be.exactly.6",
+  "dashboard.transfer.placeholder.6.digit.transfer.code",
+  "dashboard.transfer.placeholder.e.g.rent.invoice.123",
+  "dashboard.transfer.please.check.the.10.digit",
+  "dashboard.transfer.please.confirm.that.the.displayed",
+  "dashboard.transfer.please.correct.the.highlighted.fields",
+  "dashboard.transfer.please.verify.the.account.number",
+  "dashboard.transfer.please.verify.the.recipient.account",
+  "dashboard.transfer.please.wait.while.we.verify",
+  "dashboard.transfer.recipient.account.could.not.be",
+  "dashboard.transfer.recipient.account.number.is.required",
+  "dashboard.transfer.recipient.account.number.must.be",
+  "dashboard.transfer.send.funds",
+  "dashboard.transfer.toast.network.error.please.try.again",
+  "dashboard.transfer.toast.session.expired",
+  "dashboard.transfer.toast.transfer.completed.successfully",
+  "dashboard.transfer.transfer.code.is.required",
+  "dashboard.transfer.transfer.code.must.be.exactly",
+  "dashboard.transfer.transfer.page.profile.stream.error",
+  "dashboard.transfer.transfer.request.was.declined.please",
+  "dashboard.transfer.transfer.ui.account.lookup.error",
+  "dashboard.transfer.transfer.ui.submit.error",
+  "dashboard.transfer.transfers.are.processed.immediately.and",
+  "dashboard.transfer.unable.to.verify.this.account",
+  "dashboard.transfer.your.6.digit.pin.and",
+  "dashboard.transfer.your.account.is.not.eligible",
+  "dashboard.transfer.your.session.has.expired.please",
+  "dashboard.transfer.your.user.profile.has.not"
+]
+

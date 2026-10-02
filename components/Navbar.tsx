@@ -46,8 +46,8 @@ export default function Navbar({ locale }: { locale?: Locale }) {
           {/* Logo */}
           <div className="flex items-center">
             <Link href="/" className="flex-shrink-0 flex items-center gap-2">
-              <img src="/logo.svg" alt="Aurora Bank logo" className="h-8 w-auto" />
-              <span className="font-bold text-xl text-blue-900">Aurora Bank</span>
+              <img src="/logo.svg" alt={t("common.altLogo")} className="h-8 w-auto" />
+              <span className="font-bold text-xl text-blue-900">{t("common.brandName")}</span>
             </Link>
           </div>
 
@@ -85,7 +85,7 @@ export default function Navbar({ locale }: { locale?: Locale }) {
               onClick={() => setIsOpen(!isOpen)}
               className="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-blue-500"
             >
-              <span className="sr-only">Open main menu</span>
+              <span className="sr-only">{t("common.openMenu")}</span>
               {/* Menu Icon */}
               {!isOpen ? (
                 <svg

@@ -3,9 +3,11 @@
 import { useEffect, useState } from "react";
 import { useToast } from "@/components/ToastProvider";
 import { auth } from "@/lib/firebase";
+import { useTranslation } from "@/lib/i18n/useTranslation";
 
 export default function ContactFormClient() {
   const toast = useToast();
+  const { t } = useTranslation();
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
@@ -56,15 +58,15 @@ export default function ContactFormClient() {
     const subjectTrimmed = subject.trim();
 
     if (!name || !emailTrimmed || !messageTrimmed) {
-      toast.error("Please fill in name, email, and message.");
+      toast.error(t("contact.form.validation.nameEmailMessageRequired"));
       return;
     }
     if (website.trim()) {
-      toast.error("Invalid request.");
+      toast.error(t("contact.form.validation.invalidRequest"));
       return;
     }
     if (turnstileEnabled && !turnstileToken) {
-      toast.error("Please complete the CAPTCHA.");
+      toast.error(t("contact.form.validation.captchaRequired"));
       return;
     }
 
@@ -100,11 +102,11 @@ export default function ContactFormClient() {
       })() as any;
 
       if (!res.ok) {
-        toast.error(String(data?.message || raw || "Failed to send message"));
+        toast.error(String(data?.message || raw || t("contact.form.sendFailed")));
         return;
       }
 
-      toast.success("Message sent successfully");
+      toast.success(t("contact.form.sendSuccess"));
       setFirstName("");
       setLastName("");
       if (!auth.currentUser?.email) setEmail("");
@@ -114,7 +116,7 @@ export default function ContactFormClient() {
       setTurnstileToken("");
     } catch (err) {
       console.error("CONTACT SUBMIT ERROR:", err);
-      toast.error("Failed to send message. Please try again.");
+      toast.error(t("contact.form.sendFailedTryAgain"));
     } finally {
       setLoading(false);
     }
@@ -125,13 +127,13 @@ export default function ContactFormClient() {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div>
           <label htmlFor="firstName" className="block text-sm font-medium text-gray-700 mb-2">
-            First Name
+            {t("contact.form.firstName")}
           </label>
           <input
             type="text"
             id="firstName"
             className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
-            placeholder="John"
+            placeholder={t("register.firstNamePlaceholder")}
             value={firstName}
             onChange={(e) => setFirstName(e.target.value)}
             required
@@ -139,13 +141,13 @@ export default function ContactFormClient() {
         </div>
         <div>
           <label htmlFor="lastName" className="block text-sm font-medium text-gray-700 mb-2">
-            Last Name
+            {t("contact.form.lastName")}
           </label>
           <input
             type="text"
             id="lastName"
             className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
-            placeholder="Doe"
+            placeholder={t("register.lastNamePlaceholder")}
             value={lastName}
             onChange={(e) => setLastName(e.target.value)}
             required
@@ -155,13 +157,13 @@ export default function ContactFormClient() {
 
       <div>
         <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
-          Email
+          {t("contact.form.email")}
         </label>
         <input
           type="email"
           id="email"
           className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
-          placeholder="john@example.com"
+          placeholder={t("contact.form.emailPlaceholder")}
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           required
@@ -170,13 +172,13 @@ export default function ContactFormClient() {
 
       <div>
         <label htmlFor="subject" className="block text-sm font-medium text-gray-700 mb-2">
-          Subject
+          {t("contact.form.subject")}
         </label>
         <input
           type="text"
           id="subject"
           className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
-          placeholder="How can we help?"
+          placeholder={t("contact.form.subjectPlaceholder")}
           value={subject}
           onChange={(e) => setSubject(e.target.value)}
         />
@@ -184,13 +186,13 @@ export default function ContactFormClient() {
 
       <div>
         <label htmlFor="message" className="block text-sm font-medium text-gray-700 mb-2">
-          Message
+          {t("contact.form.message")}
         </label>
         <textarea
           id="message"
           rows={4}
           className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all resize-none"
-          placeholder="Your message..."
+          placeholder={t("contact.form.messagePlaceholder")}
           value={message}
           onChange={(e) => setMessage(e.target.value)}
           required
@@ -198,7 +200,7 @@ export default function ContactFormClient() {
       </div>
 
       <div className="hidden">
-        <label htmlFor="website">Website</label>
+        <label htmlFor="website">{t("contact.form.website")}</label>
         <input id="website" value={website} onChange={(e) => setWebsite(e.target.value)} />
       </div>
 
@@ -218,7 +220,7 @@ export default function ContactFormClient() {
         disabled={loading}
         className="w-full bg-blue-600 text-white font-semibold py-4 rounded-lg hover:bg-blue-700 transition-colors shadow-lg hover:shadow-xl disabled:opacity-60"
       >
-        {loading ? "Sending..." : "Send Message"}
+        {loading ? t("contact.form.sending") : t("contact.form.send")}
       </button>
     </form>
   );

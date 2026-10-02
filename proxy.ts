@@ -24,7 +24,7 @@ function pathEndsWith(pathname: string, suffix: string): boolean {
   return stripped === suffix;
 }
 
-export default async function middleware(req: NextRequest) {
+export default async function proxy(req: NextRequest) {
   const { pathname } = req.nextUrl;
 
   if (pathname.startsWith("/api/admin/")) {

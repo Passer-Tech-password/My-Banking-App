@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { useTranslation } from "@/lib/i18n/useTranslation";
 
 interface FormDataState {
   email: string;
@@ -21,37 +22,8 @@ interface HealthCheckInfo {
   fingerprint?: string;
 }
 
-function validateEmail(email: string): string {
-  if (!email.trim()) return "Email is required";
-  const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  if (!re.test(email.trim())) return "Please enter a valid email address";
-  return "";
-}
-
-function validatePassword(password: string): string {
-  if (!password) return "Password is required";
-  if (password.length < 8) return "Password must be at least 8 characters";
-  if (!/[A-Z]/.test(password)) return "Password must contain at least one uppercase letter";
-  if (!/[a-z]/.test(password)) return "Password must contain at least one lowercase letter";
-  if (!/[0-9]/.test(password)) return "Password must contain at least one number";
-  return "";
-}
-
-function getPasswordStrength(password: string): { level: number; label: string; color: string } {
-  let score = 0;
-  if (password.length >= 8) score++;
-  if (password.length >= 12) score++;
-  if (/[A-Z]/.test(password)) score++;
-  if (/[a-z]/.test(password)) score++;
-  if (/[0-9]/.test(password)) score++;
-  if (/[^A-Za-z0-9]/.test(password)) score++;
-
-  if (score <= 2) return { level: 1, label: "Weak", color: "bg-red-500" };
-  if (score <= 4) return { level: 2, label: "Medium", color: "bg-yellow-500" };
-  return { level: 3, label: "Strong", color: "bg-green-500" };
-}
-
 export default function AdminLoginPage() {
+  const { t } = useTranslation();
   const router = useRouter();
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -68,6 +40,36 @@ export default function AdminLoginPage() {
     checks: {},
     vercelSteps: [],
   });
+
+  const validateEmail = (email: string): string => {
+    if (!email.trim()) return t("admin.login.emailRequired");
+    const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!re.test(email.trim())) return t("admin.login.emailInvalid");
+    return "";
+  };
+
+  const validatePassword = (password: string): string => {
+    if (!password) return t("admin.login.passwordRequired");
+    if (password.length < 8) return t("admin.login.passwordTooShort");
+    if (!/[A-Z]/.test(password)) return t("admin.login.passwordUppercase");
+    if (!/[a-z]/.test(password)) return t("admin.login.passwordLowercase");
+    if (!/[0-9]/.test(password)) return t("admin.login.passwordNumber");
+    return "";
+  };
+
+  const getPasswordStrength = (password: string): { level: number; label: string; color: string } => {
+    let score = 0;
+    if (password.length >= 8) score++;
+    if (password.length >= 12) score++;
+    if (/[A-Z]/.test(password)) score++;
+    if (/[a-z]/.test(password)) score++;
+    if (/[0-9]/.test(password)) score++;
+    if (/[^A-Za-z0-9]/.test(password)) score++;
+
+    if (score <= 2) return { level: 1, label: t("admin.login.passwordStrengthWeak"), color: "bg-red-500" };
+    if (score <= 4) return { level: 2, label: t("admin.login.passwordStrengthMedium"), color: "bg-yellow-500" };
+    return { level: 3, label: t("admin.login.passwordStrengthStrong"), color: "bg-green-500" };
+  };
 
   useEffect(() => {
     let cancelled = false;
@@ -152,7 +154,7 @@ export default function AdminLoginPage() {
       })() as { ok?: boolean; error?: string; redirectTo?: string } | null;
 
       if (res.status === 429) {
-        setError(data?.error || "Too many attempts. Please try again later.");
+        setError(data?.error || t("admin.login.tooManyAttempts"));
         return;
       }
 
@@ -161,14 +163,14 @@ export default function AdminLoginPage() {
         const restartHint = res.headers.get("X-Admin-Config-Restart-Hint");
         if (envMissingHeader === "env-missing" && restartHint) {
           setError(
-            `Invalid email or password. ADMIN SERVER CONFIG WARNING: ${restartHint} This message appears when ADMIN_EMAIL/ADMIN_PASSWORD in .env.local were changed or added after the server was started — fully stop and restart the Next.js dev/prod server for new values to take effect.`,
+            `${t("admin.login.invalidCredentials")}. ${t("admin.login.serverWarning")} ${restartHint}`,
           );
           console.warn(
             "[Admin Login] Server reports X-Admin-Config-Status=env-missing. The admin credentials in the running Node.js process are not loaded. Restart the server after verifying .env.local variables.",
           );
           return;
         }
-        setError(data?.error || "Invalid email or password");
+        setError(data?.error || t("admin.login.invalidCredentials"));
         return;
       }
 
@@ -181,7 +183,7 @@ export default function AdminLoginPage() {
       return;
     } catch (err) {
       console.error("Login error:", err);
-      setError("Network error. Please check your connection and try again.");
+      setError(t("admin.login.networkError"));
     } finally {
       setLoading(false);
     }
@@ -194,8 +196,8 @@ export default function AdminLoginPage() {
           <div className="inline-flex items-center justify-center w-12 h-12 rounded-lg bg-blue-800 text-white mb-4">
             <span className="text-xl font-bold">A</span>
           </div>
-          <h2 className="text-2xl font-bold text-white">Admin Portal</h2>
-          <p className="text-blue-200 mt-2 text-sm">Sign in to manage the banking system</p>
+          <h2 className="text-2xl font-bold text-white">{t("admin.login.title")}</h2>
+          <p className="text-blue-200 mt-2 text-sm">{t("admin.login.subtitle")}</p>
         </div>
 
         <div className="px-6 py-8">
@@ -223,7 +225,7 @@ export default function AdminLoginPage() {
                   {health.missingVars.length > 0 && (
                     <div>
                       <div className="font-medium text-amber-900 text-xs mb-1">
-                        Missing or invalid variables ({health.missingVars.length}):
+                        {t("admin.login.healthCheckMissing")} ({health.missingVars.length}):
                       </div>
                       <ul className="space-y-1 text-xs font-mono break-all">
                         {health.missingVars.map((v) => (
@@ -298,7 +300,7 @@ export default function AdminLoginPage() {
                   <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                 </svg>
                 <div>
-                  <span className="font-medium text-emerald-900">Server admin config OK.</span>
+                  <span className="font-medium text-emerald-900">{t("admin.login.healthCheckStatusOk")}</span>
                   {health.note ? ` ${health.note}` : ""}
                 </div>
               </div>
@@ -308,7 +310,7 @@ export default function AdminLoginPage() {
           {!health.loaded && (
             <div className="bg-gray-50 border border-gray-200 text-gray-500 px-4 py-2 rounded-lg mb-6 text-xs flex items-center gap-2">
               <span className="inline-block animate-spin rounded-full h-3 w-3 border-2 border-gray-300 border-t-gray-600" />
-              Checking server admin configuration…
+              {t("admin.login.healthCheckStatus")}…
             </div>
           )}
 
@@ -330,7 +332,7 @@ export default function AdminLoginPage() {
           <form onSubmit={handleSubmit} className="space-y-6" noValidate>
             <div>
               <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
-                Email Address
+                {t("admin.login.email")}
               </label>
               <input
                 id="email"
@@ -345,7 +347,7 @@ export default function AdminLoginPage() {
                     ? "border-red-300 focus:border-red-500 focus:ring-red-100"
                     : "border-gray-200 focus:border-blue-500 focus:ring-blue-100"
                 }`}
-                placeholder="admin@example.com"
+                placeholder={t("admin.login.emailPlaceholder")}
                 onChange={handleChange}
                 onBlur={handleBlur}
                 value={formData.email}
@@ -360,14 +362,14 @@ export default function AdminLoginPage() {
             <div>
               <div className="flex items-center justify-between mb-2">
                 <label htmlFor="password" className="block text-sm font-medium text-gray-700">
-                  Password
+                  {t("admin.login.password")}
                 </label>
                 <button
                   type="button"
                   onClick={() => setShowPassword((v) => !v)}
                   className="text-xs text-blue-700 hover:underline"
                 >
-                  {showPassword ? "Hide" : "Show"}
+                  {showPassword ? t("admin.login.hidePassword") : t("admin.login.showPassword")}
                 </button>
               </div>
               <input
@@ -401,7 +403,7 @@ export default function AdminLoginPage() {
                     ))}
                   </div>
                   <p className="text-xs text-gray-500">
-                    Password strength: <span className="font-medium">{passwordStrength.label}</span>
+                    {passwordStrength.label}
                   </p>
                 </div>
               )}
@@ -412,19 +414,18 @@ export default function AdminLoginPage() {
               )}
               {!passwordError && (
                 <div className="mt-2 text-xs text-gray-500 space-y-0.5">
-                  <p>Password must contain:</p>
                   <ul className="ml-4 space-y-0.5">
                     <li className={formData.password.length >= 8 ? "text-green-600" : ""}>
-                      {formData.password.length >= 8 ? "✓" : "○"} At least 8 characters
+                      {formData.password.length >= 8 ? "✓" : "○"} {t("admin.login.passwordTooShort")}
                     </li>
                     <li className={/[A-Z]/.test(formData.password) ? "text-green-600" : ""}>
-                      {/[A-Z]/.test(formData.password) ? "✓" : "○"} One uppercase letter
+                      {/[A-Z]/.test(formData.password) ? "✓" : "○"} {t("admin.login.passwordUppercase")}
                     </li>
                     <li className={/[a-z]/.test(formData.password) ? "text-green-600" : ""}>
-                      {/[a-z]/.test(formData.password) ? "✓" : "○"} One lowercase letter
+                      {/[a-z]/.test(formData.password) ? "✓" : "○"} {t("admin.login.passwordLowercase")}
                     </li>
                     <li className={/[0-9]/.test(formData.password) ? "text-green-600" : ""}>
-                      {/[0-9]/.test(formData.password) ? "✓" : "○"} One number
+                      {/[0-9]/.test(formData.password) ? "✓" : "○"} {t("admin.login.passwordNumber")}
                     </li>
                   </ul>
                 </div>
@@ -442,10 +443,10 @@ export default function AdminLoginPage() {
                     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                     <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                   </svg>
-                  Signing in...
+                  {t("admin.login.signingIn")}
                 </>
               ) : (
-                "Sign In"
+                t("admin.login.signIn")
               )}
             </button>
 

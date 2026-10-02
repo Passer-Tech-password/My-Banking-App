@@ -10,6 +10,7 @@ import DashboardHeader from "@/components/DashboardHeader";
 import { auth, db } from "@/lib/firebase";
 import { useToast } from "@/components/ToastProvider";
 import { isAdminUserData } from "@/lib/roles";
+import { useTranslation } from "@/lib/i18n/useTranslation";
 
 export default function DashboardLayout({
   children,
@@ -19,6 +20,7 @@ export default function DashboardLayout({
   const router = useRouter();
   const pathname = usePathname();
   const toast = useToast();
+  const { t } = useTranslation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [guardLoading, setGuardLoading] = useState(true);
   const [authorized, setAuthorized] = useState(false);
@@ -52,7 +54,7 @@ export default function DashboardLayout({
         const isBlocked = blockedValue === true || blockedValue === "true";
         if (isBlocked) {
           await signOut(auth);
-          toast.error("Your account is restricted. Please contact support.");
+          toast.error(t("layout.accountRestricted"));
           setGuardLoading(false);
           router.replace("/blocked");
           return;
@@ -64,7 +66,7 @@ export default function DashboardLayout({
         } catch (signOutError) {
           console.error("Sign out failed:", signOutError);
         }
-        toast.error("Authentication error. Please try again.");
+        toast.error(t("layout.authError"));
         setGuardLoading(false);
         router.replace("/login");
         return;

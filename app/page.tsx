@@ -1,3 +1,5 @@
+"use client";
+
 import Footer from "@/components/Footer";
 import Navbar from "@/components/Navbar";
 import HeroSlider from "@/components/HeroSlider";
@@ -11,15 +13,11 @@ import {
   DevicePhoneMobileIcon,
   PaperAirplaneIcon
 } from "@heroicons/react/24/outline";
-import { getLocaleFromCookies } from "@/lib/i18n/server";
-import { createTranslator } from "@/lib/i18n/messages";
-import { cookies } from "next/headers";
 import Image from "next/image";
+import { useTranslation } from "@/lib/i18n/useTranslation";
 
-export default async function HomePage() {
-  const cookieStore = await cookies();
-  const locale = getLocaleFromCookies(cookieStore);
-  const t = createTranslator(locale);
+export default function HomePage() {
+  const { t, locale } = useTranslation();
 
   return (
     <main className="w-full min-h-screen flex flex-col bg-white">
@@ -195,7 +193,7 @@ export default async function HomePage() {
                  
                  <img 
                    src="/security-image.png-removebg-preview.png" 
-                   alt="Banking Security" 
+                   alt={t("home.security")} 
                    className="relative z-10 object-contain w-full h-full drop-shadow-2xl transition-transform duration-500 hover:scale-105"
                  />
               </div>
@@ -205,7 +203,7 @@ export default async function HomePage() {
       </section>
 
       {/* FOOTER */}
-      <Footer />
+      <Footer locale={locale} />
     </main>
   );
 }

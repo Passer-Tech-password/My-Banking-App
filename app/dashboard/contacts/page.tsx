@@ -18,6 +18,7 @@ import {
 } from "firebase/firestore";
 import { useToast } from "@/components/ToastProvider";
 import { MagnifyingGlassIcon, TrashIcon, PlusIcon, UserGroupIcon } from "@heroicons/react/24/outline";
+import { useTranslation } from "@/lib/i18n/useTranslation";
 
 type Contact = {
   id: string;
@@ -30,6 +31,7 @@ type Contact = {
 };
 
 export default function ContactsPage() {
+  const { t } = useTranslation();
   const router = useRouter();
   const toast = useToast();
   const [authChecking, setAuthChecking] = useState(true);
@@ -66,7 +68,7 @@ export default function ContactsPage() {
       setContacts(rows);
     } catch (e) {
       console.error("Failed to load contacts:", e);
-      toast.error("Failed to load contacts");
+      toast.error(t("common.networkErrorTryAgain"));
     } finally {
       setLoading(false);
     }
@@ -87,7 +89,7 @@ export default function ContactsPage() {
       const q = query(collection(db, "publicUsers"), where("email", "==", normalized), limit(1));
       const snap = await getDocs(q);
       if (snap.empty) {
-        toast.error("User not found");
+        toast.error(t("contacts.publicNotFound"));
         return;
       }
       const match = snap.docs[0];
@@ -107,7 +109,7 @@ export default function ContactsPage() {
         { merge: true },
       );
 
-      toast.success("Contact saved");
+      toast.success(t("contacts.addSuccess"));
       setAddOpen(false);
       setEmail("");
       fetchContacts(user.uid);
