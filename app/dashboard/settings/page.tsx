@@ -5,8 +5,9 @@ import { doc, getDoc, updateDoc } from "firebase/firestore";
 import { auth, db } from "@/lib/firebase";
 import { onAuthStateChanged } from "firebase/auth";
 import { useRouter } from "next/navigation";
-import { BellIcon, ShieldCheckIcon, MoonIcon, BanknotesIcon } from "@heroicons/react/24/outline";
+import { BellIcon, ShieldCheckIcon, MoonIcon, BanknotesIcon, GlobeAltIcon } from "@heroicons/react/24/outline";
 import { useTranslation } from "@/lib/i18n/useTranslation";
+import LanguageSwitcher from "@/components/LanguageSwitcher";
 
 export default function SettingsPage() {
   const router = useRouter();
@@ -88,27 +89,27 @@ export default function SettingsPage() {
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Settings</h1>
-          <p className="text-sm text-gray-500">Manage your account preferences and security.</p>
+          <h1 className="text-2xl font-bold text-gray-900">{t("settings.title")}</h1>
+          <p className="text-sm text-gray-500">{t("settings.subtitle")}</p>
         </div>
       </div>
 
       <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden divide-y divide-gray-100">
-        
+
         {/* Notifications */}
         <div className="p-6 sm:p-8">
           <div className="flex items-center gap-4 mb-6">
             <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center text-blue-600">
               <BellIcon className="w-6 h-6" />
             </div>
-            <h2 className="text-lg font-semibold text-gray-900">Notifications</h2>
+            <h2 className="text-lg font-semibold text-gray-900">{t("settings.notifications")}</h2>
           </div>
-          
+
           <div className="space-y-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="font-medium text-gray-900">Push Notifications</p>
-                <p className="text-sm text-gray-500">Receive alerts on your device.</p>
+                <p className="font-medium text-gray-900">{t("settings.pushNotifications")}</p>
+                <p className="text-sm text-gray-500">{t("settings.pushNotificationsDesc")}</p>
               </div>
               <button
                 onClick={() => toggleSetting("notifications")}
@@ -126,8 +127,8 @@ export default function SettingsPage() {
 
             <div className="flex items-center justify-between">
               <div>
-                <p className="font-medium text-gray-900">Email Alerts</p>
-                <p className="text-sm text-gray-500">Receive transaction summaries via email.</p>
+                <p className="font-medium text-gray-900">{t("settings.emailAlerts")}</p>
+                <p className="text-sm text-gray-500">{t("settings.emailAlertsDesc")}</p>
               </div>
               <button
                 onClick={() => toggleSetting("emailAlerts")}
@@ -151,14 +152,14 @@ export default function SettingsPage() {
             <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center text-green-600">
               <ShieldCheckIcon className="w-6 h-6" />
             </div>
-            <h2 className="text-lg font-semibold text-gray-900">Security</h2>
+            <h2 className="text-lg font-semibold text-gray-900">{t("settings.security")}</h2>
           </div>
-          
+
           <div className="space-y-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="font-medium text-gray-900">Two-Factor Authentication</p>
-                <p className="text-sm text-gray-500">Add an extra layer of security to your account.</p>
+                <p className="font-medium text-gray-900">{t("settings.twoFactor")}</p>
+                <p className="text-sm text-gray-500">{t("settings.twoFactorDesc")}</p>
               </div>
               <button
                 onClick={() => toggleSetting("twoFactor")}
@@ -182,14 +183,14 @@ export default function SettingsPage() {
             <div className="w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center text-purple-600">
               <MoonIcon className="w-6 h-6" />
             </div>
-            <h2 className="text-lg font-semibold text-gray-900">Appearance</h2>
+            <h2 className="text-lg font-semibold text-gray-900">{t("settings.appearance")}</h2>
           </div>
-          
+
           <div className="space-y-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="font-medium text-gray-900">Dark Mode</p>
-                <p className="text-sm text-gray-500">Switch between light and dark themes.</p>
+                <p className="font-medium text-gray-900">{t("settings.darkMode")}</p>
+                <p className="text-sm text-gray-500">{t("settings.darkModeDesc")}</p>
               </div>
               <button
                 onClick={() => toggleSetting("darkMode")}
@@ -207,22 +208,41 @@ export default function SettingsPage() {
           </div>
         </div>
 
+        {/* Language */}
+        <div className="p-6 sm:p-8">
+          <div className="flex items-center gap-4 mb-6">
+            <div className="w-10 h-10 bg-indigo-100 rounded-full flex items-center justify-center text-indigo-600">
+              <GlobeAltIcon className="w-6 h-6" />
+            </div>
+            <h2 className="text-lg font-semibold text-gray-900">{t("settings.language")}</h2>
+          </div>
+
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div>
+              <p className="font-medium text-gray-900">{t("settings.language")}</p>
+              <p className="text-sm text-gray-500">{t("settings.languageDesc")}</p>
+            </div>
+            <LanguageSwitcher />
+          </div>
+        </div>
+
         {/* Budget */}
         <div className="p-6 sm:p-8">
           <div className="flex items-center gap-4 mb-6">
             <div className="w-10 h-10 bg-yellow-100 rounded-full flex items-center justify-center text-yellow-600">
               <BanknotesIcon className="w-6 h-6" />
             </div>
-            <h2 className="text-lg font-semibold text-gray-900">Monthly Budget</h2>
+            <h2 className="text-lg font-semibold text-gray-900">{t("settings.budgetAndLimits")}</h2>
           </div>
           <div className="space-y-4">
-            <label className="block text-sm font-medium text-gray-700">Amount (USD)</label>
+            <label className="block text-sm font-medium text-gray-700">{t("settings.monthlyBudget.amount")}</label>
             <div className="flex items-center gap-3">
               <input
                 type="number"
                 min="0"
                 step="0.01"
                 value={monthlyBudget}
+                placeholder={t("settings.monthlyBudgetPlaceholder")}
                 onChange={(e) => setMonthlyBudget(e.target.value)}
                 className="w-full max-w-xs px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
               />
@@ -230,29 +250,21 @@ export default function SettingsPage() {
                 onClick={saveBudget}
                 className="px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg"
               >
-                Save
+                {t("settings.save")}
               </button>
             </div>
-            <p className="text-sm text-gray-500">Used to compute budget progress on your dashboard.</p>
+            <p className="text-sm text-gray-500">{t("settings.monthlyBudget.desc")}</p>
           </div>
-        </div>
 
-        {/* Limits */}
-        <div className="p-6 sm:p-8">
-          <div className="flex items-center gap-4 mb-6">
-            <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center text-blue-600">
-              <BanknotesIcon className="w-6 h-6" />
-            </div>
-            <h2 className="text-lg font-semibold text-gray-900">Transfer Limits</h2>
-          </div>
-          <div className="space-y-4">
-            <label className="block text-sm font-medium text-gray-700">Daily Transfer Limit (USD)</label>
+          <div className="space-y-4 mt-8">
+            <label className="block text-sm font-medium text-gray-700">{t("settings.transferLimits")}</label>
             <div className="flex items-center gap-3">
               <input
                 type="number"
                 min="0"
                 step="0.01"
                 value={dailyTransferLimit}
+                placeholder={t("settings.dailyTransferLimitPlaceholder")}
                 onChange={(e) => setDailyTransferLimit(e.target.value)}
                 className="w-full max-w-xs px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
               />
@@ -260,10 +272,10 @@ export default function SettingsPage() {
                 onClick={saveDailyTransferLimit}
                 className="px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg"
               >
-                Save
+                {t("settings.save")}
               </button>
             </div>
-            <p className="text-sm text-gray-500">Set to 0 to disable the limit.</p>
+            <p className="text-sm text-gray-500">{t("settings.dailyTransferLimit.desc")}</p>
           </div>
         </div>
 

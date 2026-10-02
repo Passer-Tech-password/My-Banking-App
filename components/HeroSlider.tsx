@@ -2,22 +2,11 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { createTranslator, type Locale } from "@/lib/i18n/messages";
-import { getLocaleFromDocument } from "@/lib/i18n/client";
+import { useTranslation } from "@/lib/i18n/useTranslation";
 
-export default function HeroSlider({ locale }: { locale?: Locale }) {
+export default function HeroSlider({ locale: _locale }: { locale?: any }) {
   const [current, setCurrent] = useState(0);
-  const [resolvedLocale, setResolvedLocale] = useState<Locale>(locale ?? "en");
-
-  useEffect(() => {
-    if (locale) {
-      setResolvedLocale(locale);
-      return;
-    }
-    setResolvedLocale(getLocaleFromDocument());
-  }, [locale]);
-
-  const t = createTranslator(resolvedLocale);
+  const { t } = useTranslation();
 
   const slides = [
     {
@@ -83,16 +72,16 @@ export default function HeroSlider({ locale }: { locale?: Locale }) {
                   </Link>
                 </div>
               </div>
-              
+
               <div className="flex-1 block animate-fade-in-up delay-500 mt-8 md:mt-0">
                 <div className="relative w-full h-[300px] md:h-[500px] flex items-center justify-center animate-float">
                   {/* Decorative glow behind the image */}
                   <div className="absolute inset-0 bg-gradient-to-tr from-blue-500/20 to-purple-500/20 rounded-full blur-3xl transform scale-75"></div>
-                  
+
                   {/* Placeholder for the user's image */}
-                  <img 
-                    src="/hero-image.png-removebg-preview.png" 
-                    alt="Happy banking customers" 
+                  <img
+                    src="/hero-image.png-removebg-preview.png"
+                    alt="Happy banking customers"
                     className="relative z-10 object-contain max-h-full max-w-full drop-shadow-2xl transition-transform duration-500 hover:scale-105"
                   />
                 </div>
@@ -101,7 +90,7 @@ export default function HeroSlider({ locale }: { locale?: Locale }) {
           </div>
         </div>
       ))}
-      
+
       {/* Dots */}
       <div className="absolute bottom-10 left-1/2 transform -translate-x-1/2 flex gap-3 z-30">
         {slides.map((_, idx) => (

@@ -1,23 +1,17 @@
 "use client";
 
-import { useRouter } from "next/navigation";
 import { locales, localeLabels, type Locale } from "@/lib/i18n/messages";
-import { setLocaleCookie } from "@/lib/i18n/client";
 import { ChevronDownIcon, GlobeAltIcon, MagnifyingGlassIcon } from "@heroicons/react/24/outline";
 import { useState, useRef, useEffect } from "react";
-
-import { getLocaleFromDocument } from "@/lib/i18n/client";
+import { useTranslation } from "@/lib/i18n/useTranslation";
 
 export default function LanguageSwitcher() {
-  const router = useRouter();
-  const [currentLocale, setCurrentLocale] = useState<Locale>("en");
+  const { locale: currentLocale, setLocale } = useTranslation();
   const [isOpen, setIsOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    setCurrentLocale(getLocaleFromDocument());
-
     const handleClickOutside = (event: MouseEvent) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
         setIsOpen(false);
@@ -28,15 +22,12 @@ export default function LanguageSwitcher() {
   }, []);
 
   const handleLanguageChange = (newLocale: Locale) => {
-    // Set cookie and reload immediately via callback
-    setLocaleCookie(newLocale, () => {
-      window.location.reload();
-    });
-    
+    setLocale(newLocale, true);
     setIsOpen(false);
+    setSearchQuery("");
   };
 
-  const filteredLocales = locales.filter(locale => 
+  const filteredLocales = locales.filter(locale =>
     localeLabels[locale].toLowerCase().includes(searchQuery.toLowerCase())
   );
 
@@ -66,7 +57,7 @@ export default function LanguageSwitcher() {
               />
             </div>
           </div>
-          
+
           <div className="max-h-64 overflow-y-auto py-1">
             {filteredLocales.length > 0 ? (
               filteredLocales.map((locale) => (

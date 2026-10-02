@@ -49,7 +49,7 @@ async function looksLikeAdminEmail(emailLower: string): Promise<false | { masked
 export default function LoginPage() {
   const router = useRouter();
   const toast = useToast();
-  const { t } = useTranslation();
+  const { t, setLocale } = useTranslation();
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -108,6 +108,7 @@ export default function LoginPage() {
         if (typeof rawLang === "string" && rawLang.trim() && isLocale(rawLang.trim())) {
           preferredLanguage = rawLang.trim();
           setLocaleCookie(preferredLanguage as Locale);
+          setLocale(preferredLanguage as Locale, false);
         }
         const hasPhotoURL = !!String((data as any)?.photoURL || "").trim();
         if (!hasPhotoURL) {
@@ -140,6 +141,7 @@ export default function LoginPage() {
         ? preferredLanguage
         : defaultLocale;
       setLocaleCookie(targetLocale);
+      setLocale(targetLocale, false);
       if (typeof document !== "undefined" && document.documentElement) {
         document.documentElement.setAttribute("lang", targetLocale);
       }

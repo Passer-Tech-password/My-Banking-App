@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { cookies } from "next/headers";
 import { getLocaleFromCookies } from "@/lib/i18n/server";
 import { defaultLocale } from "@/lib/i18n/messages";
+import { LocaleProvider } from "@/lib/i18n/LocaleProvider";
 import ToastProvider from "@/components/ToastProvider";
 import "./globals.css";
 
@@ -34,7 +35,9 @@ export default async function RootLayout({
         className="antialiased"
         suppressHydrationWarning
       >
-        <ToastProvider>{children}</ToastProvider>
+        <LocaleProvider initialLocale={locale}>
+          <ToastProvider>{children}</ToastProvider>
+        </LocaleProvider>
       </body>
     </html>
   );

@@ -6,25 +6,12 @@ import { useRouter } from "next/navigation";
 import { signOut } from "firebase/auth";
 import { auth } from "@/lib/firebase";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
-import { createTranslator, type Locale } from "@/lib/i18n/messages";
-import { getLocaleFromDocument } from "@/lib/i18n/client";
+import { useTranslation } from "@/lib/i18n/useTranslation";
 
-export default function Navbar({ locale }: { locale?: Locale }) {
+export default function Navbar({ locale: _locale }: { locale?: any }) {
   const [isOpen, setIsOpen] = useState(false);
   const router = useRouter();
-  const [resolvedLocale, setResolvedLocale] = useState<Locale>(
-    locale ?? "en",
-  );
-
-  useEffect(() => {
-    if (locale) {
-      setResolvedLocale(locale);
-      return;
-    }
-    setResolvedLocale(getLocaleFromDocument());
-  }, [locale]);
-
-  const t = createTranslator(resolvedLocale);
+  const { t } = useTranslation();
 
   const handleLogout = async () => {
     await signOut(auth);

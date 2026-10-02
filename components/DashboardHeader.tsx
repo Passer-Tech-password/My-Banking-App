@@ -7,6 +7,7 @@ import { auth, db } from "@/lib/firebase";
 import { toErrorInfo } from "@/lib/errorInfo";
 import { getDefaultAvatarUrl } from "@/lib/config";
 import { useTranslation } from "@/lib/i18n/useTranslation";
+import LanguageSwitcher from "@/components/LanguageSwitcher";
 import {
   Bars3Icon,
   BellIcon,
@@ -107,6 +108,9 @@ export default function DashboardHeader({ onMobileMenuClick }: { onMobileMenuCli
 
       {/* Right: Actions & Profile */}
       <div className="flex items-center gap-6">
+        {/* Language Switcher */}
+        <LanguageSwitcher />
+
         {/* Notifications */}
         <button className="relative p-2 text-gray-400 hover:text-blue-600 transition-colors">
           <BellIcon className="w-6 h-6" />

@@ -1,15 +1,19 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useContext, useEffect, useState, useCallback } from "react";
 import {
   MESSAGES,
   defaultLocale,
   type Locale,
   isLocale,
 } from "@/lib/i18n/messages";
+import { LocaleContext, type LocaleContextValue } from "@/lib/i18n/LocaleProvider";
 import { getLocaleFromDocument, setLocaleCookie } from "@/lib/i18n/client";
 
-export function useTranslation() {
+export function useTranslation(): LocaleContextValue {
+  const ctx = useContext(LocaleContext);
+  if (ctx) return ctx;
+
   const [locale, setLocaleState] = useState<Locale>(defaultLocale);
 
   useEffect(() => {

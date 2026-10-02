@@ -2,25 +2,14 @@
 
 import React from "react";
 import Link from "next/link";
-import { createTranslator, type Locale } from "@/lib/i18n/messages";
-import { getLocaleFromDocument } from "@/lib/i18n/client";
 import { useEffect, useState } from "react";
+import { useTranslation } from "@/lib/i18n/useTranslation";
 
-export default function Footer({ locale }: { locale?: Locale }) {
-  const [resolvedLocale, setResolvedLocale] = useState<Locale>(locale ?? "en");
+export default function Footer({ locale: _locale }: { locale?: any }) {
+  const { t } = useTranslation();
   const [email, setEmail] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [feedback, setFeedback] = useState<{ type: "success" | "error" | "info"; message: string } | null>(null);
-
-  useEffect(() => {
-    if (locale) {
-      setResolvedLocale(locale);
-      return;
-    }
-    setResolvedLocale(getLocaleFromDocument());
-  }, [locale]);
-
-  const t = createTranslator(resolvedLocale);
 
   return (
     <>
