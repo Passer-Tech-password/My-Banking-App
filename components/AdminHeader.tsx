@@ -3,6 +3,8 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { getDefaultAvatarUrl } from "@/lib/config";
+import LanguageSwitcher from "@/components/LanguageSwitcher";
+import { useTranslation } from "@/lib/i18n/useTranslation";
 import {
   Bars3Icon,
   BellIcon,
@@ -17,6 +19,7 @@ export default function AdminHeader({
   onMobileMenuClick?: () => void;
 }) {
   const router = useRouter();
+  const { t } = useTranslation();
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [displayName, setDisplayName] = useState<string>("Administrator");
   const [avatarUrl, setAvatarUrl] = useState<string>("");
@@ -97,22 +100,24 @@ export default function AdminHeader({
         <button
           onClick={onMobileMenuClick}
           className="lg:hidden p-2 text-gray-500 hover:text-blue-600 transition-colors rounded-md"
-          aria-label="Open admin navigation"
+          aria-label={t("admin.header.openNav")}
         >
           <Bars3Icon className="w-6 h-6" />
         </button>
         <h1 className="text-lg sm:text-xl font-semibold text-gray-800 hidden sm:block truncate">
-          Admin Portal
+          {t("admin.header.welcome")}
         </h1>
         <h2 className="text-base font-semibold text-gray-800 block sm:hidden truncate">
-          Admin
+          {t("admin.header.welcomeShort")}
         </h2>
       </div>
 
       <div className="flex items-center gap-2 sm:gap-6 flex-shrink-0 min-w-0">
+        <LanguageSwitcher />
+
         <button
           className="relative p-2 text-gray-400 hover:text-blue-600 transition-colors rounded-md"
-          aria-label="Notifications"
+          aria-label={t("admin.header.notifications")}
         >
           <BellIcon className="w-6 h-6" />
           <span className="absolute top-1.5 right-1.5 w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-white"></span>
@@ -125,9 +130,9 @@ export default function AdminHeader({
           >
             <div className="text-right hidden md:block min-w-0 max-w-[16rem]">
               <p className="text-sm font-medium text-gray-700 group-hover:text-blue-600 transition-colors truncate">
-                {loading ? "Loading..." : displayName}
+                {loading ? t("admin.common.loading") : displayName}
               </p>
-              <p className="text-xs text-gray-500">Administrator</p>
+              <p className="text-xs text-gray-500">{t("admin.header.role")}</p>
             </div>
             <div className="h-10 w-10 flex-shrink-0 bg-blue-50 rounded-full flex items-center justify-center text-blue-600 group-hover:bg-blue-100 transition-colors overflow-hidden">
               {avatarUrl ? (
@@ -162,16 +167,16 @@ export default function AdminHeader({
               <div className="absolute right-0 mt-2 w-full min-w-[14rem] max-w-[90vw] sm:min-w-[16rem] sm:max-w-[18rem] bg-white rounded-lg shadow-lg py-1 border border-gray-100 ring-1 ring-black ring-opacity-5 z-20">
                 <div className="px-4 py-3 border-b border-gray-50">
                   <p className="text-sm font-medium text-gray-900 truncate">
-                    {loading ? "Loading..." : displayName}
+                    {loading ? t("admin.common.loading") : displayName}
                   </p>
-                  <p className="text-xs text-gray-500">Administrator</p>
+                  <p className="text-xs text-gray-500">{t("admin.header.role")}</p>
                 </div>
                 <button
                   onClick={handleLogout}
                   className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 flex items-center gap-2"
                 >
                   <ArrowRightOnRectangleIcon className="w-4 h-4 flex-shrink-0" />
-                  Sign out
+                  {t("admin.header.logout")}
                 </button>
               </div>
             </>

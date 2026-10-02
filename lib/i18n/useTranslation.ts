@@ -40,6 +40,11 @@ export function useTranslation(): LocaleContextValue {
     if (persist && typeof document !== "undefined") {
       setLocaleCookie(l);
     }
+    if (typeof document !== "undefined" && document.documentElement) {
+      try {
+        document.documentElement.lang = l;
+      } catch {}
+    }
   }, []);
 
   return { locale, t, setLocale };

@@ -64,6 +64,8 @@ export function LocaleProvider({
     setLocaleState(l);
     if (persist && typeof document !== "undefined") {
       setLocaleCookie(l);
+    }
+    if (typeof document !== "undefined" && document.documentElement) {
       try {
         document.documentElement.lang = l;
       } catch {}

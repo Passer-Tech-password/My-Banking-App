@@ -6,7 +6,7 @@ import { useState, useRef, useEffect } from "react";
 import { useTranslation } from "@/lib/i18n/useTranslation";
 
 export default function LanguageSwitcher() {
-  const { locale: currentLocale, setLocale } = useTranslation();
+  const { locale: currentLocale, setLocale, t } = useTranslation();
   const [isOpen, setIsOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -49,7 +49,7 @@ export default function LanguageSwitcher() {
               <MagnifyingGlassIcon className="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
               <input
                 type="text"
-                placeholder="Search language..."
+                placeholder={t("languageSwitcher.searchPlaceholder")}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="w-full pl-9 pr-3 py-1.5 text-sm border border-gray-200 rounded-md focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
@@ -76,7 +76,7 @@ export default function LanguageSwitcher() {
               ))
             ) : (
               <div className="px-4 py-3 text-sm text-gray-500 text-center">
-                No languages found
+                {t("languageSwitcher.noLanguagesFound")}
               </div>
             )}
           </div>

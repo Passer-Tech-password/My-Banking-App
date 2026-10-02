@@ -724,7 +724,11 @@ const BASE_MESSAGES = {
     "admin.sidebar.logout": "Sign Out",
     "admin.sidebar.overview": "Admin Overview",
     "admin.header.welcome": "Admin Portal",
+    "admin.header.welcomeShort": "Admin",
+    "admin.header.role": "Administrator",
     "admin.header.logout": "Sign out",
+    "admin.header.notifications": "Notifications",
+    "admin.header.openNav": "Open admin navigation",
     "admin.dashboard.title": "Admin Dashboard",
     "admin.dashboard.totalUsers": "Total Users",
     "admin.dashboard.activeUsers": "Active Users",
@@ -902,6 +906,7 @@ const BASE_MESSAGES = {
 
     "login.rightPanel.title": "Protect your online banking.",
     "login.rightPanel.body": "We have security measures in place to safeguard your money, because we are committed to providing you with a secure banking experience. When we come across any hoaxes or scams that target customers, we will raise them to your attention.",
+    "login.passwordPlaceholder": "••••••••",
     "login.adminDetected.title": "Admin Account Detected",
     "login.adminDetected.body": "This email is registered as an Administrator. You must sign in through the dedicated Admin Portal instead of this user login page.",
     "login.adminDetected.button": "Go to Admin Portal Login",
@@ -915,6 +920,9 @@ const BASE_MESSAGES = {
     "login.error.differentMethodHint": "This email uses a different sign-in method ({methods}).",
     "login.error.userNotFoundAdmin": "No user found with this email. If you are an administrator, please use the Admin Portal login page at /admin/login.",
     "login.error.networkAuth": "Login request could not reach Firebase Authentication (project: {projectId}). Check your network connection, ensure browser extensions/ad blockers are not blocking *.googleapis.com or *.firebaseapp.com, verify the authorized domain list in Firebase Console, and confirm the page protocol (HTTPS in production).",
+
+    "languageSwitcher.searchPlaceholder": "Search language...",
+    "languageSwitcher.noLanguagesFound": "No languages found",
 };
 
 export const MESSAGES = {
