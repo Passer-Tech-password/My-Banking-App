@@ -28,11 +28,16 @@ export const LocaleContext = createContext<LocaleContextValue | null>(null);
 export function LocaleProvider({
   children,
   initialLocale,
+  forceLocale,
 }: {
   children: ReactNode;
   initialLocale?: Locale | string;
+  forceLocale?: Locale | string;
 }) {
+  const locked: Locale | undefined = isLocale(forceLocale) ? forceLocale : undefined;
+
   const [locale, setLocaleState] = useState<Locale>(() => {
+    if (locked) return locked;
     if (isLocale(initialLocale)) return initialLocale;
     if (typeof document !== "undefined") return getLocaleFromDocument();
     return defaultLocale;
@@ -40,11 +45,17 @@ export function LocaleProvider({
 
   useEffect(() => {
     if (typeof document === "undefined") return;
+    if (locked) {
+      try {
+        document.documentElement.lang = locked;
+      } catch {}
+      return;
+    }
     const detected = getLocaleFromDocument();
     if (detected !== locale) {
       setLocaleState(detected);
     }
-  }, []);
+  }, [locked, locale]);
 
   const t = useCallback(
     (key: string, params?: Record<string, string | number>): string => {
@@ -59,18 +70,22 @@ export function LocaleProvider({
     [locale],
   );
 
-  const setLocale = useCallback((next: Locale | string, persist = true) => {
-    const l: Locale = isLocale(next) ? next : defaultLocale;
-    setLocaleState(l);
-    if (persist && typeof document !== "undefined") {
-      setLocaleCookie(l);
-    }
-    if (typeof document !== "undefined" && document.documentElement) {
-      try {
-        document.documentElement.lang = l;
-      } catch {}
-    }
-  }, []);
+  const setLocale = useCallback(
+    (next: Locale | string, persist = true) => {
+      if (locked) return;
+      const l: Locale = isLocale(next) ? next : defaultLocale;
+      setLocaleState(l);
+      if (persist && typeof document !== "undefined") {
+        setLocaleCookie(l);
+      }
+      if (typeof document !== "undefined" && document.documentElement) {
+        try {
+          document.documentElement.lang = l;
+        } catch {}
+      }
+    },
+    [locked],
+  );
 
   const value = useMemo(
     () => ({ locale, setLocale, t }),

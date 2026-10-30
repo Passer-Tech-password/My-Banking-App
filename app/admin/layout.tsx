@@ -4,14 +4,13 @@ import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import AdminSidebar from "@/components/AdminSidebar";
 import AdminHeader from "@/components/AdminHeader";
-import { useTranslation } from "@/lib/i18n/useTranslation";
+import { LocaleProvider } from "@/lib/i18n/LocaleProvider";
 
 export default function AdminLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const { t } = useTranslation();
   const pathname = usePathname();
   const isLoginPage = pathname === "/admin/login" || pathname === "/admin/login/";
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -39,11 +38,12 @@ export default function AdminLayout({
   }, [mobileMenuOpen]);
 
   if (isLoginPage) {
-    return <>{children}</>;
+    return <LocaleProvider forceLocale="en">{children}</LocaleProvider>;
   }
 
   return (
-    <div className="flex min-h-screen bg-gray-50 overflow-x-hidden">
+    <LocaleProvider forceLocale="en">
+      <div className="flex min-h-screen bg-gray-50 overflow-x-hidden">
       <aside className="hidden lg:block w-64 flex-shrink-0" aria-label="Admin sidebar">
         <div className="fixed inset-y-0 left-0 w-64">
           <AdminSidebar />
@@ -79,6 +79,7 @@ export default function AdminLayout({
           </div>
         </div>
       )}
-    </div>
+      </div>
+    </LocaleProvider>
   );
 }
