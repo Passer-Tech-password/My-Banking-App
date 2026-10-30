@@ -4,6 +4,8 @@ import { locales, localeLabels, type Locale } from "@/lib/i18n/messages";
 import { ChevronDownIcon, GlobeAltIcon, MagnifyingGlassIcon } from "@heroicons/react/24/outline";
 import { useState, useRef, useEffect } from "react";
 import { useTranslation } from "@/lib/i18n/useTranslation";
+import { auth, db } from "@/lib/firebase";
+import { doc, updateDoc } from "firebase/firestore";
 
 export default function LanguageSwitcher() {
   const { locale: currentLocale, setLocale, t } = useTranslation();
@@ -25,6 +27,13 @@ export default function LanguageSwitcher() {
     setLocale(newLocale, true);
     setIsOpen(false);
     setSearchQuery("");
+    // Persist the choice to the signed-in user's account so it is restored on
+    // the next login/device. Admin accounts use a custom session (no Firebase
+    // user) and public visitors are not signed in, so both are skipped.
+    const user = auth.currentUser;
+    if (user) {
+      updateDoc(doc(db, "users", user.uid), { language: newLocale }).catch(() => {});
+    }
   };
 
   const filteredLocales = locales.filter(locale =>

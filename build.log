@@ -1,0 +1,74 @@
+﻿
+> banking-system@0.1.0 build
+> next build
+
+▲ Next.js 16.1.1 (Turbopack)
+- Environments: .env.local
+
+  Creating an optimized production build ...
+✓ Compiled successfully in 64s
+  Running TypeScript ...
+  Collecting page data using 3 workers ...
+  Generating static pages using 3 workers (0/36) ...
+  Generating static pages using 3 workers (9/36) 
+  Generating static pages using 3 workers (18/36) 
+  Generating static pages using 3 workers (27/36) 
+✓ Generating static pages using 3 workers (36/36) in 4.0s
+  Finalizing page optimization ...
+
+Route (app)
+┌ ƒ /
+├ ƒ /_not-found
+├ ƒ /about
+├ ƒ /admin
+├ ƒ /admin/dashboard
+├ ƒ /admin/login
+├ ƒ /admin/requests
+├ ƒ /admin/transactions
+├ ƒ /admin/users
+├ ƒ /admin/users/[uid]
+├ ƒ /api/admin/bootstrap
+├ ƒ /api/admin/card-requests
+├ ƒ /api/admin/login
+├ ƒ /api/admin/logout
+├ ƒ /api/admin/session
+├ ƒ /api/admin/upload/sign
+├ ƒ /api/admin/users
+├ ƒ /api/admin/users/[uid]
+├ ƒ /api/admin/users/[uid]/avatar
+├ ƒ /api/admin/users/[uid]/kyc
+├ ƒ /api/admin/users/[uid]/notify
+├ ƒ /api/admin/users/action
+├ ƒ /api/admin/users/check-unique
+├ ƒ /api/admin/users/create
+├ ƒ /api/contact
+├ ƒ /api/send
+├ ƒ /api/subscribe
+├ ƒ /api/upload/profile-image
+├ ƒ /api/user/lookup-account
+├ ƒ /api/user/transfer
+├ ƒ /api/user/update-profile
+├ ƒ /apply-card
+├ ƒ /blocked
+├ ƒ /contact-us
+├ ƒ /dashboard
+├ ƒ /dashboard/cards
+├ ƒ /dashboard/contacts
+├ ƒ /dashboard/profile
+├ ƒ /dashboard/requests
+├ ƒ /dashboard/settings
+├ ƒ /dashboard/transactions
+├ ƒ /dashboard/transfer
+├ ƒ /forgot-password
+├ ƒ /login
+├ ƒ /privacy-policy
+├ ƒ /register
+├ ƒ /services
+├ ƒ /track-card
+└ ƒ /verify-email
+
+
+ƒ Proxy (Middleware)
+
+ƒ  (Dynamic)  server-rendered on demand
+

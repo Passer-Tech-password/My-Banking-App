@@ -1,3 +1,38 @@
+import arExtra from "./locales/ar";
+import bnExtra from "./locales/bn";
+import csExtra from "./locales/cs";
+import daExtra from "./locales/da";
+import deExtra from "./locales/de";
+import elExtra from "./locales/el";
+import esExtra from "./locales/es";
+import faExtra from "./locales/fa";
+import fiExtra from "./locales/fi";
+import frExtra from "./locales/fr";
+import heExtra from "./locales/he";
+import hiExtra from "./locales/hi";
+import huExtra from "./locales/hu";
+import idExtra from "./locales/id";
+import itExtra from "./locales/it";
+import jaExtra from "./locales/ja";
+import jvExtra from "./locales/jv";
+import koExtra from "./locales/ko";
+import msExtra from "./locales/ms";
+import nlExtra from "./locales/nl";
+import noExtra from "./locales/no";
+import paExtra from "./locales/pa";
+import plExtra from "./locales/pl";
+import ptExtra from "./locales/pt";
+import roExtra from "./locales/ro";
+import ruExtra from "./locales/ru";
+import svExtra from "./locales/sv";
+import swExtra from "./locales/sw";
+import thExtra from "./locales/th";
+import tlExtra from "./locales/tl";
+import trExtra from "./locales/tr";
+import ukExtra from "./locales/uk";
+import viExtra from "./locales/vi";
+import zhExtra from "./locales/zh";
+
 export const locales = [
   "en", "fr", "es", "de", "it", "pt", "ru", "zh", "ja", "ko", 
   "ar", "hi", "bn", "pa", "jv", "ms", "vi", "th", "tr", "nl",
@@ -53,6 +88,11 @@ const BASE_MESSAGES = {
       "Subscribe to our newsletter to get the latest updates and offers.",
     "footer.emailPlaceholder": "Your Email",
     "footer.subscribeButton": "Subscribe",
+    "footer.subscribe.invalidEmail": "Please enter a valid email address.",
+    "footer.subscribe.success": "Subscribed successfully. Thank you!",
+    "footer.subscribe.failed": "Failed to subscribe. Please try again later.",
+    "footer.subscribe.alreadySubscribed": "This email is already subscribed.",
+    "footer.subscribe.failedTryAgain": "Subscription failed. Please check your connection and try again.",
     "footer.rights": "© 2026 Aurora Bank. All rights reserved.",
 
     "home.smartBanking": "Smart Banking",
@@ -925,7 +965,7 @@ const BASE_MESSAGES = {
     "languageSwitcher.noLanguagesFound": "No languages found",
 };
 
-export const MESSAGES = {
+const MESSAGES_RAW = {
     en: BASE_MESSAGES,
   fr: { ...BASE_MESSAGES, ...{
     "nav.home": "Accueil",
@@ -6526,6 +6566,55 @@ export const MESSAGES = {
     "contact.form.send": "Send melding",
   },
 } as const;
+
+// Extra translations loaded from ./locales/*.ts. These supply the keys that are
+// not defined inline above (dashboard, transfer, settings, profile, etc.) so the
+// selected language is applied across the whole platform.
+const LOCALE_EXTRA: Partial<Record<Locale, Record<string, string>>> = {
+  ar: arExtra,
+  bn: bnExtra,
+  cs: csExtra,
+  da: daExtra,
+  de: deExtra,
+  el: elExtra,
+  es: esExtra,
+  fa: faExtra,
+  fi: fiExtra,
+  fr: frExtra,
+  he: heExtra,
+  hi: hiExtra,
+  hu: huExtra,
+  id: idExtra,
+  it: itExtra,
+  ja: jaExtra,
+  jv: jvExtra,
+  ko: koExtra,
+  ms: msExtra,
+  nl: nlExtra,
+  no: noExtra,
+  pa: paExtra,
+  pl: plExtra,
+  pt: ptExtra,
+  ro: roExtra,
+  ru: ruExtra,
+  sv: svExtra,
+  sw: swExtra,
+  th: thExtra,
+  tl: tlExtra,
+  tr: trExtra,
+  uk: ukExtra,
+  vi: viExtra,
+  zh: zhExtra,
+};
+
+const MESSAGES_RAW_RECORD = MESSAGES_RAW as unknown as Record<string, Record<string, string>>;
+
+export const MESSAGES = Object.fromEntries(
+  Object.keys(MESSAGES_RAW_RECORD).map((l) => [
+    l,
+    { ...MESSAGES_RAW_RECORD[l], ...(LOCALE_EXTRA[l as Locale] ?? {}) },
+  ]),
+) as unknown as typeof MESSAGES_RAW;
 
 export type MessageKey = keyof (typeof MESSAGES)["en"];
 export type TranslationKey = MessageKey | (string & {});
